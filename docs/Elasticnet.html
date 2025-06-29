@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Young Eun Jeon, Jeong-Wook Lee, and Jung-In Seo">
+
+<title>12&nbsp; Elastic Net Regression – Data Mining</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./RF.html" rel="next">
+<link href="./Ridge.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-1092c56c6cadf2eb47b1bc8063ab382a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-dc2382f869c37aa0256525aa4b36f69f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles/styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./Elasticnet.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Elastic Net Regression</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Data Mining</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/JJJJYE/ML_book1" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./KNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nearest Neighborhood Algorithm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Naive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Naive Bayes Classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Decision_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Decision Tree</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_li.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Support Vector Machine with Linear Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_po.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Support Vector Machine with Polynomial Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_rd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Support Vector Machine with Radial Basis Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Clustering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Principal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Logistic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Logistic Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./LASSO.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">LASSO Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ridge.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Ridge Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Elasticnet.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Elastic Net Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./RF.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Random Forest</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./AdaBoost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">AdaBoost</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./GBM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./XGBoost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">XGBoost</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#데이터-불러오기" id="toc-데이터-불러오기" class="nav-link active" data-scroll-target="#데이터-불러오기"><span class="header-section-number">12.1</span> 데이터 불러오기</a></li>
+  <li><a href="#데이터-전처리-i" id="toc-데이터-전처리-i" class="nav-link" data-scroll-target="#데이터-전처리-i"><span class="header-section-number">12.2</span> 데이터 전처리 I</a></li>
+  <li><a href="#데이터-탐색" id="toc-데이터-탐색" class="nav-link" data-scroll-target="#데이터-탐색"><span class="header-section-number">12.3</span> 데이터 탐색</a></li>
+  <li><a href="#데이터-분할" id="toc-데이터-분할" class="nav-link" data-scroll-target="#데이터-분할"><span class="header-section-number">12.4</span> 데이터 분할</a></li>
+  <li><a href="#데이터-전처리-ii" id="toc-데이터-전처리-ii" class="nav-link" data-scroll-target="#데이터-전처리-ii"><span class="header-section-number">12.5</span> 데이터 전처리 II</a></li>
+  <li><a href="#모형-훈련" id="toc-모형-훈련" class="nav-link" data-scroll-target="#모형-훈련"><span class="header-section-number">12.6</span> 모형 훈련</a>
+  <ul class="collapse">
+  <li><a href="#람다-값-직접-지정" id="toc-람다-값-직접-지정" class="nav-link" data-scroll-target="#람다-값-직접-지정"><span class="header-section-number">12.6.1</span> 람다 값 직접 지정</a></li>
+  <li><a href="#교차-검증을-통한-최적의-람다-값" id="toc-교차-검증을-통한-최적의-람다-값" class="nav-link" data-scroll-target="#교차-검증을-통한-최적의-람다-값"><span class="header-section-number">12.6.2</span> 교차 검증을 통한 최적의 람다 값</a></li>
+  </ul></li>
+  <li><a href="#모형-평가" id="toc-모형-평가" class="nav-link" data-scroll-target="#모형-평가"><span class="header-section-number">12.7</span> 모형 평가</a>
+  <ul class="collapse">
+  <li><a href="#confusionmatrix" id="toc-confusionmatrix" class="nav-link" data-scroll-target="#confusionmatrix"><span class="header-section-number">12.7.1</span> ConfusionMatrix</a></li>
+  <li><a href="#roc-곡선" id="toc-roc-곡선" class="nav-link" data-scroll-target="#roc-곡선"><span class="header-section-number">12.7.2</span> ROC 곡선</a></li>
+  <li><a href="#향상-차트" id="toc-향상-차트" class="nav-link" data-scroll-target="#향상-차트"><span class="header-section-number">12.7.3</span> 향상 차트</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/JJJJYE/ML_book1/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./Elasticnet.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Elastic Net Regression</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Elastic Net Regression</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p>Elastic Net Regression의 장점</p>
+</blockquote>
+<ul>
+<li>예측 변수의 개수가 표본의 크기보다 큰 경우, <code>LASSO Regression</code>의 문제(표본의 크기보다 많은 예측 변수를 선택 X)를 극복한다.</li>
+<li>예측 변수 사이에 어떤 그룹 구조(쌍별 상관 관계가 매우 높은)가 있을 때, <code>LASSO Regression</code>의 문제(그룹에서 하나의 예측 변수만 선택)를 극복한다.</li>
+</ul>
+<p><br></p>
+<blockquote class="blockquote">
+<p>Elastic Net Regression의 단점</p>
+</blockquote>
+<ul>
+<li><code>Ridge Regression</code>이나 <code>LASSO Regression</code>에 매우 근접하지 않을 경우, 만족스럽지 않은 결과를 보여준다.</li>
+<li>이중 수축 문제(Double Shrinkage Problem)가 발생한다.
+<ul>
+<li><code>Ridge Regression</code>이나 <code>LASSO Regression</code>에 비해 분산을 크게 줄이는 데 도움이 되지 않고, 불필요한 편의(bias)가 추가로 발생한다.</li>
+</ul></li>
+<li>회귀계수에 대한 추정치만 계산이 가능하며, 회귀계수에 대한 추론(신뢰 구간 등)은 불가능하다.</li>
+</ul>
+<p><br></p>
+<blockquote class="blockquote">
+<p>실습 자료 : 1912년 4월 15일 타이타닉호 침몰 당시 탑승객들의 정보를 기록한 데이터셋이며, 총 11개의 변수를 포함하고 있다. 이 자료에서 <strong>Target</strong>은 <code>Survived</code>이다.</p>
+</blockquote>
+<center>
+<img src="./image/그림_titanic.png" class="img-fluid">
+</center>
+<p><br></p>
+<center>
+<img src="./image/Titanic_표.png" width="400" height="400">
+</center>
+<p><br></p>
+<section id="데이터-불러오기" class="level2" data-number="12.1">
+<h2 data-number="12.1" class="anchored" data-anchor-id="데이터-불러오기"><span class="header-section-number">12.1</span> 데이터 불러오기</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"data.table"</span>, </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">"tidyverse"</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>               <span class="st">"dplyr"</span>, <span class="st">"tidyr"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">"ggplot2"</span>, <span class="st">"GGally"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">"caret"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>               <span class="st">"glmnet"</span>)                                                <span class="co"># For glmnet</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>titanic <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"../Titanic.csv"</span>)                                      <span class="co"># 데이터 불러오기</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>titanic <span class="sc">%&gt;%</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 891 × 11
+   Survived Pclass Name                                                Sex      Age SibSp Parch Ticket            Fare Cabin  Embarked
+      &lt;int&gt;  &lt;int&gt; &lt;chr&gt;                                               &lt;chr&gt;  &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;   
+ 1        0      3 Braund, Mr. Owen Harris                             male      22     1     0 A/5 21171         7.25 ""     S       
+ 2        1      1 Cumings, Mrs. John Bradley (Florence Briggs Thayer) female    38     1     0 PC 17599         71.3  "C85"  C       
+ 3        1      3 Heikkinen, Miss. Laina                              female    26     0     0 STON/O2. 3101282  7.92 ""     S       
+ 4        1      1 Futrelle, Mrs. Jacques Heath (Lily May Peel)        female    35     1     0 113803           53.1  "C123" S       
+ 5        0      3 Allen, Mr. William Henry                            male      35     0     0 373450            8.05 ""     S       
+ 6        0      3 Moran, Mr. James                                    male      NA     0     0 330877            8.46 ""     Q       
+ 7        0      1 McCarthy, Mr. Timothy J                             male      54     0     0 17463            51.9  "E46"  S       
+ 8        0      3 Palsson, Master. Gosta Leonard                      male       2     3     1 349909           21.1  ""     S       
+ 9        1      3 Johnson, Mrs. Oscar W (Elisabeth Vilhelmina Berg)   female    27     0     2 347742           11.1  ""     S       
+10        1      2 Nasser, Mrs. Nicholas (Adele Achem)                 female    14     1     0 237736           30.1  ""     C       
+# ℹ 881 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="데이터-전처리-i" class="level2" data-number="12.2">
+<h2 data-number="12.2" class="anchored" data-anchor-id="데이터-전처리-i"><span class="header-section-number">12.2</span> 데이터 전처리 I</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>titanic <span class="sc">%&lt;&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span>                                                      <span class="co"># Data Frame 형태로 변환 </span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Survived =</span> <span class="fu">ifelse</span>(Survived <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"yes"</span>, <span class="st">"no"</span>))                 <span class="co"># Target을 문자형 변수로 변환</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Convert to Factor</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>fac.col <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Pclass"</span>, <span class="st">"Sex"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>             <span class="co"># Target</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Survived"</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>titanic <span class="ot">&lt;-</span> titanic <span class="sc">%&gt;%</span> </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(fac.col, as.factor)                                         <span class="co"># 범주형으로 변환</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic)                                                        <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 891
+Columns: 11
+$ Survived &lt;fct&gt; no, yes, yes, yes, no, no, no, no, yes, yes, yes, yes, no, no, no, yes, no, yes, no, yes, no, yes, yes, yes, no, yes, no, no, yes, no, no, yes, yes, no, no, no, yes, no, no, yes, no…
+$ Pclass   &lt;fct&gt; 3, 1, 3, 1, 3, 3, 1, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 2, 3, 3, 2, 2, 3, 1, 3, 3, 3, 1, 3, 3, 1, 1, 3, 2, 1, 1, 3, 3, 3, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 2, 1, 1, 2, 3, 2, 3, 3…
+$ Name     &lt;chr&gt; "Braund, Mr. Owen Harris", "Cumings, Mrs. John Bradley (Florence Briggs Thayer)", "Heikkinen, Miss. Laina", "Futrelle, Mrs. Jacques Heath (Lily May Peel)", "Allen, Mr. William Henry…
+$ Sex      &lt;fct&gt; male, female, female, female, male, male, male, male, female, female, female, female, male, male, female, female, male, male, female, female, male, male, female, male, female, femal…
+$ Age      &lt;dbl&gt; 22.0, 38.0, 26.0, 35.0, 35.0, NA, 54.0, 2.0, 27.0, 14.0, 4.0, 58.0, 20.0, 39.0, 14.0, 55.0, 2.0, NA, 31.0, NA, 35.0, 34.0, 15.0, 28.0, 8.0, 38.0, NA, 19.0, NA, NA, 40.0, NA, NA, 66.…
+$ SibSp    &lt;int&gt; 1, 1, 0, 1, 0, 0, 0, 3, 0, 1, 1, 0, 0, 1, 0, 0, 4, 0, 1, 0, 0, 0, 0, 0, 3, 1, 0, 3, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2, 1, 1, 1, 0, 1, 0, 0, 1, 0, 2, 1, 4, 0, 1, 1, 0, 0, 0, 0, 1, 5, 0…
+$ Parch    &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 1, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 2, 2, 0…
+$ Ticket   &lt;chr&gt; "A/5 21171", "PC 17599", "STON/O2. 3101282", "113803", "373450", "330877", "17463", "349909", "347742", "237736", "PP 9549", "113783", "A/5. 2151", "347082", "350406", "248706", "38…
+$ Fare     &lt;dbl&gt; 7.2500, 71.2833, 7.9250, 53.1000, 8.0500, 8.4583, 51.8625, 21.0750, 11.1333, 30.0708, 16.7000, 26.5500, 8.0500, 31.2750, 7.8542, 16.0000, 29.1250, 13.0000, 18.0000, 7.2250, 26.0000,…
+$ Cabin    &lt;chr&gt; "", "C85", "", "C123", "", "", "E46", "", "", "", "G6", "C103", "", "", "", "", "", "", "", "", "", "D56", "", "A6", "", "", "", "C23 C25 C27", "", "", "", "B78", "", "", "", "", ""…
+$ Embarked &lt;chr&gt; "S", "C", "S", "S", "S", "Q", "S", "S", "S", "C", "S", "S", "S", "S", "S", "S", "Q", "S", "S", "C", "S", "S", "Q", "S", "S", "S", "C", "S", "Q", "S", "C", "C", "Q", "S", "C", "S", "…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Generate New Variable</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>titanic <span class="ot">&lt;-</span> titanic <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FamSize =</span> SibSp <span class="sc">+</span> Parch)                                       <span class="co"># "FamSize = 형제 및 배우자 수 + 부모님 및 자녀 수"로 가족 수를 의미하는 새로운 변수</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic)                                                        <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 891
+Columns: 12
+$ Survived &lt;fct&gt; no, yes, yes, yes, no, no, no, no, yes, yes, yes, yes, no, no, no, yes, no, yes, no, yes, no, yes, yes, yes, no, yes, no, no, yes, no, no, yes, yes, no, no, no, yes, no, no, yes, no…
+$ Pclass   &lt;fct&gt; 3, 1, 3, 1, 3, 3, 1, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 2, 3, 3, 2, 2, 3, 1, 3, 3, 3, 1, 3, 3, 1, 1, 3, 2, 1, 1, 3, 3, 3, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 2, 1, 1, 2, 3, 2, 3, 3…
+$ Name     &lt;chr&gt; "Braund, Mr. Owen Harris", "Cumings, Mrs. John Bradley (Florence Briggs Thayer)", "Heikkinen, Miss. Laina", "Futrelle, Mrs. Jacques Heath (Lily May Peel)", "Allen, Mr. William Henry…
+$ Sex      &lt;fct&gt; male, female, female, female, male, male, male, male, female, female, female, female, male, male, female, female, male, male, female, female, male, male, female, male, female, femal…
+$ Age      &lt;dbl&gt; 22.0, 38.0, 26.0, 35.0, 35.0, NA, 54.0, 2.0, 27.0, 14.0, 4.0, 58.0, 20.0, 39.0, 14.0, 55.0, 2.0, NA, 31.0, NA, 35.0, 34.0, 15.0, 28.0, 8.0, 38.0, NA, 19.0, NA, NA, 40.0, NA, NA, 66.…
+$ SibSp    &lt;int&gt; 1, 1, 0, 1, 0, 0, 0, 3, 0, 1, 1, 0, 0, 1, 0, 0, 4, 0, 1, 0, 0, 0, 0, 0, 3, 1, 0, 3, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2, 1, 1, 1, 0, 1, 0, 0, 1, 0, 2, 1, 4, 0, 1, 1, 0, 0, 0, 0, 1, 5, 0…
+$ Parch    &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 1, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 2, 2, 0…
+$ Ticket   &lt;chr&gt; "A/5 21171", "PC 17599", "STON/O2. 3101282", "113803", "373450", "330877", "17463", "349909", "347742", "237736", "PP 9549", "113783", "A/5. 2151", "347082", "350406", "248706", "38…
+$ Fare     &lt;dbl&gt; 7.2500, 71.2833, 7.9250, 53.1000, 8.0500, 8.4583, 51.8625, 21.0750, 11.1333, 30.0708, 16.7000, 26.5500, 8.0500, 31.2750, 7.8542, 16.0000, 29.1250, 13.0000, 18.0000, 7.2250, 26.0000,…
+$ Cabin    &lt;chr&gt; "", "C85", "", "C123", "", "", "E46", "", "", "", "G6", "C103", "", "", "", "", "", "", "", "", "", "D56", "", "A6", "", "", "", "C23 C25 C27", "", "", "", "B78", "", "", "", "", ""…
+$ Embarked &lt;chr&gt; "S", "C", "S", "S", "S", "Q", "S", "S", "S", "C", "S", "S", "S", "S", "S", "S", "Q", "S", "S", "C", "S", "S", "Q", "S", "S", "S", "C", "S", "Q", "S", "C", "C", "Q", "S", "C", "S", "…
+$ FamSize  &lt;int&gt; 1, 1, 0, 1, 0, 0, 0, 4, 2, 1, 2, 0, 0, 6, 0, 0, 5, 0, 1, 0, 0, 0, 0, 0, 4, 6, 0, 5, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2, 1, 1, 1, 0, 3, 0, 0, 1, 0, 2, 1, 5, 0, 1, 1, 1, 0, 0, 0, 3, 7, 0…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Select Variables used for Analysis</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>titanic1 <span class="ot">&lt;-</span> titanic <span class="sc">%&gt;%</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Survived, Pclass, Sex, Age, Fare, FamSize)                     <span class="co"># 분석에 사용할 변수 선택</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>titanic1 <span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 891 × 6
+   Survived Pclass Sex      Age  Fare FamSize
+   &lt;fct&gt;    &lt;fct&gt;  &lt;fct&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt;
+ 1 no       3      male      22  7.25       1
+ 2 yes      1      female    38 71.3        1
+ 3 yes      3      female    26  7.92       0
+ 4 yes      1      female    35 53.1        1
+ 5 no       3      male      35  8.05       0
+ 6 no       3      male      NA  8.46       0
+ 7 no       1      male      54 51.9        0
+ 8 no       3      male       2 21.1        4
+ 9 yes      3      female    27 11.1        2
+10 yes      2      female    14 30.1        1
+# ℹ 881 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="데이터-탐색" class="level2" data-number="12.3">
+<h2 data-number="12.3" class="anchored" data-anchor-id="데이터-탐색"><span class="header-section-number">12.3</span> 데이터 탐색</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(titanic1,                                        </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">colour =</span> Survived)) <span class="sc">+</span>                         <span class="co"># Target의 범주에 따라 색깔을 다르게 표현</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Elasticnet_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(titanic1,                                     </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">colour =</span> Survived, <span class="at">alpha =</span> <span class="fl">0.8</span>)) <span class="sc">+</span>            <span class="co"># Target의 범주에 따라 색깔을 다르게 표현</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#E69F00"</span>, <span class="st">"#56B4E9"</span>)) <span class="sc">+</span> <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#E69F00"</span>, <span class="st">"#56B4E9"</span>)) <span class="sc">+</span>   <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Elasticnet_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="데이터-분할" class="level2" data-number="12.4">
+<h2 data-number="12.4" class="anchored" data-anchor-id="데이터-분할"><span class="header-section-number">12.4</span> 데이터 분할</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Partition (Training Dataset : Test Dataset = 7:3)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>y      <span class="ot">&lt;-</span> titanic1<span class="sc">$</span>Survived                             <span class="co"># Target</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>ind    <span class="ot">&lt;-</span> <span class="fu">createDataPartition</span>(y, <span class="at">p =</span> <span class="fl">0.7</span>, <span class="at">list  =</span>T)     <span class="co"># Index를 이용하여 7:3으로 분할</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>titanic.trd <span class="ot">&lt;-</span> titanic1[ind<span class="sc">$</span>Resample1,]                 <span class="co"># Training Dataset</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>titanic.ted <span class="ot">&lt;-</span> titanic1[<span class="sc">-</span>ind<span class="sc">$</span>Resample1,]                <span class="co"># Test Dataset</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="데이터-전처리-ii" class="level2" data-number="12.5">
+<h2 data-number="12.5" class="anchored" data-anchor-id="데이터-전처리-ii"><span class="header-section-number">12.5</span> 데이터 전처리 II</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Imputation</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>titanic.trd.Imp <span class="ot">&lt;-</span> titanic.trd <span class="sc">%&gt;%</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Age =</span> <span class="fu">replace_na</span>(Age, <span class="fu">mean</span>(Age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))                 <span class="co"># 평균으로 결측값 대체</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>titanic.ted.Imp <span class="ot">&lt;-</span> titanic.ted <span class="sc">%&gt;%</span> </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Age =</span> <span class="fu">replace_na</span>(Age, <span class="fu">mean</span>(titanic.trd<span class="sc">$</span>Age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))     <span class="co"># Training Dataset을 이용하여 결측값 대체</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Standardization</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>preProcValues <span class="ot">&lt;-</span> <span class="fu">preProcess</span>(titanic.trd.Imp, </span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>                            <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>))               <span class="co"># Standardization 정의 -&gt; Training Dataset에 대한 평균과 표준편차 계산 </span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>titanic.trd.Imp <span class="ot">&lt;-</span> <span class="fu">predict</span>(preProcValues, titanic.trd.Imp)               <span class="co"># Standardization for Training Dataset</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>titanic.ted.Imp <span class="ot">&lt;-</span> <span class="fu">predict</span>(preProcValues, titanic.ted.Imp)               <span class="co"># Standardization for Test Dataset</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Convert Factor Var. into Dummy Var. </span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>train.x <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(Survived <span class="sc">~</span>.,                                     <span class="co"># Survived는 Target으로 제외  </span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>                        titanic.trd.Imp)[,<span class="sc">-</span><span class="dv">1</span>]                            <span class="co"># [,-1] : 절편 제거</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>train.x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Pclass2 Pclass3 Sexmale         Age         Fare     FamSize
+1         0       1       1 -0.61306970 -0.517763935  0.04506631
+3         0       1       0 -0.30411628 -0.504633254 -0.55421976
+4         0       0       0  0.39102893  0.374149700  0.04506631
+5         0       1       1  0.39102893 -0.502201647 -0.55421976
+6         0       1       1  0.00000000 -0.494259044 -0.55421976
+8         0       1       1 -2.15783684 -0.248828144  1.84292454
+9         0       1       0 -0.22687792 -0.442222643  0.64435239
+10        1       0       0 -1.23097656 -0.073834105  0.04506631
+11        0       1       0 -2.00336012 -0.333934407  0.64435239
+12        0       0       0  2.16751113 -0.142323735 -0.55421976
+14        0       1       1  0.69998236 -0.050408971  3.04149669
+15        0       1       0 -1.23097656 -0.506010517 -0.55421976
+18        1       0       1  0.00000000 -0.405909990 -0.55421976
+19        0       1       0  0.08207551 -0.308645689  0.04506631
+20        0       1       0  0.00000000 -0.518250257 -0.55421976
+21        1       0       1  0.39102893 -0.153022808 -0.55421976
+24        0       0       1 -0.14963956  0.031779363 -0.55421976
+25        0       1       0 -1.69440670 -0.248828144  1.84292454
+27        0       1       1  0.00000000 -0.518250257 -0.55421976
+28        0       0       1 -0.84478477  4.457305033  2.44221062
+29        0       1       0  0.00000000 -0.505524195 -0.55421976
+30        0       1       1  0.00000000 -0.505201278 -0.55421976
+31        0       0       1  0.77722072 -0.119548327 -0.55421976
+32        0       0       0  0.00000000  2.191451452  0.04506631
+33        0       1       0  0.00000000 -0.508037505 -0.55421976
+34        1       0       1  2.78541799 -0.454542140 -0.55421976
+35        0       0       1 -0.14963956  0.939659905  0.04506631
+36        0       0       1  0.93169743  0.352751554  0.04506631
+38        0       1       1 -0.69030806 -0.502201647 -0.55421976
+39        0       1       0 -0.92202313 -0.308645689  0.64435239
+40        0       1       0 -1.23097656 -0.440113953  0.04506631
+41        0       1       0  0.77722072 -0.474481321  0.04506631
+42        1       0       0 -0.22687792 -0.250287109  0.04506631
+43        0       1       1  0.00000000 -0.505201278 -0.55421976
+45        0       1       0 -0.84478477 -0.505524195 -0.55421976
+47        0       1       1  0.00000000 -0.357277839  0.04506631
+48        0       1       0  0.00000000 -0.508037505 -0.55421976
+49        0       1       1  0.00000000 -0.237074726  0.64435239
+50        0       1       0 -0.92202313 -0.312536261  0.04506631
+51        0       1       1 -1.77164505  0.113238214  2.44221062
+53        0       0       0  1.47236593  0.833805222  0.04506631
+55        0       0       1  2.70817963  0.546875535  0.04506631
+56        0       0       1  0.00000000  0.031779363 -0.55421976
+60        0       1       1 -1.46269163  0.253541968  3.64078277
+61        0       1       1 -0.61306970 -0.518168555 -0.55421976
+62        0       0       0  0.62274400  0.897431637 -0.55421976
+64        0       1       1 -2.00336012 -0.116062374  2.44221062
+65        0       0       1  0.00000000 -0.119548327 -0.55421976
+70        0       1       1 -0.30411628 -0.490286770  0.64435239
+72        0       1       0 -1.07649984  0.253541968  3.64078277
+74        0       1       1 -0.30411628 -0.377621640  0.04506631
+75        0       1       1  0.15931386  0.440207722 -0.55421976
+76        0       1       1 -0.38135463 -0.509982791 -0.55421976
+77        0       1       1  0.00000000 -0.505201278 -0.55421976
+79        1       0       1 -2.24820571 -0.094664228  0.64435239
+80        0       1       0  0.00483715 -0.416122741 -0.55421976
+82        0       1       1 -0.07240121 -0.473995000 -0.55421976
+83        0       1       0  0.00000000 -0.507308023 -0.55421976
+84        0       0       1 -0.14963956  0.257432540 -0.55421976
+85        1       0       0 -0.99926149 -0.454542140 -0.55421976
+86        0       1       0  0.23655222 -0.350469338  1.24363847
+88        0       1       1  0.00000000 -0.502201647 -0.55421976
+89        0       0       0 -0.53583135  4.457305033  2.44221062
+91        0       1       1 -0.07240121 -0.502201647 -0.55421976
+92        0       1       1 -0.76754642 -0.506010517 -0.55421976
+93        0       0       1  1.24065086  0.531231545  0.04506631
+94        0       1       1 -0.30411628 -0.258554574  1.24363847
+95        0       1       1  2.24474949 -0.517763935 -0.55421976
+96        0       1       1  0.00000000 -0.502201647 -0.55421976
+97        0       0       1  3.17160977  0.015326133 -0.55421976
+103       0       0       1 -0.69030806  0.844665754  0.04506631
+105       0       1       1  0.54550565 -0.504633254  0.64435239
+107       0       1       0 -0.69030806 -0.509982791 -0.55421976
+108       0       1       1  0.00000000 -0.507551184 -0.55421976
+110       0       1       0  0.00000000 -0.189010600  0.04506631
+111       0       0       1  1.31788921  0.352751554 -0.55421976
+112       0       1       0 -1.19235738 -0.377621640  0.04506631
+113       0       1       1 -0.61306970 -0.502201647 -0.55421976
+114       0       1       0 -0.76754642 -0.467672820  0.04506631
+115       0       1       0 -0.99926149 -0.377541884 -0.55421976
+116       0       1       1 -0.69030806 -0.504633254 -0.55421976
+117       0       1       1  3.13299059 -0.508037505 -0.55421976
+119       0       0       1 -0.45859299  4.156190321  0.04506631
+122       0       1       1  0.00000000 -0.502201647 -0.55421976
+125       0       0       1  1.85855771  0.844665754  0.04506631
+126       0       1       1 -1.38545327 -0.440113953  0.04506631
+128       0       1       1 -0.45859299 -0.519870680 -0.55421976
+129       0       1       0  0.00000000 -0.223864289  0.64435239
+130       0       1       1  1.16341250 -0.523113472 -0.55421976
+131       0       1       1  0.23655222 -0.505201278 -0.55421976
+132       0       1       1 -0.76754642 -0.521654507 -0.55421976
+134       1       0       0 -0.07240121 -0.153022808  0.04506631
+136       1       0       1 -0.53583135 -0.366113328 -0.55421976
+138       0       0       1  0.54550565  0.374149700  0.04506631
+141       0       1       0  0.00000000 -0.362222756  0.64435239
+142       0       1       0 -0.61306970 -0.508037505 -0.55421976
+143       0       1       0 -0.45859299 -0.350469338  0.04506631
+146       1       0       1 -0.84478477  0.056095438  0.64435239
+147       0       1       1 -0.22687792 -0.507146564 -0.55421976
+148       0       1       0 -1.61716834  0.009894895  1.84292454
+149       1       0       1  0.50688647 -0.153022808  0.64435239
+150       1       0       1  0.93169743 -0.405909990 -0.55421976
+151       1       0       1  1.62684264 -0.415150098 -0.55421976
+153       0       1       1  1.97441524 -0.502201647 -0.55421976
+154       0       1       1  0.81583989 -0.376730699  0.64435239
+156       0       0       1  1.62684264  0.535203819  0.04506631
+157       0       1       0 -1.07649984 -0.508362368 -0.55421976
+158       0       1       1  0.00483715 -0.502201647 -0.55421976
+160       0       1       1  0.00000000  0.694149249  5.43864100
+162       1       0       0  0.77722072 -0.352414624 -0.55421976
+163       0       1       1 -0.30411628 -0.507551184 -0.55421976
+164       0       1       1 -0.99926149 -0.490286770 -0.55421976
+167       0       0       0  0.00000000  0.411110134  0.04506631
+169       0       0       1  0.00000000 -0.154481773 -0.55421976
+171       0       0       1  2.39922620 -0.007126358 -0.55421976
+173       0       1       0 -2.23507519 -0.442222643  0.64435239
+174       0       1       1 -0.69030806 -0.504633254 -0.55421976
+176       0       1       1 -0.92202313 -0.506010517  0.64435239
+179       1       0       1  0.00483715 -0.405909990 -0.55421976
+180       0       1       1  0.46826729 -0.658797171 -0.55421976
+181       0       1       0  0.00000000  0.694149249  5.43864100
+182       1       0       1  0.00000000 -0.366031626 -0.55421976
+184       1       0       1 -2.23507519  0.099864373  1.24363847
+185       0       1       0 -2.00336012 -0.230347927  0.64435239
+188       0       0       1  1.16341250 -0.142323735 -0.55421976
+189       0       1       1  0.77722072 -0.357277839  0.64435239
+190       0       1       1  0.46826729 -0.505201278 -0.55421976
+191       1       0       0  0.15931386 -0.405909990 -0.55421976
+192       1       0       1 -0.84478477 -0.405909990 -0.55421976
+194       1       0       1 -2.08059848 -0.153022808  0.64435239
+196       0       0       0  2.16751113  2.191451452 -0.55421976
+197       0       1       1  0.00000000 -0.508037505 -0.55421976
+198       0       1       1  0.93169743 -0.495311444  0.04506631
+199       0       1       0  0.00000000 -0.508037505 -0.55421976
+200       1       0       0 -0.45859299 -0.405909990 -0.55421976
+202       0       1       1  0.00000000  0.694149249  5.43864100
+203       0       1       1  0.31379058 -0.532435282 -0.55421976
+204       0       1       1  1.20203168 -0.518250257 -0.55421976
+205       0       1       1 -0.92202313 -0.502201647 -0.55421976
+206       0       1       0 -2.15783684 -0.455271622  0.04506631
+207       0       1       1  0.15931386 -0.350469338  0.04506631
+209       0       1       0 -1.07649984 -0.508037505 -0.55421976
+211       0       1       1 -0.45859299 -0.521654507 -0.55421976
+212       1       0       0  0.39102893 -0.250287109 -0.55421976
+213       0       1       1 -0.61306970 -0.517763935 -0.55421976
+214       1       0       1  0.00483715 -0.405909990 -0.55421976
+216       0       0       0  0.08207551  1.544725556  0.04506631
+217       0       1       0 -0.22687792 -0.504633254 -0.55421976
+218       1       0       1  0.93169743 -0.133569948  0.04506631
+219       0       0       0  0.15931386  0.825294596 -0.55421976
+220       1       0       1  0.00483715 -0.454542140 -0.55421976
+223       0       1       1  1.62684264 -0.502201647 -0.55421976
+224       0       1       1  0.00000000 -0.505201278 -0.55421976
+226       0       1       1 -0.61306970 -0.476912929 -0.55421976
+227       1       0       1 -0.84478477 -0.454542140 -0.55421976
+229       1       0       1 -0.92202313 -0.405909990 -0.55421976
+230       0       1       0  0.00000000 -0.163397019  1.84292454
+232       0       1       1 -0.07240121 -0.507551184 -0.55421976
+233       1       0       1  2.24474949 -0.396183559 -0.55421976
+235       1       0       1 -0.45859299 -0.454542140 -0.55421976
+236       0       1       0  0.00000000 -0.511928077 -0.55421976
+237       1       0       1  1.08617414 -0.153022808  0.04506631
+238       1       0       0 -1.69440670 -0.148159593  0.64435239
+240       1       0       1  0.23655222 -0.420013313 -0.55421976
+242       0       1       0  0.00000000 -0.357277839  0.04506631
+243       1       0       1 -0.07240121 -0.454542140 -0.55421976
+244       0       1       1 -0.61306970 -0.520195543 -0.55421976
+245       0       1       1  0.00483715 -0.518250257 -0.55421976
+246       0       0       1  1.08617414  1.091960238  0.64435239
+247       0       1       0 -0.38135463 -0.507551184 -0.55421976
+248       1       0       0 -0.45859299 -0.376730699  0.64435239
+249       0       0       1  0.54550565  0.363532329  0.64435239
+252       0       1       0 -0.07240121 -0.455271622  0.64435239
+253       0       0       1  2.47646456 -0.142323735 -0.55421976
+254       0       1       1  0.00483715 -0.345606123  0.04506631
+255       0       1       0  0.85445907 -0.265606236  0.64435239
+257       0       0       0  0.00000000  0.881869349 -0.55421976
+258       0       0       0  0.00483715  1.023875227 -0.55421976
+259       0       0       0  0.39102893  9.307471078 -0.55421976
+262       0       1       1 -2.08059848 -0.048220525  3.04149669
+264       0       0       1  0.77722072 -0.658797171 -0.55421976
+265       0       1       0  0.00000000 -0.508037505 -0.55421976
+266       1       0       1  0.46826729 -0.454542140 -0.55421976
+267       0       1       1 -1.07649984  0.113238214  2.44221062
+269       0       0       0  2.16751113  2.326487371  0.04506631
+270       0       0       0  0.39102893  1.979658438 -0.55421976
+273       1       0       0  0.85445907 -0.279466399  0.04506631
+275       0       1       0  0.00000000 -0.508037505 -0.55421976
+276       0       0       0  2.55370292  0.857714732  0.04506631
+278       1       0       1  0.00000000 -0.658797171 -0.55421976
+280       0       1       0  0.39102893 -0.264876754  0.64435239
+281       0       1       1  2.70817963 -0.508037505 -0.55421976
+285       0       0       1  0.00000000 -0.153022808 -0.55421976
+286       0       1       1  0.23655222 -0.490286770 -0.55421976
+287       0       1       1  0.00483715 -0.473995000 -0.55421976
+288       0       1       1 -0.61306970 -0.505201278 -0.55421976
+289       1       0       1  0.93169743 -0.405909990 -0.55421976
+290       0       1       0 -0.61306970 -0.508037505 -0.55421976
+291       0       0       0 -0.30411628  0.875060848 -0.55421976
+292       0       0       0 -0.84478477  1.112953764  0.04506631
+293       1       0       1  0.46826729 -0.408341597 -0.55421976
+294       0       1       0 -0.45859299 -0.486639359 -0.55421976
+296       0       0       1  0.00000000 -0.119548327 -0.55421976
+297       0       1       1 -0.49721217 -0.518168555 -0.55421976
+298       0       0       0 -2.15783684  2.289283776  1.24363847
+299       0       0       1  0.00000000 -0.065484938 -0.55421976
+300       0       0       0  1.54960428  4.156190321  0.04506631
+302       0       1       1  0.00000000 -0.206518174  0.64435239
+303       0       1       1 -0.84478477 -0.658797171 -0.55421976
+304       1       0       0  0.00000000 -0.418554349 -0.55421976
+305       0       1       1  0.00000000 -0.502201647 -0.55421976
+306       0       0       1 -2.24125426  2.289283776  1.24363847
+307       0       0       0  0.00000000  1.498200151 -0.55421976
+309       1       0       1  0.00483715 -0.191928529  0.04506631
+311       0       0       0 -0.45859299  0.958869605 -0.55421976
+315       1       0       1  1.00893579 -0.148159593  0.64435239
+316       0       1       0 -0.30411628 -0.506010517 -0.55421976
+317       1       0       0 -0.45859299 -0.153022808  0.04506631
+319       0       0       0  0.08207551  2.548331678  0.64435239
+320       0       0       0  0.77722072  1.957612512  0.64435239
+322       0       1       1 -0.22687792 -0.505201278 -0.55421976
+323       1       0       0  0.00483715 -0.418554349 -0.55421976
+324       1       0       0 -0.61306970 -0.094664228  0.64435239
+325       0       1       1  0.00000000  0.694149249  5.43864100
+327       0       1       1  2.39922620 -0.537459956 -0.55421976
+329       0       1       0  0.08207551 -0.259527217  0.64435239
+330       0       0       0 -1.07649984  0.469064095  0.04506631
+331       0       1       0  0.00000000 -0.206518174  0.64435239
+332       0       0       1  1.20203168 -0.104390658 -0.55421976
+335       0       0       0  0.00000000  1.941077581  0.04506631
+336       0       1       1  0.00000000 -0.505201278 -0.55421976
+337       0       0       1 -0.07240121  0.636763311  0.04506631
+339       0       1       1  1.16341250 -0.502201647 -0.55421976
+340       0       0       1  1.16341250  0.031779363 -0.55421976
+341       1       0       1 -2.15783684 -0.153022808  0.64435239
+342       0       0       0 -0.45859299  4.457305033  2.44221062
+343       1       0       1 -0.14963956 -0.405909990 -0.55421976
+345       1       0       1  0.46826729 -0.405909990 -0.55421976
+346       1       0       0 -0.45859299 -0.405909990 -0.55421976
+348       0       1       0  0.00000000 -0.345606123  0.04506631
+349       0       1       1 -2.08059848 -0.349496695  0.64435239
+350       0       1       1  0.93169743 -0.490286770 -0.55421976
+352       0       0       1  0.00000000  0.022052932 -0.55421976
+353       0       1       1 -1.15373820 -0.518168555  0.64435239
+354       0       1       1 -0.38135463 -0.312536261  0.04506631
+355       0       1       1  0.00000000 -0.518250257 -0.55421976
+356       0       1       1 -0.14963956 -0.473995000 -0.55421976
+357       0       0       0 -0.61306970  0.411110134  0.04506631
+360       0       1       0  0.00000000 -0.505524195 -0.55421976
+361       0       1       1  0.77722072 -0.116062374  2.44221062
+362       1       0       1 -0.07240121 -0.119548327  0.04506631
+363       0       1       0  1.16341250 -0.377621640  0.04506631
+365       0       1       1  0.00000000 -0.357277839  0.04506631
+366       0       1       1  0.00483715 -0.517763935 -0.55421976
+367       0       0       0  2.32198785  0.805030551  0.04506631
+368       0       1       0  0.00000000 -0.518168555 -0.55421976
+370       0       0       0 -0.45859299  0.689286034 -0.55421976
+371       0       0       1 -0.38135463  0.419702463  0.04506631
+372       0       1       1 -0.92202313 -0.532435282  0.04506631
+373       0       1       1 -0.84478477 -0.502201647 -0.55421976
+374       0       0       1 -0.61306970  1.979658438 -0.55421976
+376       0       0       0  0.00000000  0.939659905  0.04506631
+377       0       1       0 -0.61306970 -0.517763935 -0.55421976
+379       0       1       1 -0.76754642 -0.580742570 -0.55421976
+381       0       0       0  0.93169743  3.767214822 -0.55421976
+382       0       1       0 -2.23507519 -0.352576083  0.64435239
+383       0       1       1  0.15931386 -0.504633254 -0.55421976
+384       0       0       0  0.39102893  0.352751554  0.04506631
+385       0       1       1  0.00000000 -0.505201278 -0.55421976
+386       1       0       1 -0.92202313  0.770988046 -0.55421976
+387       0       1       1 -2.23507519  0.253541968  3.64078277
+388       1       0       0  0.46826729 -0.405909990 -0.55421976
+389       0       1       1  0.00000000 -0.508442125 -0.55421976
+390       1       0       0 -0.99926149 -0.425362850 -0.55421976
+391       0       0       1  0.46826729  1.675546040  1.24363847
+392       0       1       1 -0.69030806 -0.507146564 -0.55421976
+393       0       1       1 -0.14963956 -0.504633254  0.64435239
+394       0       0       0 -0.53583135  1.544725556  0.04506631
+395       0       1       0 -0.45859299 -0.333934407  0.64435239
+396       0       1       1 -0.61306970 -0.507146564 -0.55421976
+397       0       1       0  0.08207551 -0.506010517 -0.55421976
+398       1       0       1  1.24065086 -0.153022808 -0.55421976
+399       1       0       1 -0.53583135 -0.454542140 -0.55421976
+401       0       1       1  0.69998236 -0.504633254 -0.55421976
+402       0       1       1 -0.30411628 -0.502201647 -0.55421976
+404       0       1       1 -0.14963956 -0.350469338  0.04506631
+405       0       1       0 -0.76754642 -0.490286770 -0.55421976
+406       1       0       1  0.31379058 -0.250287109  0.04506631
+407       0       1       1  1.62684264 -0.508037505 -0.55421976
+408       1       0       1 -2.08059848 -0.294056044  0.64435239
+410       0       1       0  0.00000000 -0.163397019  1.84292454
+411       0       1       1  0.00000000 -0.505201278 -0.55421976
+414       1       0       1  0.00000000 -0.658797171 -0.55421976
+417       1       0       0  0.31379058 -0.026579218  0.64435239
+421       0       1       1  0.00000000 -0.505201278 -0.55421976
+422       0       1       1 -0.69030806 -0.508362368 -0.55421976
+423       0       1       1 -0.07240121 -0.505605898 -0.55421976
+425       0       1       1 -0.92202313 -0.265606236  0.64435239
+426       0       1       1  0.00000000 -0.517763935 -0.55421976
+428       1       0       0 -0.84478477 -0.153022808 -0.55421976
+429       0       1       1  0.00000000 -0.508037505 -0.55421976
+431       0       0       1 -0.14963956 -0.142323735 -0.55421976
+432       0       1       0  0.00000000 -0.345606123  0.04506631
+433       1       0       0  0.93169743 -0.153022808  0.04506631
+434       0       1       1 -0.99926149 -0.520195543 -0.55421976
+435       0       0       1  1.54960428  0.428617708  0.04506631
+437       0       1       0 -0.69030806  0.009894895  1.84292454
+438       1       0       0 -0.45859299 -0.294056044  2.44221062
+439       0       0       1  2.63094127  4.457305033  2.44221062
+443       0       1       1 -0.38135463 -0.507551184  0.04506631
+444       1       0       0 -0.14963956 -0.405909990 -0.55421976
+446       0       0       1 -2.00336012  0.933580887  0.64435239
+449       0       1       0 -1.92612177 -0.284168155  1.24363847
+451       1       0       1  0.46826729 -0.118980303  1.24363847
+453       0       0       1  0.00483715 -0.118980303 -0.55421976
+454       0       0       1  1.47236593  1.074534365  0.04506631
+456       0       1       1 -0.07240121 -0.505201278 -0.55421976
+459       1       0       0  1.54960428 -0.454542140 -0.55421976
+460       0       1       1  0.00000000 -0.508037505 -0.55421976
+461       0       0       1  1.39512757 -0.142323735 -0.55421976
+463       0       0       1  1.31788921  0.090137943 -0.55421976
+464       1       0       1  1.39512757 -0.405909990 -0.55421976
+465       0       1       1  0.00000000 -0.502201647 -0.55421976
+466       0       1       1  0.62274400 -0.521654507 -0.55421976
+468       0       0       1  2.01303442 -0.142323735 -0.55421976
+470       0       1       0 -2.25438478 -0.284168155  1.24363847
+471       0       1       1  0.00000000 -0.517763935 -0.55421976
+472       0       1       1  0.62274400 -0.490286770 -0.55421976
+474       1       0       0 -0.53583135 -0.390509160 -0.55421976
+475       0       1       0 -0.61306970 -0.467429660 -0.55421976
+479       0       1       1 -0.61306970 -0.512496101 -0.55421976
+480       0       1       0 -2.15783684 -0.419770152  0.04506631
+481       0       1       1 -1.61716834  0.253541968  3.64078277
+484       0       1       0  2.55370292 -0.472292875 -0.55421976
+485       0       0       1 -0.38135463  1.112953764  0.04506631
+486       0       1       0  0.00000000 -0.163397019  1.84292454
+487       0       0       0  0.39102893  1.091960238  0.04506631
+489       0       1       1  0.00483715 -0.502201647 -0.55421976
+491       0       1       1  0.00000000 -0.270387749  0.04506631
+493       0       0       1  1.93579607 -0.065484938 -0.55421976
+494       0       0       1  3.17160977  0.304201106 -0.55421976
+497       0       0       0  1.85855771  0.863713994  0.04506631
+498       0       1       1  0.00000000 -0.365058983 -0.55421976
+499       0       0       0 -0.38135463  2.289283776  1.24363847
+500       0       1       1 -0.45859299 -0.507146564 -0.55421976
+501       0       1       1 -0.99926149 -0.490286770 -0.55421976
+502       0       1       0 -0.69030806 -0.508037505 -0.55421976
+503       0       1       0  0.00000000 -0.510387411 -0.55421976
+504       0       1       0  0.54550565 -0.472292875 -0.55421976
+505       0       0       0 -1.07649984  1.023875227 -0.55421976
+506       0       0       1 -0.92202313  1.459619293  0.04506631
+507       1       0       0  0.23655222 -0.153022808  0.64435239
+508       0       0       1  0.00000000 -0.142323735 -0.55421976
+509       0       1       1 -0.14963956 -0.220621497 -0.55421976
+511       0       1       1 -0.07240121 -0.508037505 -0.55421976
+512       0       1       1  0.00000000 -0.502201647 -0.55421976
+513       0       0       1  0.46826729 -0.147430111 -0.55421976
+514       0       0       0  1.85855771  0.496702719  0.04506631
+516       0       0       1  1.31788921  0.003004692 -0.55421976
+517       1       0       0  0.31379058 -0.454542140 -0.55421976
+518       0       1       1  0.00000000 -0.189010600 -0.55421976
+519       1       0       0  0.46826729 -0.153022808  0.04506631
+521       0       0       0  0.00483715  1.160045248 -0.55421976
+522       0       1       1 -0.61306970 -0.505201278 -0.55421976
+524       0       0       0  1.08617414  0.469064095  0.04506631
+526       0       1       1  0.81583989 -0.508037505 -0.55421976
+528       0       0       1  0.00000000  3.655442578 -0.55421976
+530       1       0       1 -0.53583135 -0.435089280  1.24363847
+532       0       1       1  0.00000000 -0.518168555 -0.55421976
+533       0       1       1 -0.99926149 -0.518168555  0.64435239
+535       0       1       0  0.00483715 -0.490286770 -0.55421976
+536       1       0       0 -1.77164505 -0.148159593  0.64435239
+537       0       0       1  1.16341250 -0.142323735 -0.55421976
+538       0       0       0  0.00483715  1.411473465 -0.55421976
+541       0       0       0  0.46826729  0.722355896  0.64435239
+542       0       1       0 -1.61716834 -0.050408971  3.04149669
+543       0       1       0 -1.46269163 -0.050408971  3.04149669
+544       1       0       1  0.15931386 -0.153022808  0.04506631
+545       0       0       1  1.54960428  1.411473465  0.04506631
+546       0       0       1  2.63094127 -0.153022808 -0.55421976
+547       1       0       0 -0.84478477 -0.153022808  0.04506631
+548       1       0       1  0.00000000 -0.389131898 -0.55421976
+549       0       1       1  0.23655222 -0.259527217  0.64435239
+552       1       0       1 -0.22687792 -0.153022808 -0.55421976
+553       0       1       1  0.00000000 -0.506496838 -0.55421976
+555       0       1       0 -0.61306970 -0.507551184 -0.55421976
+556       0       0       1  2.47646456 -0.142323735 -0.55421976
+557       0       0       0  1.39512757  0.111536089  0.04506631
+558       0       0       1  0.00000000  3.767214822 -0.55421976
+559       0       0       0  0.69998236  0.890623136  0.64435239
+560       0       1       0  0.46826729 -0.320317405  0.04506631
+561       0       1       1  0.00000000 -0.508037505 -0.55421976
+563       1       0       1 -0.14963956 -0.396183559 -0.55421976
+564       0       1       1  0.00000000 -0.502201647 -0.55421976
+565       0       1       0  0.00000000 -0.502201647 -0.55421976
+567       0       1       1 -0.84478477 -0.505201278 -0.55421976
+568       0       1       0 -0.07240121 -0.248828144  1.84292454
+569       0       1       1  0.00000000 -0.518168555 -0.55421976
+570       0       1       1  0.15931386 -0.506010517 -0.55421976
+573       0       0       1  0.46826729 -0.145484825 -0.55421976
+575       0       1       1 -1.07649984 -0.502201647 -0.55421976
+576       0       1       1 -0.84478477 -0.376730699 -0.55421976
+577       1       0       0  0.31379058 -0.405909990 -0.55421976
+578       0       0       0  0.69998236  0.428617708  0.04506631
+579       0       1       0  0.00000000 -0.377541884  0.04506631
+580       0       1       1  0.15931386 -0.504633254 -0.55421976
+581       1       0       0 -0.38135463 -0.075211368  0.64435239
+584       0       0       1  0.46826729  0.121748840 -0.55421976
+585       0       1       1  0.00000000 -0.489314127 -0.55421976
+587       1       0       1  1.31788921 -0.367004269 -0.55421976
+588       0       0       1  2.32198785  0.881869349  0.64435239
+590       0       1       1  0.00000000 -0.502201647 -0.55421976
+591       0       1       1  0.39102893 -0.520195543 -0.55421976
+592       0       0       0  1.70408100  0.863713994  0.04506631
+593       0       1       1  1.31788921 -0.517763935 -0.55421976
+594       0       1       0  0.00000000 -0.508037505  0.64435239
+595       1       0       1  0.54550565 -0.153022808  0.04506631
+596       0       1       1  0.46826729 -0.189010600  0.64435239
+597       1       0       0  0.00000000 -0.016852788 -0.55421976
+598       0       1       1  1.47236593 -0.658797171 -0.55421976
+600       0       0       1  1.47236593  0.448638592  0.04506631
+601       1       0       0 -0.45859299 -0.133569948  1.24363847
+603       0       0       1  0.00000000  0.166004097 -0.55421976
+605       0       0       1  0.39102893 -0.142323735 -0.55421976
+606       0       1       1  0.46826729 -0.356305196  0.04506631
+608       0       0       1 -0.22687792 -0.065484938 -0.55421976
+609       1       0       0 -0.61306970  0.150037190  1.24363847
+610       0       0       0  0.77722072  2.326487371 -0.55421976
+611       0       1       0  0.69998236 -0.050408971  3.04149669
+612       0       1       1  0.00000000 -0.521654507 -0.55421976
+613       0       1       0  0.00000000 -0.357277839  0.04506631
+614       0       1       1  0.00000000 -0.508037505 -0.55421976
+615       0       1       1  0.39102893 -0.502201647 -0.55421976
+616       1       0       0 -0.45859299  0.605638735  1.24363847
+617       0       1       1  0.31379058 -0.378675985  0.64435239
+618       0       1       0 -0.30411628 -0.345606123  0.04506631
+619       1       0       0 -2.00336012  0.099864373  1.24363847
+621       0       1       1 -0.22687792 -0.377621640  0.04506631
+622       0       0       1  0.93169743  0.363532329  0.04506631
+623       0       1       1 -0.76754642 -0.352576083  0.64435239
+624       0       1       1 -0.69030806 -0.506010517 -0.55421976
+625       0       1       1 -0.69030806 -0.345606123 -0.55421976
+626       0       0       1  2.39922620 -0.030065170 -0.55421976
+627       1       0       1  2.09027278 -0.418554349 -0.55421976
+631       0       0       1  3.86675498 -0.075211368 -0.55421976
+633       0       0       1  0.15931386 -0.065484938 -0.55421976
+634       0       0       1  0.00000000 -0.658797171 -0.55421976
+635       0       1       0 -1.61716834 -0.116062374  2.44221062
+637       0       1       1  0.15931386 -0.504633254 -0.55421976
+638       1       0       1  0.08207551 -0.148159593  0.64435239
+639       0       1       0  0.85445907  0.113238214  2.44221062
+640       0       1       1  0.00000000 -0.345606123  0.04506631
+641       0       1       1 -0.76754642 -0.506010517 -0.55421976
+642       0       0       0 -0.45859299  0.689286034 -0.55421976
+644       0       1       1  0.00000000  0.440207722 -0.55421976
+645       0       1       0 -2.25438478 -0.284168155  1.24363847
+646       0       0       1  1.39512757  0.833805222  0.04506631
+647       0       1       1 -0.84478477 -0.505201278 -0.55421976
+648       0       0       1  2.01303442  0.031779363 -0.55421976
+649       0       1       1  0.00000000 -0.511928077 -0.55421976
+650       0       1       0 -0.53583135 -0.511928077 -0.55421976
+651       0       1       1  0.00000000 -0.505201278 -0.55421976
+654       0       1       0  0.00000000 -0.506496838 -0.55421976
+655       0       1       0 -0.92202313 -0.527490365 -0.55421976
+656       1       0       1 -0.45859299  0.770988046  0.64435239
+658       0       1       0  0.15931386 -0.357277839  0.64435239
+659       1       0       1 -0.53583135 -0.405909990 -0.55421976
+661       0       0       1  1.54960428  1.941077581  0.64435239
+662       0       1       1  0.77722072 -0.518250257 -0.55421976
+663       0       0       1  1.31788921 -0.161047113 -0.55421976
+667       1       0       1 -0.38135463 -0.405909990 -0.55421976
+668       0       1       1  0.00000000 -0.507551184 -0.55421976
+670       0       0       0  0.00000000  0.352751554  0.04506631
+671       1       0       0  0.77722072  0.099864373  0.64435239
+674       1       0       1  0.08207551 -0.405909990 -0.55421976
+677       0       1       1 -0.41997381 -0.502201647 -0.55421976
+678       0       1       0 -0.92202313 -0.467347958 -0.55421976
+679       0       1       0  1.00893579  0.253541968  3.64078277
+681       0       1       0  0.00000000 -0.500499522 -0.55421976
+682       0       0       1 -0.22687792  0.833805222 -0.55421976
+683       0       1       1 -0.76754642 -0.479344536 -0.55421976
+687       0       1       1 -1.23097656  0.113238214  2.44221062
+689       0       1       1 -0.92202313 -0.507146564 -0.55421976
+690       0       0       0 -1.15373820  3.452321649  0.04506631
+691       0       0       1  0.08207551  0.450015854  0.04506631
+692       0       1       0 -2.00336012 -0.397803983  0.04506631
+693       0       1       1  0.00000000  0.440207722 -0.55421976
+694       0       1       1 -0.38135463 -0.518250257 -0.55421976
+695       0       0       1  2.32198785 -0.142323735 -0.55421976
+699       0       0       1  1.47236593  1.498200151  0.64435239
+701       0       0       0 -0.92202313  3.767214822  0.04506631
+702       0       0       1  0.39102893 -0.147430111 -0.55421976
+703       0       1       0 -0.92202313 -0.377621640  0.04506631
+704       0       1       1 -0.38135463 -0.508198964 -0.55421976
+705       0       1       1 -0.30411628 -0.506010517  0.04506631
+708       0       0       1  0.93169743 -0.147430111 -0.55421976
+709       0       0       0 -0.61306970  2.289283776 -0.55421976
+710       0       1       1  0.00000000 -0.362222756  0.64435239
+712       0       0       1  0.00000000 -0.142323735 -0.55421976
+713       0       0       1  1.39512757  0.352751554  0.04506631
+714       0       1       1 -0.07240121 -0.474319863 -0.55421976
+716       0       1       1 -0.84478477 -0.509982791 -0.55421976
+717       0       0       0  0.62274400  3.767214822 -0.55421976
+718       1       0       0 -0.22687792 -0.454542140 -0.55421976
+719       0       1       1  0.00000000 -0.357277839 -0.55421976
+720       0       1       1  0.23655222 -0.507551184 -0.55421976
+721       1       0       0 -1.84888341 -0.016852788  0.04506631
+723       1       0       1  0.31379058 -0.405909990 -0.55421976
+725       0       0       1 -0.22687792  0.374149700  0.04506631
+726       0       1       1 -0.76754642 -0.490286770 -0.55421976
+728       0       1       0  0.00000000 -0.508280666 -0.55421976
+729       1       0       1 -0.38135463 -0.153022808  0.04506631
+730       0       1       0 -0.38135463 -0.504633254  0.04506631
+732       0       1       1 -1.46269163 -0.293326562 -0.55421976
+735       1       0       1 -0.53583135 -0.405909990 -0.55421976
+736       0       1       1 -0.11102039 -0.345606123 -0.55421976
+737       0       1       0  1.39512757  0.009894895  1.84292454
+738       0       0       1  0.39102893  9.307471078 -0.55421976
+739       0       1       1  0.00000000 -0.505201278 -0.55421976
+740       0       1       1  0.00000000 -0.505201278 -0.55421976
+742       0       0       1  0.46826729  0.875060848  0.04506631
+743       0       0       0 -0.69030806  4.445146996  1.84292454
+744       0       1       1 -0.45859299 -0.345606123  0.04506631
+745       0       1       1  0.08207551 -0.504633254 -0.55421976
+749       0       0       1 -0.84478477  0.374149700  0.04506631
+750       0       1       1  0.08207551 -0.508037505 -0.55421976
+752       0       1       1 -1.84888341 -0.416122741  0.04506631
+753       0       1       1  0.23655222 -0.473995000 -0.55421976
+754       0       1       1 -0.53583135 -0.505201278 -0.55421976
+755       1       0       0  1.39512757  0.605638735  1.24363847
+757       0       1       1 -0.14963956 -0.507146564 -0.55421976
+759       0       1       1  0.31379058 -0.502201647 -0.55421976
+760       0       0       0  0.23655222  1.023875227 -0.55421976
+762       0       1       1  0.85445907 -0.520195543 -0.55421976
+763       0       1       1 -0.76754642 -0.518168555 -0.55421976
+764       0       0       0  0.46826729  1.675546040  1.24363847
+766       0       0       0  1.62684264  0.857714732  0.04506631
+767       0       0       1  0.00000000  0.111536089 -0.55421976
+768       0       1       0  0.04345633 -0.508037505 -0.55421976
+769       0       1       1  0.00000000 -0.189010600  0.04506631
+770       0       1       1  0.15931386 -0.496122628 -0.55421976
+771       0       1       1 -0.45859299 -0.473995000 -0.55421976
+773       1       0       0  2.09027278 -0.454542140 -0.55421976
+774       0       1       1  0.00000000 -0.518250257 -0.55421976
+777       0       1       1  0.00000000 -0.508037505 -0.55421976
+778       0       1       0 -1.92612177 -0.416122741 -0.55421976
+780       0       0       0  1.00893579  3.452321649  0.04506631
+781       0       1       0 -1.30821491 -0.518168555 -0.55421976
+782       0       0       0 -0.99926149  0.450015854  0.04506631
+783       0       0       1 -0.07240121 -0.075211368 -0.55421976
+784       0       1       1  0.00000000 -0.202627602  1.24363847
+786       0       1       1 -0.38135463 -0.517763935 -0.55421976
+789       0       1       1 -2.23507519 -0.258554574  1.24363847
+790       0       0       1  1.24065086  0.881869349 -0.55421976
+791       0       1       1  0.00000000 -0.508037505 -0.55421976
+792       1       0       1 -1.07649984 -0.153022808 -0.55421976
+793       0       1       0  0.00000000  0.694149249  5.43864100
+794       0       0       1  0.00000000 -0.061676068 -0.55421976
+795       0       1       1 -0.38135463 -0.505201278 -0.55421976
+796       1       0       1  0.69998236 -0.405909990 -0.55421976
+797       0       0       0  1.47236593 -0.154400071 -0.55421976
+799       0       1       1  0.00483715 -0.518168555 -0.55421976
+800       0       1       0  0.00483715 -0.189010600  0.64435239
+801       1       0       1  0.31379058 -0.405909990 -0.55421976
+803       0       0       1 -1.46269163  1.675546040  1.24363847
+804       0       1       1 -2.27987344 -0.493122997  0.04506631
+806       0       1       1  0.08207551 -0.507551184 -0.55421976
+808       0       1       0 -0.92202313 -0.507551184 -0.55421976
+811       0       1       1 -0.30411628 -0.505362737 -0.55421976
+812       0       1       1  0.69998236 -0.189010600 -0.55421976
+813       1       0       1  0.39102893 -0.454542140 -0.55421976
+815       0       1       1  0.04345633 -0.502201647 -0.55421976
+816       0       0       1  0.00000000 -0.658797171 -0.55421976
+817       0       1       0 -0.53583135 -0.504633254 -0.55421976
+819       0       1       1  1.00893579 -0.533326223 -0.55421976
+822       0       1       1 -0.22687792 -0.490286770 -0.55421976
+823       0       0       1  0.62274400 -0.658797171 -0.55421976
+824       0       1       0 -0.22687792 -0.416122741  0.04506631
+825       0       1       1 -2.15783684  0.113238214  2.44221062
+826       0       1       1  0.00000000 -0.523599793 -0.55421976
+827       0       1       1  0.00000000  0.440207722 -0.55421976
+828       1       0       1 -2.23507519  0.061040355  0.64435239
+831       0       1       0 -1.15373820 -0.377621640  0.04506631
+832       1       0       1 -2.24820571 -0.294056044  0.64435239
+833       0       1       1  0.00000000 -0.518168555 -0.55421976
+835       0       1       1 -0.92202313 -0.497338432 -0.55421976
+836       0       0       0  0.69998236  0.958869605  0.64435239
+838       0       1       1  0.00000000 -0.502201647 -0.55421976
+840       0       0       1  0.00000000 -0.081047226 -0.55421976
+843       0       0       0  0.00483715 -0.055758508 -0.55421976
+845       0       1       1 -0.99926149 -0.490286770 -0.55421976
+846       0       1       1  0.93169743 -0.511928077 -0.55421976
+847       0       1       1  0.00000000  0.694149249  5.43864100
+849       1       0       1 -0.14963956 -0.016852788  0.04506631
+850       0       0       0  0.00000000  1.074534365  0.04506631
+851       0       1       1 -2.00336012 -0.050408971  3.04149669
+852       0       1       1  3.40332484 -0.507551184 -0.55421976
+853       0       1       0 -1.61716834 -0.362222756  0.64435239
+855       1       0       0  1.08617414 -0.153022808  0.04506631
+856       0       1       0 -0.92202313 -0.476912929  0.04506631
+857       0       0       0  1.16341250  2.548331678  0.64435239
+858       0       0       1  1.62684264 -0.142323735 -0.55421976
+859       0       1       0 -0.45859299 -0.284168155  1.24363847
+860       0       1       1  0.00000000 -0.518168555 -0.55421976
+861       0       1       1  0.85445907 -0.384350385  0.64435239
+862       1       0       1 -0.69030806 -0.435089280  0.04506631
+864       0       1       0  0.00000000  0.694149249  5.43864100
+865       1       0       1 -0.45859299 -0.405909990 -0.55421976
+867       1       0       0 -0.22687792 -0.389213600  0.04506631
+868       0       0       1  0.08207551  0.323490562 -0.55421976
+871       0       1       1 -0.30411628 -0.505201278 -0.55421976
+872       0       0       0  1.31788921  0.363532329  0.64435239
+874       0       1       1  1.31788921 -0.483721430 -0.55421976
+877       0       1       1 -0.76754642 -0.467268201 -0.55421976
+878       0       1       1 -0.84478477 -0.505201278 -0.55421976
+879       0       1       1  0.00000000 -0.505201278 -0.55421976
+880       0       0       0  2.01303442  0.958869605  0.04506631
+881       1       0       0 -0.38135463 -0.153022808  0.04506631
+882       0       1       1  0.23655222 -0.505201278 -0.55421976
+883       0       1       0 -0.61306970 -0.454217277 -0.55421976
+885       0       1       1 -0.38135463 -0.521654507 -0.55421976
+886       0       1       0  0.69998236 -0.092232621  2.44221062
+887       1       0       1 -0.22687792 -0.405909990 -0.55421976
+888       0       0       0 -0.84478477 -0.075211368 -0.55421976
+889       0       1       0  0.00000000 -0.202627602  1.24363847</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>test.x <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(Survived <span class="sc">~</span>.,                                      <span class="co"># Survived는 Target으로 제외  </span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                       titanic.ted.Imp)[,<span class="sc">-</span><span class="dv">1</span>]                             <span class="co"># [,-1] : 절편 제거</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>test.x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Pclass2 Pclass3 Sexmale         Age         Fare     FamSize
+2         0       0       0  0.62274400  0.727866891  0.04506631
+7         0       0       1  1.85855771  0.350076786 -0.55421976
+13        0       1       1 -0.76754642 -0.502201647 -0.55421976
+16        1       0       0  1.93579607 -0.347551409 -0.55421976
+17        0       1       1 -2.15783684 -0.092232621  2.44221062
+22        1       0       1  0.31379058 -0.405909990 -0.55421976
+23        0       1       0 -1.15373820 -0.502606266 -0.55421976
+26        0       1       0  0.62274400 -0.048220525  3.04149669
+37        0       1       1  0.00000000 -0.518168555 -0.55421976
+44        1       0       0 -2.08059848  0.150037190  1.24363847
+46        0       1       1  0.00000000 -0.502201647 -0.55421976
+52        0       1       1 -0.69030806 -0.507064862 -0.55421976
+54        1       0       0 -0.07240121 -0.153022808  0.04506631
+57        1       0       0 -0.69030806 -0.454542140 -0.55421976
+58        0       1       1 -0.11102039 -0.518168555 -0.55421976
+59        1       0       0 -1.92612177 -0.118980303  1.24363847
+63        0       0       1  1.16341250  0.965030325  0.04506631
+66        0       1       1  0.00000000 -0.362222756  0.64435239
+67        1       0       0 -0.07240121 -0.454542140 -0.55421976
+68        0       1       1 -0.84478477 -0.500094902 -0.55421976
+69        0       1       0 -0.99926149 -0.504633254  3.04149669
+71        1       0       1  0.15931386 -0.454542140 -0.55421976
+73        1       0       1 -0.69030806  0.770988046 -0.55421976
+78        0       1       1  0.00000000 -0.502201647 -0.55421976
+81        0       1       1 -0.61306970 -0.483721430 -0.55421976
+87        0       1       1 -1.07649984  0.009894895  1.84292454
+90        0       1       1 -0.45859299 -0.502201647 -0.55421976
+98        0       0       1 -0.53583135  0.573702975  0.04506631
+99        1       0       0  0.31379058 -0.211381389  0.04506631
+100       1       0       1  0.31379058 -0.153022808  0.04506631
+101       0       1       0 -0.14963956 -0.505201278 -0.55421976
+102       0       1       1  0.00000000 -0.505201278 -0.55421976
+104       0       1       1  0.23655222 -0.490448229 -0.55421976
+106       0       1       1 -0.14963956 -0.505201278 -0.55421976
+109       0       1       1  0.62274400 -0.505201278 -0.55421976
+118       1       0       1 -0.07240121 -0.250287109  0.04506631
+120       0       1       0 -2.15783684 -0.050408971  3.04149669
+121       1       0       1 -0.69030806  0.770988046  0.64435239
+123       1       0       1  0.19793304 -0.073834105  0.04506631
+124       1       0       0  0.19793304 -0.405909990 -0.55421976
+127       0       1       1  0.00000000 -0.508037505 -0.55421976
+133       0       1       0  1.31788921 -0.376730699  0.04506631
+135       1       0       1 -0.38135463 -0.405909990 -0.55421976
+137       0       0       0 -0.84478477 -0.147511813  0.64435239
+139       0       1       1 -1.07649984 -0.479505995 -0.55421976
+140       0       0       1 -0.45859299  0.881869349 -0.55421976
+144       0       1       1 -0.84478477 -0.527490365 -0.55421976
+145       1       0       1 -0.92202313 -0.435089280 -0.55421976
+152       0       0       0 -0.61306970  0.636763311  0.04506631
+155       0       1       1  0.00000000 -0.516548131 -0.55421976
+159       0       1       1  0.00000000 -0.490286770 -0.55421976
+161       0       1       1  1.08617414 -0.345606123  0.04506631
+165       0       1       1 -2.23507519  0.113238214  2.44221062
+166       0       1       1 -1.61716834 -0.259527217  0.64435239
+168       0       1       0  1.16341250 -0.116062374  2.44221062
+170       0       1       1 -0.14963956  0.440207722 -0.55421976
+172       0       1       1 -2.00336012 -0.092232621  2.44221062
+175       0       0       1  2.01303442 -0.061676068 -0.55421976
+177       0       1       1  0.00000000 -0.163397019  1.84292454
+178       0       0       0  1.54960428 -0.100256925 -0.55421976
+183       0       1       1 -1.61716834 -0.048220525  3.04149669
+186       0       0       1  0.00000000  0.313845834 -0.55421976
+187       0       1       0  0.00000000 -0.357277839  0.04506631
+193       0       1       0 -0.84478477 -0.506010517  0.04506631
+195       0       0       0  1.08617414 -0.119548327 -0.55421976
+201       0       1       1 -0.14963956 -0.473995000 -0.55421976
+208       0       1       1 -0.30411628 -0.293326562 -0.55421976
+210       0       0       1  0.77722072 -0.055758508 -0.55421976
+215       0       1       1  0.00000000 -0.508037505  0.04506631
+221       0       1       1 -1.07649984 -0.502201647 -0.55421976
+222       1       0       1 -0.22687792 -0.405909990 -0.55421976
+225       0       0       1  0.62274400  1.091960238  0.04506631
+228       0       1       1 -0.72892724 -0.517763935 -0.55421976
+231       0       0       0  0.39102893  0.965030325  0.04506631
+234       0       1       0 -1.92612177 -0.048220525  3.04149669
+239       1       0       1 -0.84478477 -0.454542140 -0.55421976
+241       0       1       0  0.00000000 -0.377621640  0.04506631
+250       1       0       1  1.85855771 -0.153022808  0.04506631
+251       0       1       1  0.00000000 -0.517763935 -0.55421976
+256       0       1       0 -0.07240121 -0.362222756  0.64435239
+260       1       0       0  1.54960428 -0.153022808  0.04506631
+261       0       1       1  0.00000000 -0.508037505 -0.55421976
+263       0       0       1  1.70408100  0.890623136  0.64435239
+268       0       1       1 -0.38135463 -0.507551184  0.04506631
+271       0       0       1  0.00000000 -0.055758508 -0.55421976
+272       0       1       1 -0.38135463 -0.658797171 -0.55421976
+274       0       0       1  0.54550565 -0.081047226  0.04506631
+277       0       1       0  1.16341250 -0.508037505 -0.55421976
+279       0       1       1 -1.77164505 -0.092232621  2.44221062
+282       0       1       1 -0.14963956 -0.506010517 -0.55421976
+283       0       1       1 -1.07649984 -0.473995000 -0.55421976
+284       0       1       1 -0.84478477 -0.502201647 -0.55421976
+295       0       1       1 -0.45859299 -0.505201278 -0.55421976
+301       0       1       0  0.00000000 -0.508037505 -0.55421976
+308       0       0       0 -0.99926149  1.459619293  0.04506631
+310       0       0       0  0.00483715  0.448638592 -0.55421976
+312       0       0       0 -0.92202313  4.445146996  1.84292454
+313       1       0       0 -0.30411628 -0.153022808  0.64435239
+314       0       1       1 -0.14963956 -0.505201278 -0.55421976
+318       1       0       1  1.85855771 -0.386457129 -0.55421976
+321       0       1       1 -0.61306970 -0.517763935 -0.55421976
+326       0       0       0  0.46826729  1.979658438 -0.55421976
+328       1       0       0  0.46826729 -0.405909990 -0.55421976
+333       0       0       1  0.62274400  2.326487371  0.04506631
+334       0       1       1 -1.07649984 -0.308645689  0.64435239
+338       0       0       0  0.85445907  1.957612512 -0.55421976
+344       1       0       1 -0.38135463 -0.405909990 -0.55421976
+347       1       0       0  0.77722072 -0.405909990 -0.55421976
+351       0       1       1 -0.53583135 -0.479344536 -0.55421976
+358       1       0       0  0.62274400 -0.405909990 -0.55421976
+359       0       1       0  0.00000000 -0.505524195 -0.55421976
+364       0       1       1  0.39102893 -0.521654507 -0.55421976
+369       0       1       0  0.00000000 -0.508037505 -0.55421976
+375       0       1       0 -2.08059848 -0.248828144  1.84292454
+378       0       0       1 -0.22687792  3.455482739  0.64435239
+380       0       1       1 -0.84478477 -0.507551184 -0.55421976
+400       1       0       0 -0.14963956 -0.412718491 -0.55421976
+403       0       1       0 -0.69030806 -0.467672820  0.04506631
+409       0       1       1 -0.69030806 -0.507551184 -0.55421976
+412       0       1       1  0.00000000 -0.525383620 -0.55421976
+413       0       0       0  0.23655222  1.091960238  0.04506631
+415       0       1       1  1.08617414 -0.504633254 -0.55421976
+416       0       1       0  0.00000000 -0.502201647 -0.55421976
+418       1       0       0 -0.92202313 -0.405909990  0.64435239
+419       1       0       1  0.00483715 -0.405909990 -0.55421976
+420       0       1       0 -1.53992998 -0.189010600  0.64435239
+424       0       1       0 -0.14963956 -0.378675985  0.64435239
+427       1       0       0 -0.14963956 -0.153022808  0.04506631
+430       0       1       1  0.15931386 -0.502201647 -0.55421976
+436       0       0       0 -1.23097656  1.675546040  1.24363847
+440       1       0       1  0.08207551 -0.454542140 -0.55421976
+441       1       0       0  1.16341250 -0.148159593  0.64435239
+442       0       1       1 -0.76754642 -0.473995000 -0.55421976
+445       0       1       1  0.00000000 -0.500985843 -0.55421976
+447       1       0       0 -1.30821491 -0.279466399  0.04506631
+448       0       0       1  0.31379058 -0.142323735 -0.55421976
+450       0       0       1  1.70408100 -0.065484938 -0.55421976
+452       0       1       1  0.00000000 -0.270387749  0.04506631
+455       0       1       1  0.00000000 -0.502201647 -0.55421976
+457       0       0       1  2.70817963 -0.142323735 -0.55421976
+458       0       0       0  0.00000000  0.350076786  0.04506631
+462       0       1       1  0.31379058 -0.502201647 -0.55421976
+467       1       0       1  0.00000000 -0.658797171 -0.55421976
+469       0       1       1  0.00000000 -0.508523827 -0.55421976
+473       1       0       0  0.23655222 -0.118980303  1.24363847
+476       0       0       1  0.00000000  0.352751554 -0.55421976
+477       1       0       1  0.31379058 -0.250287109  0.04506631
+478       0       1       1 -0.07240121 -0.521736209  0.04506631
+482       1       0       1  0.00000000 -0.658797171 -0.55421976
+483       0       1       1  1.54960428 -0.502201647 -0.55421976
+488       0       0       1  2.16751113 -0.081047226 -0.55421976
+490       0       1       1 -1.61716834 -0.349496695  0.64435239
+492       0       1       1 -0.69030806 -0.517763935 -0.55421976
+495       0       1       1 -0.69030806 -0.502201647 -0.55421976
+496       0       1       1  0.00000000 -0.377541884 -0.55421976
+510       0       1       1 -0.30411628  0.440207722 -0.55421976
+515       0       1       1 -0.45859299 -0.512982422 -0.55421976
+520       0       1       1  0.15931386 -0.505201278 -0.55421976
+523       0       1       1  0.00000000 -0.518250257 -0.55421976
+525       0       1       1  0.00000000 -0.518168555 -0.55421976
+527       1       0       0  1.54960428 -0.454542140 -0.55421976
+529       0       1       1  0.69998236 -0.504633254 -0.55421976
+531       1       0       0 -2.15783684 -0.153022808  0.64435239
+534       0       1       0  0.00000000 -0.223864289  0.64435239
+539       0       1       1  0.00000000 -0.376730699 -0.55421976
+540       0       0       0 -0.61306970  0.304119404  0.64435239
+550       1       0       1 -1.69440670  0.056095438  0.64435239
+551       0       0       1 -0.99926149  1.498200151  0.64435239
+554       0       1       1 -0.61306970 -0.518250257 -0.55421976
+562       0       1       1  0.77722072 -0.505201278 -0.55421976
+566       0       1       1 -0.45859299 -0.189010600  0.64435239
+571       1       0       1  2.47646456 -0.454542140 -0.55421976
+572       0       0       0  1.78131935  0.342620505  0.64435239
+574       0       1       0  0.00000000 -0.508037505 -0.55421976
+582       0       0       0  0.69998236  1.498200151  0.64435239
+583       1       0       1  1.85855771 -0.153022808 -0.55421976
+586       0       0       0 -0.92202313  0.890623136  0.64435239
+589       0       1       1 -0.61306970 -0.502201647 -0.55421976
+599       0       1       1  0.00000000 -0.518250257 -0.55421976
+602       0       1       1  0.00000000 -0.505201278 -0.55421976
+604       0       1       1  1.08617414 -0.502201647 -0.55421976
+607       0       1       1  0.00483715 -0.505201278 -0.55421976
+620       1       0       1 -0.30411628 -0.454542140 -0.55421976
+628       0       0       0 -0.69030806  0.857714732 -0.55421976
+629       0       1       1 -0.30411628 -0.505201278 -0.55421976
+630       0       1       1  0.00000000 -0.508362368 -0.55421976
+632       0       1       1  1.62684264 -0.521572805 -0.55421976
+636       1       0       0 -0.14963956 -0.405909990 -0.55421976
+643       0       1       0 -2.15783684 -0.116062374  2.44221062
+652       1       0       0 -0.92202313 -0.211381389  0.04506631
+653       0       1       1 -0.69030806 -0.494745366 -0.55421976
+657       0       1       1  0.00000000 -0.505201278 -0.55421976
+660       0       0       1  2.16751113  1.544725556  0.64435239
+664       0       1       1  0.46826729 -0.512982422 -0.55421976
+665       0       1       1 -0.76754642 -0.504633254  0.04506631
+666       1       0       1  0.15931386  0.770988046  0.64435239
+669       0       1       1  1.00893579 -0.502201647 -0.55421976
+672       0       0       1  0.08207551  0.352751554  0.04506631
+673       1       0       1  3.09437141 -0.454542140 -0.55421976
+675       1       0       1  0.00000000 -0.658797171 -0.55421976
+676       0       1       1 -0.92202313 -0.507551184 -0.55421976
+680       0       0       1  0.46826729  9.307471078  0.04506631
+684       0       1       1 -1.23097656  0.253541968  3.64078277
+685       1       0       1  2.32198785  0.099864373  0.64435239
+686       1       0       1 -0.38135463  0.150037190  1.24363847
+688       0       1       1 -0.84478477 -0.460946021 -0.55421976
+696       1       0       1  1.70408100 -0.396183559 -0.55421976
+697       0       1       1  1.08617414 -0.502201647 -0.55421976
+698       0       1       0  0.00000000 -0.508362368 -0.55421976
+700       0       1       1  0.93169743 -0.509982791 -0.55421976
+706       1       0       1  0.69998236 -0.153022808 -0.55421976
+707       1       0       0  1.16341250 -0.396183559 -0.55421976
+711       0       0       0 -0.45859299  0.304201106 -0.55421976
+715       1       0       1  1.70408100 -0.405909990 -0.55421976
+722       0       1       1 -0.99926149 -0.521572805  0.04506631
+724       1       0       1  1.54960428 -0.405909990 -0.55421976
+727       1       0       0  0.00483715 -0.250287109  1.24363847
+731       0       0       0 -0.07240121  3.452321649 -0.55421976
+733       1       0       1  0.00000000 -0.658797171 -0.55421976
+734       1       0       1 -0.53583135 -0.405909990 -0.55421976
+741       0       0       1  0.00000000 -0.075211368 -0.55421976
+746       0       0       1  3.09437141  0.722355896  0.64435239
+747       0       1       1 -1.07649984 -0.264876754  0.64435239
+748       1       0       0  0.00483715 -0.405909990 -0.55421976
+751       1       0       0 -2.00336012 -0.211381389  0.64435239
+756       1       0       1 -2.26056385 -0.376730699  0.64435239
+758       1       0       1 -0.92202313 -0.435089280 -0.55421976
+761       0       1       1  0.00000000 -0.376730699 -0.55421976
+765       0       1       1 -1.07649984 -0.507551184 -0.55421976
+772       0       1       1  1.39512757 -0.506010517 -0.55421976
+775       1       0       0  1.85855771 -0.211381389  1.84292454
+776       0       1       1 -0.92202313 -0.508037505 -0.55421976
+779       0       1       1  0.00000000 -0.508280666 -0.55421976
+785       0       1       1 -0.38135463 -0.521654507 -0.55421976
+787       0       1       0 -0.92202313 -0.512982422 -0.55421976
+788       0       1       1 -1.69440670 -0.092232621  2.44221062
+798       0       1       0  0.08207551 -0.489882151 -0.55421976
+802       1       0       0  0.08207551 -0.148159593  0.64435239
+805       0       1       1 -0.22687792 -0.523113472 -0.55421976
+807       0       0       1  0.69998236 -0.658797171 -0.55421976
+809       1       0       1  0.69998236 -0.405909990 -0.55421976
+810       0       0       0  0.23655222  0.374149700  0.04506631
+814       0       1       0 -1.84888341 -0.050408971  3.04149669
+818       1       0       1  0.08207551  0.061040355  0.64435239
+820       0       1       1 -1.53992998 -0.116062374  2.44221062
+821       0       0       0  1.70408100  1.160045248  0.64435239
+829       0       1       1  0.00000000 -0.508037505 -0.55421976
+830       0       0       0  2.47646456  0.897431637 -0.55421976
+834       0       1       1 -0.53583135 -0.506010517 -0.55421976
+837       0       1       1 -0.69030806 -0.490286770 -0.55421976
+839       0       1       1  0.15931386  0.440207722 -0.55421976
+841       0       1       1 -0.76754642 -0.504633254 -0.55421976
+842       1       0       1 -1.07649984 -0.454542140 -0.55421976
+844       0       1       1  0.35240975 -0.533569384 -0.55421976
+848       0       1       1  0.39102893 -0.505201278 -0.55421976
+854       0       0       0 -1.07649984  0.107645517  0.04506631
+863       0       0       0  1.39512757 -0.154400071 -0.55421976
+866       1       0       0  0.93169743 -0.405909990 -0.55421976
+869       0       1       1  0.00000000 -0.473995000 -0.55421976
+870       0       1       1 -2.00336012 -0.442222643  0.64435239
+873       0       0       1  0.23655222 -0.561532870 -0.55421976
+875       1       0       0 -0.14963956 -0.191928529  0.04506631
+876       0       1       0 -1.15373820 -0.518250257 -0.55421976
+884       1       0       1 -0.14963956 -0.454542140 -0.55421976
+890       0       0       1 -0.30411628 -0.075211368 -0.55421976
+891       0       1       1  0.15931386 -0.508037505 -0.55421976</code></pre>
+</div>
+</div>
+</section>
+<section id="모형-훈련" class="level2" data-number="12.6">
+<h2 data-number="12.6" class="anchored" data-anchor-id="모형-훈련"><span class="header-section-number">12.6</span> 모형 훈련</h2>
+<p>Package <code>"glmnet"</code>에서 제공하는 함수 <code>glmnet()</code>을 이용하여 <code>Elastic Net Regression</code>을 수행할 수 있다. 함수 <code>glmnet()</code>는 Target이 2개의 클래스를 가질 때 “두 번째 클래스”에 속할 확률을 모델링하며, “두 번째 클래스”란 “Factor” 변환하였을 때 두 번째 수준(Level)을 의미한다. 예를 들어, “a”와 “b” 2개의 클래스를 가진 Target을 “Factor” 변환하였을 때 수준이 “a” “b”라면, 첫 번째 클래스는 “a”, 두 번째 클래스는 “b”가 된다. 함수 <code>glmnet()</code>에 대한 자세한 옵션은 <a href="https://www.rdocumentation.org/packages/glmnet/versions/4.1-8/topics/glmnet">여기</a>를 참고한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glmnet</span>(x, y, family, alpha, lambda, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><code>x</code> : 예측 변수를 포함하는 행렬</li>
+<li><code>y</code> : Target을 포함하는 변수</li>
+<li><code>family</code> : Target의 분포
+<ul>
+<li><code>"gaussian"</code> : 수치형인 Target</li>
+<li><code>"binomial"</code> : 2개의 클래스를 가지는 Target</li>
+<li><code>"multinomial"</code> : 3개 이상 클래스를 가지는 Target</li>
+<li><code>"poisson"</code> : Count Data인 Target</li>
+</ul></li>
+<li><code>alpha</code> : Elasticnet Mixing Parameter
+<ul>
+<li><code>0</code> : Ridge Regression</li>
+<li><code>1</code> : Lasso Regression</li>
+<li><code>0 &lt; alpha &lt; 1</code> : Elastic Net Regression</li>
+</ul></li>
+<li><code>lambda</code> : Regularization Parameter
+<ul>
+<li>직접 값을 지정하면 해당 값에 대한 결과만 보여준다.</li>
+<li>값을 지정하지 않으면 100개의 <code>lambda</code> 값에 대한 결과를 보여준다.</li>
+</ul></li>
+</ul>
+<section id="람다-값-직접-지정" class="level3" data-number="12.6.1">
+<h3 data-number="12.6.1" class="anchored" data-anchor-id="람다-값-직접-지정"><span class="header-section-number">12.6.1</span> 람다 값 직접 지정</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>elast.fit <span class="ot">&lt;-</span> <span class="fu">glmnet</span>(<span class="at">x =</span> train.x,                 <span class="co"># 예측 변수를 포함하는 행렬</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">y =</span> titanic.trd.Imp<span class="sc">$</span>Survived,<span class="co"># Target</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">family =</span> <span class="st">"binomial"</span>,         <span class="co"># Binary Classification</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">alpha =</span> <span class="fl">0.5</span>,                 <span class="co"># 0 : Ridge / 1 : Lasso / 0 &lt; alpha &lt; 1 : Elastic Net</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">lambda =</span> <span class="fl">0.1</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">coef</span>(elast.fit), <span class="dv">3</span>)                        <span class="co"># 회귀계수 추정치</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>7 x 1 sparse Matrix of class "dgCMatrix"
+                s0
+(Intercept)  0.781
+Pclass2      .    
+Pclass3     -0.715
+Sexmale     -1.439
+Age          .    
+Fare         0.065
+FamSize      .    </code></pre>
+</div>
+</div>
+<p><code>Result!</code> 데이터 “titanic.trd.Imp”의 Target “Survived”은 “no”와 “yes” 2개의 클래스를 가지며, “Factor” 변환하면 알파벳순으로 수준을 부여하기 때문에 “yes”가 두 번째 클래스가 된다. 즉, “yes”에 속할 확률(= 탑승객이 생존할 확률)을 <span class="math inline">\(p\)</span>라고 할 때, 추정된 회귀계수를 이용하여 다음과 같은 모형식을 얻을 수 있다. <span class="math display">\[
+\begin{align*}
+\log{\frac{p}{1-p}} = &amp;\;0.781 -0.715 X_{\text{Pclass3}} -1.439 X_{\text{Sexmale}} + 0.065 Z_{\text{Fare}}
+\end{align*}
+\]</span> 여기서, <span class="math inline">\(Z_{\text{예측 변수}}\)</span>는 표준화한 예측 변수, <span class="math inline">\(X_{\text{예측 변수}}\)</span>는 더미 변수를 의미한다.</p>
+</section>
+<section id="교차-검증을-통한-최적의-람다-값" class="level3" data-number="12.6.2">
+<h3 data-number="12.6.2" class="anchored" data-anchor-id="교차-검증을-통한-최적의-람다-값"><span class="header-section-number">12.6.2</span> 교차 검증을 통한 최적의 람다 값</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 100개의 람다 값에 따른 결과</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>elast.fit <span class="ot">&lt;-</span> <span class="fu">glmnet</span>(<span class="at">x =</span> train.x,                 <span class="co"># 예측 변수를 포함하는 행렬</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">y =</span> titanic.trd.Imp<span class="sc">$</span>Survived,<span class="co"># Target</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">family =</span> <span class="st">"binomial"</span>,         <span class="co"># Binary Classification</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">alpha =</span> <span class="fl">0.5</span>)                 <span class="co"># 0 : Ridge / 1 : Lasso / 0 &lt; alpha &lt; 1 : Elastic Net</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(elast.fit, <span class="at">xvar =</span> <span class="st">"lambda"</span>)                 <span class="co"># 람다 값에 따른 회귀계수 추정치 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Elasticnet_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Result!</code> 100개의 <span class="math inline">\(\lambda\)</span> 값에 대한 회귀계수 추정치의 변화를 보여준다. 해당 그림을 통해 <span class="math inline">\(\lambda\)</span> 값이 클수록 회귀계수 추정치는 작아진다는 것을 알 수 있다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>elast.fit<span class="sc">$</span>lambda                                 <span class="co"># 100개의 람다 값</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] 0.5015509422 0.4569945389 0.4163964036 0.3794048947 0.3456996095 0.3149886090 0.2870058891 0.2615090770 0.2382773313 0.2171094299 0.1978220265 0.1802480629 0.1642353218 0.1496451085 0.1363510495
+[16] 0.1242379980 0.1132010367 0.1031445686 0.0939814894 0.0856324329 0.0780250836 0.0710935502 0.0647777951 0.0590231144 0.0537796636 0.0490020265 0.0446488215 0.0406823432 0.0370682360 0.0337751961
+[31] 0.0307747007 0.0280407611 0.0255496972 0.0232799325 0.0212118075 0.0193274090 0.0176104152 0.0160459545 0.0146204761 0.0133216333 0.0121381761 0.0110598540 0.0100773271 0.0091820851 0.0083663740
+[46] 0.0076231284 0.0069459106 0.0063288551 0.0057666170 0.0052543267 0.0047875468 0.0043622343 0.0039747054 0.0036216036 0.0032998703 0.0030067189 0.0027396103 0.0024962309 0.0022744726 0.0020724147
+[61] 0.0018883071 0.0017205551 0.0015677057 0.0014284351 0.0013015368 0.0011859119 0.0010805587 0.0009845649 0.0008970989</code></pre>
+</div>
+</div>
+<p><code>Caution!</code> <span class="math inline">\(\lambda\)</span>는 모형이 <code>Training Dataset</code>에 과적합 되는 것을 방지하기 위해 사용하는 모수이며, 교차 검증(Cross Validation)을 통해 최적의 값을 찾을 수 있다. 이러한 방법은 package <code>"glmnet"</code>에서 제공하는 함수 <code>cv.glmnet()</code>을 통해 수행할 수 있으며, 함수에 대한 자세한 옵션은 <a href="https://www.rdocumentation.org/packages/glmnet/versions/4.1-8/topics/cv.glmnet">여기</a>를 참고한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 교차검증을 통한 최적의 람다 값</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)                                          <span class="co"># Seed 고정 -&gt; 동일한 결과를 출력하기 위해</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>cv.elast.fit <span class="ot">&lt;-</span> <span class="fu">cv.glmnet</span>(<span class="at">x =</span> train.x,                 <span class="co"># 예측 변수를 포함하는 행렬</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">y =</span> titanic.trd.Imp<span class="sc">$</span>Survived,<span class="co"># Target</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">family =</span> <span class="st">"binomial"</span>,         <span class="co"># Binary Classification</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                          <span class="at">alpha =</span> <span class="fl">0.5</span>,                 <span class="co"># 0 : Ridge / 1 : Lasso / 0 &lt; alpha &lt; 1 : Elastic Net</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">nfolds =</span> <span class="dv">5</span>,                  <span class="co"># 5-Fold Cross Validation</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">type.measure =</span> <span class="st">"auc"</span>)        <span class="co"># AUC에 기반하여 최적의 람다 값 찾기</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cv.elast.fit)                                     <span class="co"># Plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Elasticnet_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Result!</code> 100개의 <span class="math inline">\(\lambda\)</span> 값에 대한 AUC의 변화를 보여준다.<br>
+<code>Caution!</code> 만약 <span class="math inline">\(\lambda\)</span> 값에 대해 직접 후보 값을 지정하고 싶으면 함수 <code>cv.glmnet()</code>의 옵션 <code>lambda = 후보 값</code>을 이용하면 된다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>cv.elast.fit<span class="sc">$</span>lambda.min                                   <span class="co"># 최적의 람다 값</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.0008970989</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(cv.elast.fit<span class="sc">$</span>cvm)                                     <span class="co"># 최적의 람다 값에 대한 AUC</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8502147</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">coef</span>(cv.elast.fit, <span class="at">s =</span> cv.elast.fit<span class="sc">$</span>lambda.min), <span class="dv">3</span>) <span class="co"># 최적의 람다 값에 대한 회귀계수 추정치</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>7 x 1 sparse Matrix of class "dgCMatrix"
+                s1
+(Intercept)  2.521
+Pclass2     -1.007
+Pclass3     -2.320
+Sexmale     -2.690
+Age         -0.515
+Fare         0.127
+FamSize     -0.388</code></pre>
+</div>
+</div>
+<p><code>Result!</code> 최적의 <span class="math inline">\(\lambda\)</span> 값에 대해 추정된 회귀계수를 이용하여 다음과 같은 모형식을 얻을 수 있다. <span class="math display">\[
+\begin{align*}
+\log{\frac{p}{1-p}} = &amp;\;2.521 - 1.007 X_{\text{Pclass2}} - 2.320 X_{\text{Pclass3}} -2.690 X_{\text{Sexmale}} \\
+                      &amp;-0.515 Z_{\text{Age}} +0.127 Z_{\text{Fare}} - 0.388 Z_{\text{FamSize}}
+\end{align*}
+\]</span></p>
+</section>
+</section>
+<section id="모형-평가" class="level2" data-number="12.7">
+<h2 data-number="12.7" class="anchored" data-anchor-id="모형-평가"><span class="header-section-number">12.7</span> 모형 평가</h2>
+<p><code>Caution!</code> 모형 평가를 위해 <code>Test Dataset</code>에 대한 <code>예측 class/확률</code> 이 필요하며, 함수 <code>predict()</code>를 이용하여 생성한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 예측 class 생성</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>test.elast.class <span class="ot">&lt;-</span> <span class="fu">predict</span>(cv.elast.fit, </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">newx =</span> test.x,             <span class="co"># Test Dataset including Only 예측 변수 </span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">s =</span> <span class="st">"lambda.min"</span>,          <span class="co"># 최적의 람다 값 기반</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">type =</span> <span class="st">"class"</span>)            <span class="co"># 예측 class 생성</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>test.elast.class <span class="sc">%&gt;%</span>                                      </span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 266 × 1
+   lambda.min
+   &lt;chr&gt;     
+ 1 yes       
+ 2 no        
+ 3 no        
+ 4 yes       
+ 5 no        
+ 6 no        
+ 7 yes       
+ 8 no        
+ 9 no        
+10 yes       
+# ℹ 256 more rows</code></pre>
+</div>
+</div>
+<p><br></p>
+<section id="confusionmatrix" class="level3" data-number="12.7.1">
+<h3 data-number="12.7.1" class="anchored" data-anchor-id="confusionmatrix"><span class="header-section-number">12.7.1</span> ConfusionMatrix</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>CM   <span class="ot">&lt;-</span> caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(<span class="fu">as.factor</span>(test.elast.class), titanic.ted.Imp<span class="sc">$</span>Survived, </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>                               <span class="at">positive =</span> <span class="st">"yes"</span>)       <span class="co"># confusionMatrix(예측 class, 실제 class, positive = "관심 class")</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>CM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction  no yes
+       no  148  32
+       yes  16  70
+                                         
+               Accuracy : 0.8195         
+                 95% CI : (0.768, 0.8638)
+    No Information Rate : 0.6165         
+    P-Value [Acc &gt; NIR] : 5.675e-13      
+                                         
+                  Kappa : 0.6067         
+                                         
+ Mcnemar's Test P-Value : 0.03038        
+                                         
+            Sensitivity : 0.6863         
+            Specificity : 0.9024         
+         Pos Pred Value : 0.8140         
+         Neg Pred Value : 0.8222         
+             Prevalence : 0.3835         
+         Detection Rate : 0.2632         
+   Detection Prevalence : 0.3233         
+      Balanced Accuracy : 0.7944         
+                                         
+       'Positive' Class : yes            
+                                         </code></pre>
+</div>
+</div>
+<p><br></p>
+</section>
+<section id="roc-곡선" class="level3" data-number="12.7.2">
+<h3 data-number="12.7.2" class="anchored" data-anchor-id="roc-곡선"><span class="header-section-number">12.7.2</span> ROC 곡선</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 예측 확률 생성</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>test.elast.prob <span class="ot">&lt;-</span> <span class="fu">predict</span>(cv.elast.fit, </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">newx =</span> test.x,              <span class="co"># Test Dataset including Only 예측 변수 </span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>                           <span class="at">s =</span> <span class="st">"lambda.min"</span>,           <span class="co"># 최적의 람다 값 기반</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>                           <span class="at">type =</span> <span class="st">"response"</span>)          <span class="co"># 예측 확률 생성</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>test.elast.prob <span class="sc">%&gt;%</span>                                    <span class="co"># "Survived = yes"에 대한 예측 확률                           </span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 266 × 1
+   lambda.min
+        &lt;dbl&gt;
+ 1     0.907 
+ 2     0.296 
+ 3     0.125 
+ 4     0.665 
+ 5     0.0882
+ 6     0.236 
+ 7     0.720 
+ 8     0.213 
+ 9     0.0878
+10     0.893 
+# ℹ 256 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>ac  <span class="ot">&lt;-</span> titanic.ted.Imp<span class="sc">$</span>Survived                        <span class="co"># Test Dataset의 실제 class </span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>pp  <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(test.elast.prob)                     <span class="co"># 예측 확률을 수치형으로 변환</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="package-proc" class="level4" data-number="12.7.2.1">
+<h4 data-number="12.7.2.1" class="anchored" data-anchor-id="package-proc"><span class="header-section-number">12.7.2.1</span> Package “pROC”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"pROC"</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>elast.roc  <span class="ot">&lt;-</span> <span class="fu">roc</span>(ac, pp, <span class="at">plot =</span> T, <span class="at">col =</span> <span class="st">"gray"</span>)      <span class="co"># roc(실제 class, 예측 확률)</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>auc        <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">auc</span>(elast.roc), <span class="dv">3</span>)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"bottomright"</span>, <span class="at">legend =</span> auc, <span class="at">bty =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Elasticnet_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Caution!</code> Package <code>"pROC"</code>를 통해 출력한 ROC 곡선은 다양한 함수를 이용해서 그래프를 수정할 수 있다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 함수 plot.roc() 이용</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.roc</span>(elast.roc,   </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">col=</span><span class="st">"gray"</span>,                                   <span class="co"># Line Color</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.auc =</span> <span class="cn">TRUE</span>,                             <span class="co"># AUC 출력 여부</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.auc.col =</span> <span class="st">"red"</span>,                        <span class="co"># AUC 글씨 색깔</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.thres =</span> <span class="cn">TRUE</span>,                           <span class="co"># Cutoff Value 출력 여부</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.thres.pch =</span> <span class="dv">19</span>,                         <span class="co"># Cutoff Value를 표시하는 도형 모양</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.thres.col =</span> <span class="st">"red"</span>,                      <span class="co"># Cutoff Value를 표시하는 도형의 색깔</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">auc.polygon =</span> <span class="cn">TRUE</span>,                           <span class="co"># 곡선 아래 면적에 대한 여부</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">auc.polygon.col =</span> <span class="st">"gray90"</span>)                   <span class="co"># 곡선 아래 면적의 색깔</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Elasticnet_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 함수 ggroc() 이용</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggroc</span>(elast.roc) <span class="sc">+</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">0.9</span>, <span class="at">y =</span> <span class="fl">1.0</span>,</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="at">label =</span> <span class="fu">paste</span>(<span class="st">"AUC = "</span>, auc),</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="at">size =</span> <span class="dv">5</span>,</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="at">color=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Elasticnet_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="package-epi" class="level4" data-number="12.7.2.2">
+<h4 data-number="12.7.2.2" class="anchored" data-anchor-id="package-epi"><span class="header-section-number">12.7.2.2</span> Package “Epi”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"Epi"</span>)       </span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install_version("etm", version = "1.1", repos = "http://cran.us.r-project.org")</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ROC</span>(pp, ac, <span class="at">plot =</span> <span class="st">"ROC"</span>)                              <span class="co"># ROC(예측 확률, 실제 class)  </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Elasticnet_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="package-rocr" class="level4" data-number="12.7.2.3">
+<h4 data-number="12.7.2.3" class="anchored" data-anchor-id="package-rocr"><span class="header-section-number">12.7.2.3</span> Package “ROCR”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"ROCR"</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>elast.pred <span class="ot">&lt;-</span> <span class="fu">prediction</span>(pp, ac)                       <span class="co"># prediction(예측 확률, 실제 class) </span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>elast.perf <span class="ot">&lt;-</span> <span class="fu">performance</span>(elast.pred, <span class="st">"tpr"</span>, <span class="st">"fpr"</span>)    <span class="co"># performance(, "민감도", "1-특이도")                      </span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(elast.perf, <span class="at">col =</span> <span class="st">"gray"</span>)                         <span class="co"># ROC Curve</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>perf.auc   <span class="ot">&lt;-</span> <span class="fu">performance</span>(elast.pred, <span class="st">"auc"</span>)           <span class="co"># AUC</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>auc        <span class="ot">&lt;-</span> <span class="fu">attributes</span>(perf.auc)<span class="sc">$</span>y.values</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"bottomright"</span>, <span class="at">legend =</span> auc, <span class="at">bty =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Elasticnet_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><br></p>
+</section>
+</section>
+<section id="향상-차트" class="level3" data-number="12.7.3">
+<h3 data-number="12.7.3" class="anchored" data-anchor-id="향상-차트"><span class="header-section-number">12.7.3</span> 향상 차트</h3>
+<section id="package-rocr-1" class="level4" data-number="12.7.3.1">
+<h4 data-number="12.7.3.1" class="anchored" data-anchor-id="package-rocr-1"><span class="header-section-number">12.7.3.1</span> Package “ROCR”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>elast.perf <span class="ot">&lt;-</span> <span class="fu">performance</span>(elast.pred, <span class="st">"lift"</span>, <span class="st">"rpp"</span>)   <span class="co"># Lift Chart                      </span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(elast.perf, <span class="at">main =</span> <span class="st">"lift curve"</span>,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">colorize =</span> T,                                     <span class="co"># Coloring according to cutoff </span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">lwd =</span> <span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Elasticnet_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ridge.html" class="pagination-link" aria-label="Ridge Regression">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Ridge Regression</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./RF.html" class="pagination-link" aria-label="Random Forest">
+        <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Random Forest</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/JJJJYE/ML_book1/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer><script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

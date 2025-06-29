@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Young Eun Jeon, Jeong-Wook Lee, and Jung-In Seo">
+
+<title>7&nbsp; Cluster Analysis based on k-means – Data Mining</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Principal.html" rel="next">
+<link href="./SVM_rd.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-1092c56c6cadf2eb47b1bc8063ab382a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-dc2382f869c37aa0256525aa4b36f69f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles/styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./Clustering.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Data Mining</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/JJJJYE/ML_book1" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./KNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nearest Neighborhood Algorithm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Naive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Naive Bayes Classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Decision_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Decision Tree</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_li.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Support Vector Machine with Linear Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_po.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Support Vector Machine with Polynomial Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_rd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Support Vector Machine with Radial Basis Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Clustering.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Principal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Logistic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Logistic Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./LASSO.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">LASSO Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ridge.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Ridge Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Elasticnet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Elastic Net Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./RF.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Random Forest</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./AdaBoost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">AdaBoost</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./GBM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./XGBoost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">XGBoost</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#데이터-불러오기" id="toc-데이터-불러오기" class="nav-link active" data-scroll-target="#데이터-불러오기"><span class="header-section-number">7.1</span> 데이터 불러오기</a></li>
+  <li><a href="#데이터-전처리-i" id="toc-데이터-전처리-i" class="nav-link" data-scroll-target="#데이터-전처리-i"><span class="header-section-number">7.2</span> 데이터 전처리 I</a></li>
+  <li><a href="#데이터-탐색" id="toc-데이터-탐색" class="nav-link" data-scroll-target="#데이터-탐색"><span class="header-section-number">7.3</span> 데이터 탐색</a></li>
+  <li><a href="#데이터-분할" id="toc-데이터-분할" class="nav-link" data-scroll-target="#데이터-분할"><span class="header-section-number">7.4</span> 데이터 분할</a></li>
+  <li><a href="#데이터-전처리-ii" id="toc-데이터-전처리-ii" class="nav-link" data-scroll-target="#데이터-전처리-ii"><span class="header-section-number">7.5</span> 데이터 전처리 II</a></li>
+  <li><a href="#계층적-군집분석" id="toc-계층적-군집분석" class="nav-link" data-scroll-target="#계층적-군집분석"><span class="header-section-number">7.6</span> 계층적 군집분석</a>
+  <ul class="collapse">
+  <li><a href="#거리행렬-계산" id="toc-거리행렬-계산" class="nav-link" data-scroll-target="#거리행렬-계산"><span class="header-section-number">7.6.1</span> 거리행렬 계산</a></li>
+  <li><a href="#계층적-군집분석-1" id="toc-계층적-군집분석-1" class="nav-link" data-scroll-target="#계층적-군집분석-1"><span class="header-section-number">7.6.2</span> 계층적 군집분석</a></li>
+  <li><a href="#덴드로그램" id="toc-덴드로그램" class="nav-link" data-scroll-target="#덴드로그램"><span class="header-section-number">7.6.3</span> 덴드로그램</a></li>
+  <li><a href="#거리행렬만-주어진-경우" id="toc-거리행렬만-주어진-경우" class="nav-link" data-scroll-target="#거리행렬만-주어진-경우"><span class="header-section-number">7.6.4</span> 거리행렬만 주어진 경우</a></li>
+  </ul></li>
+  <li><a href="#군집-개수-결정" id="toc-군집-개수-결정" class="nav-link" data-scroll-target="#군집-개수-결정"><span class="header-section-number">7.7</span> 군집 개수 결정</a>
+  <ul class="collapse">
+  <li><a href="#fviz_nbclust" id="toc-fviz_nbclust" class="nav-link" data-scroll-target="#fviz_nbclust"><span class="header-section-number">7.7.1</span> “fviz_nbclust”</a></li>
+  <li><a href="#nbclust" id="toc-nbclust" class="nav-link" data-scroll-target="#nbclust"><span class="header-section-number">7.7.2</span> “NbClust”</a></li>
+  </ul></li>
+  <li><a href="#비계층적-군집분석k-means" id="toc-비계층적-군집분석k-means" class="nav-link" data-scroll-target="#비계층적-군집분석k-means"><span class="header-section-number">7.8</span> 비계층적 군집분석(k-means)</a>
+  <ul class="collapse">
+  <li><a href="#lloyd" id="toc-lloyd" class="nav-link" data-scroll-target="#lloyd"><span class="header-section-number">7.8.1</span> Lloyd</a></li>
+  <li><a href="#macqueen" id="toc-macqueen" class="nav-link" data-scroll-target="#macqueen"><span class="header-section-number">7.8.2</span> MacQueen</a></li>
+  <li><a href="#hartigan-wong" id="toc-hartigan-wong" class="nav-link" data-scroll-target="#hartigan-wong"><span class="header-section-number">7.8.3</span> Hartigan-Wong</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/JJJJYE/ML_book1/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./Clustering.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="데이터-불러오기" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="데이터-불러오기"><span class="header-section-number">7.1</span> 데이터 불러오기</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"data.table"</span>, </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">"tidyverse"</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>               <span class="st">"dplyr"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">"caret"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">"GGally"</span>,                                       <span class="co"># For ggpairs</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>               <span class="st">"factoextra"</span>,                                   <span class="co"># For fviz_dend, fviz_nbclust</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>               <span class="st">"NbClust"</span>)                                      <span class="co"># For NbClust</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>protein <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">".../protein.csv"</span>)                            <span class="co"># 데이터 불러오기</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>protein <span class="sc">%&gt;%</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 25 × 10
+   country           x1    x2    x3    x4    x5    x6    x7    x8    x9
+   &lt;chr&gt;          &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1 Albania         10.1   1.4   0.5   8.9   0.2  42.3   0.6   5.5   1.7
+ 2 Austria          8.9  14     4.3  19.9   2.1  28     3.6   1.3   4.3
+ 3 Belgium         13.5   9.3   4.1  17.5   4.5  26.6   5.7   2.1   4  
+ 4 Bulgaria         7.8   6     1.6   8.3   1.2  56.7   1.1   3.7   4.2
+ 5 Czechoslovakia   9.7  11.4   2.8  12.5   2    34.3   5     1.1   4  
+ 6 Denmark         10.6  10.8   3.7  25     9.9  21.9   4.8   0.7   2.4
+ 7 E Germany        8.4  11.6   3.7  11.1   5.4  24.6   6.5   0.8   3.6
+ 8 Finland          9.5   4.9   2.7  33.7   5.8  26.3   5.1   1     1.4
+ 9 France          18     9.9   3.3  19.5   5.7  28.1   4.8   2.4   6.5
+10 Greece          10.2   3     2.8  17.6   5.9  41.7   2.2   7.8   6.5
+# ℹ 15 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="데이터-전처리-i" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="데이터-전처리-i"><span class="header-section-number">7.2</span> 데이터 전처리 I</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>protein.df <span class="ot">&lt;-</span> protein <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  data.frame <span class="sc">%&gt;%</span>                                            <span class="co"># Data Frame 형태로 변환</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>country)                                          <span class="co"># 변수 "country" 제거</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(protein.df) <span class="ot">&lt;-</span> protein<span class="sc">$</span>country                     <span class="co"># 행 이름 변경</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>protein.df <span class="sc">%&gt;%</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()                                                    <span class="co"># 처음 6개 case 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 x1   x2  x3   x4  x5   x6  x7  x8  x9
+Albania        10.1  1.4 0.5  8.9 0.2 42.3 0.6 5.5 1.7
+Austria         8.9 14.0 4.3 19.9 2.1 28.0 3.6 1.3 4.3
+Belgium        13.5  9.3 4.1 17.5 4.5 26.6 5.7 2.1 4.0
+Bulgaria        7.8  6.0 1.6  8.3 1.2 56.7 1.1 3.7 4.2
+Czechoslovakia  9.7 11.4 2.8 12.5 2.0 34.3 5.0 1.1 4.0
+Denmark        10.6 10.8 3.7 25.0 9.9 21.9 4.8 0.7 2.4</code></pre>
+</div>
+</div>
+</section>
+<section id="데이터-탐색" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="데이터-탐색"><span class="header-section-number">7.3</span> 데이터 탐색</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(protein.df,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">upper =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"density"</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">lower =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="fu">wrap</span>(<span class="st">"points"</span>, <span class="at">size =</span> <span class="fl">0.5</span>)),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">diag =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"densityDiag"</span>)) <span class="sc">+</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 상관계수 그래프</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorr</span>(protein.df,              <span class="co"># 데이터</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">label =</span> <span class="cn">TRUE</span>,            <span class="co"># 라벨 명시 여부</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">label_round =</span> <span class="dv">3</span>,         <span class="co"># 상관계수 소숫점 이하 자릿수</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">label_size =</span> <span class="dv">3</span>,          <span class="co"># 상관계수 글자 크기</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">low =</span> <span class="st">"steelblue"</span>,       <span class="co"># 상관계수가 음수일 때 색깔</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">mid =</span> <span class="st">"white"</span>,           <span class="co"># 상관계수가 0에 가까울 때 색깔</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">high =</span> <span class="st">"darkred"</span>)        <span class="co"># 상관계수가 양수일 때 색깔</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="데이터-분할" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="데이터-분할"><span class="header-section-number">7.4</span> 데이터 분할</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Partition (Training Dataset : Test Dataset = 7:3)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ind <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(protein.df), <span class="fl">0.7</span><span class="sc">*</span><span class="fu">nrow</span>(protein.df))     <span class="co"># Index를 이용하여 7:3로 분할</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>protein.trd <span class="ot">&lt;-</span> protein.df[ind,]                             <span class="co"># Training Dataset</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>protein.ted <span class="ot">&lt;-</span> protein.df[<span class="sc">-</span>ind,]                            <span class="co"># Test Dataset</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="데이터-전처리-ii" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="데이터-전처리-ii"><span class="header-section-number">7.5</span> 데이터 전처리 II</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Standardization</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>preProcValues <span class="ot">&lt;-</span> <span class="fu">preProcess</span>(protein.trd,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>))  <span class="co"># Standardization 정의 -&gt; Training Dataset에 대한 평균과 표준편차 계산 </span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>protein.trd <span class="ot">&lt;-</span> <span class="fu">predict</span>(preProcValues, protein.trd)          <span class="co"># Standardization for Training Dataset</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>protein.ted <span class="ot">&lt;-</span> <span class="fu">predict</span>(preProcValues, protein.ted)          <span class="co"># Standardization for Test Dataset</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(protein.trd)                                        <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 17
+Columns: 9
+$ x1 &lt;dbl&gt; 0.18081182, -1.21348962, -0.19945221, -0.16776354, 1.22653789, 0.43432117, 0.97302854, 2.33564131, -0.70647091, -0.23114088, -1.78388566, -0.32620689, -0.99166894, -0.51633890, -0.1677635…
+$ x2 &lt;dbl&gt; 0.8964725, -0.4696659, -0.9554040, -0.8946867, 0.6536035, 1.4125693, 0.6839621, -0.6518177, -0.5607418, -0.9857626, -0.8643281, -0.8339695, 0.7143207, 1.1393416, 1.7465142, 0.4410931, -1.…
+$ x3 &lt;dbl&gt; 0.60866213, -1.46078912, -0.33199753, -0.33199753, 1.54932180, 0.98492600, 0.04426634, 1.54932180, -1.36672316, -0.89639332, -1.74298702, -0.14386560, -0.33199753, 0.60866213, 0.51459617,…
+$ x4 &lt;dbl&gt; 0.923106753, -1.136667805, 0.671191879, 2.212318167, 1.041654929, 0.004358389, 0.745284489, 0.271091785, -1.551586421, -0.321649095, -1.373764157, -0.751386233, 0.078450999, -1.136667805,…
+$ x5 &lt;dbl&gt; 2.1894978, -1.1166002, 2.1152035, 0.6664639, -0.6708342, -0.2250681, -0.6336870, 0.1092564, -1.0423058, -0.3736568, -1.2651889, -0.2250681, -0.3736568, 0.5178752, -0.5593927, 0.1835507, 0…
+$ x6 &lt;dbl&gt; -0.8752919, 1.3478740, -0.7870074, -0.5221537, -0.7067487, -1.1401456, -0.5783347, -0.6826711, 1.9177108, 0.8663218, 1.8535038, 0.3205627, 0.2643816, -0.6585934, -0.8351626, -0.4980760, 0…
+$ x7 &lt;dbl&gt; 0.28314770, -0.73972337, 0.16280993, 0.46365436, 1.12551212, 0.52382325, -0.92023003, 0.22297882, -1.94310111, 1.24584989, -0.79989226, -1.34141224, 0.94500546, 1.30601878, -0.07786562, 0…
+$ x8 &lt;dbl&gt; -1.1132630, 1.2269834, -0.6553887, -0.9606382, -0.6553887, -0.7062636, -0.2483893, 0.2603599, 0.4129847, 0.2603599, 1.4304831, 0.7182342, -0.4518890, -1.0623881, -0.5536389, -0.4010141, 2…
+$ x9 &lt;dbl&gt; -0.95800750, -0.69532803, -0.76099790, -1.61470619, -0.62965816, -0.03862933, 0.68373923, -0.36697868, 0.22405014, -0.62965816, -0.43264855, 1.86579687, 1.80012700, -0.16996907, -0.104299…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(protein.ted)                                        <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 8
+Columns: 9
+$ x1 &lt;dbl&gt; 0.02236847, -0.35789556, -0.10438620, 2.52577332, -1.49868764, -1.21348962, -0.92829160, -0.04100887
+$ x2 &lt;dbl&gt; -1.95723882, 1.86794873, 1.07862431, 0.62324484, 1.38221063, -1.25899030, -1.35006619, -0.01428641
+$ x3 &lt;dbl&gt; -2.40144878, 1.17305793, -0.23793156, 0.23239827, -0.14386560, -1.83705299, 0.04426634, 0.42053020
+$ x4 &lt;dbl&gt; -1.4626753, 0.1673621, -0.9292085, 0.1080880, -1.3441271, -2.0554162, -1.5071309, -2.0850532
+$ x5 &lt;dbl&gt; -1.4137775, -0.7079813, -0.7451285, 0.6293167, -1.3766304, 3.7868261, 1.1122299, 1.2979658
+$ x6 &lt;dbl&gt; 0.7619855, -0.3857139, 0.1199159, -0.3776880, 0.5854164, -0.4659726, -0.2894034, -1.0679128
+$ x7 &lt;dbl&gt; -2.2439455, -0.4388789, 0.4034855, 0.2831477, -0.1982034, 0.9450055, 0.8246677, -0.3787101
+$ x8 &lt;dbl&gt; 1.3287333, -0.8080135, -0.9097633, -0.2483893, 1.2778583, 0.9217339, 1.5322329, -0.7571385
+$ x9 &lt;dbl&gt; -1.4176966, 0.2897200, 0.0927104, 1.7344571, 0.2240501, 2.6538353, 2.1941462, -1.2206870</code></pre>
+</div>
+</div>
+</section>
+<section id="계층적-군집분석" class="level2" data-number="7.6">
+<h2 data-number="7.6" class="anchored" data-anchor-id="계층적-군집분석"><span class="header-section-number">7.6</span> 계층적 군집분석</h2>
+<ul>
+<li>계층적 군집분석은 거리가 가까운 군집을 하나씩 묶어가면서 군집을 형성하는 방법이다.
+<ul>
+<li>예를 들어, <span class="math inline">\(n\)</span>개의 case가 있을 때 거리가 가장 가까운 두 개의 case를 묶어서 하나의 군집을 형성하고, 나머지 <span class="math inline">\(n-2\)</span>개의 case는 각각이 하나의 군집을 이루도록 한다.</li>
+<li>그리고나서, <span class="math inline">\(n-1\)</span>개의 군집 중에서 거리가 가장 가까운 두 개의 군집을 묶어 <span class="math inline">\(n-2\)</span>개의 군집을 형성한다.</li>
+<li>이와 같은 과정은 최종적으로 <span class="math inline">\(n\)</span>개의 case를 모두 묶어 하나의 군집을 형성할 때까지 반복한다.</li>
+</ul></li>
+</ul>
+<center>
+<img src="./image/cluster_계층적.png" class="img-fluid" style="width:50.0%">
+</center>
+<p><br></p>
+<ul>
+<li>계층적 군집분석은 덴드로그램(Dendrogram)을 이용하여 시각적으로 군집 형성 과정을 볼 수 있으며, 이것은 전체 군집들 간의 구조적 관계를 살펴보는데 매우 유용하다.</li>
+<li>계층적 군집분석은 case의 개수가 비교적 작을 때 유용하다.
+<ul>
+<li>case의 개수가 많으면 거리행렬을 계산하는 데 매우 많은 시간과 컴퓨터 용량이 필요하므로 적용에 제약이 따른다.</li>
+</ul></li>
+<li>계층적 군집분석은 군집 간의 case 이동이 불가능하다는 단점이 있다.</li>
+</ul>
+<section id="거리행렬-계산" class="level3" data-number="7.6.1">
+<h3 data-number="7.6.1" class="anchored" data-anchor-id="거리행렬-계산"><span class="header-section-number">7.6.1</span> 거리행렬 계산</h3>
+<ul>
+<li>계층적 군집분석을 수행하기 전에 case 간의 거리를 계산하여 거리행렬을 생성한다.</li>
+<li>거리행렬을 생성하기 위해 함수 <code>dist()</code>를 이용하며, 거리를 계산하는 방법은 옵션 <code>method</code>에 지정할 수 있다.
+<ul>
+<li>함수 <code>dist()</code>의 자세한 옵션은 <a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/dist">여기</a>를 참고한다.</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>protein.X.eucl <span class="ot">&lt;-</span> <span class="fu">dist</span>(protein.trd,                       </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">method =</span> <span class="st">"euclidean"</span>)                <span class="co"># 유클리드 거리 </span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>protein.X.eucl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Denmark  Romania   Norway  Finland  Ireland W Germany Switzerland       UK Bulgaria     USSR Yugoslavia    Italy   Poland E Germany Netherlands  Belgium
+Romania     5.899193                                                                                                                                                 
+Norway      2.190572 5.017093                                                                                                                                        
+Finland     2.967850 5.245898 2.336933                                                                                                                               
+Ireland     3.359817 5.698092 4.124494 3.546137                                                                                                                      
+W Germany   2.878437 5.127560 3.800557 4.003049 1.923184                                                                                                             
+Switzerland 3.738040 4.469147 3.903220 3.935243 2.917500  2.356744                                                                                                   
+UK          3.867136 5.591679 3.905187 4.132260 2.420596  3.117714    3.060014                                                                                       
+Bulgaria    6.313897 1.931986 5.500563 5.964271 6.225093  5.529229    4.441702 5.851565                                                                              
+USSR        4.477896 2.806990 3.501849 3.582533 4.008542  3.961498    3.884788 4.096414 3.822901                                                                     
+Yugoslavia  6.713206 1.004357 5.698797 5.962378 6.560893  5.996864    5.298535 6.426629 2.062393 3.407616                                                            
+Italy       5.277250 3.439932 4.454559 5.342612 5.114655  4.328910    3.122747 4.448760 2.953685 3.772778   3.819090                                                 
+Poland      4.399724 4.220409 4.275439 4.655450 4.049754  3.143036    3.160984 4.834137 4.493170 3.288055   4.702444 3.192257                                        
+E Germany   3.049396 4.874142 3.609905 4.382604 3.275421  1.990398    3.737112 4.163853 5.381543 3.551288   5.605003 4.525418 2.966305                               
+Netherlands 3.104750 4.718412 3.958992 3.789881 2.469626  1.324503    2.037250 3.815009 5.147099 4.011981   5.573208 4.210302 2.959231  2.681627                     
+Belgium     2.915357 4.886542 3.340291 3.805354 1.828405  1.484545    2.433729 2.074059 5.228214 3.266973   5.724063 3.895649 3.174653  2.239657    2.416333         
+Greece      5.917754 4.069820 4.853851 5.817338 5.983267  5.564533    4.319030 4.823118 4.018591 4.352319   4.324015 2.258867 4.579691  5.805825    5.463629 4.850338</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>protein.X.manh <span class="ot">&lt;-</span> <span class="fu">dist</span>(protein.trd,                       </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">method =</span> <span class="st">"manhattan"</span>)                <span class="co"># 맨해튼 거리</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>protein.X.manh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              Denmark   Romania    Norway   Finland   Ireland W Germany Switzerland        UK  Bulgaria      USSR Yugoslavia     Italy    Poland E Germany Netherlands   Belgium
+Romania     16.044727                                                                                                                                                           
+Norway       4.362516 12.653687                                                                                                                                                 
+Finland      7.235608 13.911994  4.806928                                                                                                                                       
+Ireland      7.005266 15.065397  9.247118  9.468623                                                                                                                             
+W Germany    6.311091 14.349831  8.813170  9.834368  5.275630                                                                                                                   
+Switzerland  8.577085 12.171223  9.154543 10.313649  6.016994  6.543626                                                                                                         
+UK           9.593477 13.663230  8.600319  9.995946  6.070217  7.184453    8.227596                                                                                             
+Bulgaria    17.753936  4.687965 14.180745 15.439051 16.643266 14.745643   11.680662 14.533589                                                                                   
+USSR        12.013442  7.120222  7.891602  8.669654  9.812398  9.705856   10.574401  9.256640  8.515940                                                                         
+Yugoslavia  18.709646  2.664919 14.529282 15.787588 17.598976 16.489391   14.190445 15.438486  5.039583  8.864477                                                               
+Italy       14.554763  8.544198 10.811381 12.069687 14.335626 11.546471    8.379349 11.152265  7.639620  7.664063   9.834813                                                    
+Poland      10.924142 11.435210 10.141752 10.798369  9.205546  7.582684    7.326023 11.798756 11.876059  7.469926  13.574770  6.958702                                          
+E Germany    6.749900 12.877025  9.027131  9.346129  7.631657  5.235333    9.516872 10.027053 13.535516  8.989430  15.016585 11.487171  7.812245                                
+Netherlands  6.093145 12.833723  7.316895  9.011894  5.947924  3.547303    4.999723  8.550044 13.360874  9.764597  14.973283 10.830351  7.624579  6.084633                      
+Belgium      7.549654 13.744660  8.862655  9.455895  4.474243  3.617701    5.629898  5.334180 13.877793  8.498996  15.884220 10.678620  7.146631  5.539266    6.249788          
+Greece      15.381876 11.152876 11.714511 13.105170 17.020097 14.230942   11.063821 13.168087 11.386135  9.937048  11.975775  4.983861 10.346909 14.602128   13.958464 12.575491</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>protein.X.canb <span class="ot">&lt;-</span> <span class="fu">dist</span>(protein.trd,                    </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">method =</span> <span class="st">"canberra"</span>)                 <span class="co"># 캔버라 거리</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>protein.X.canb</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Denmark  Romania   Norway  Finland  Ireland W Germany Switzerland       UK Bulgaria     USSR Yugoslavia    Italy   Poland E Germany Netherlands  Belgium
+Romania     8.158879                                                                                                                                                 
+Norway      3.871710 6.733253                                                                                                                                        
+Finland     4.767715 7.096226 2.405164                                                                                                                               
+Ireland     3.566184 7.298951 5.111712 5.554244                                                                                                                      
+W Germany   4.438168 8.559232 6.636858 6.534643 4.077482                                                                                                             
+Switzerland 5.631496 7.384647 6.655474 7.136181 3.826983  5.915036                                                                                                   
+UK          5.431704 7.121411 5.091535 5.770405 4.848527  6.340807    6.905568                                                                                       
+Bulgaria    9.000000 2.693889 7.429098 7.454773 8.216837  8.644828    7.107421 7.301777                                                                              
+USSR        7.836442 4.248394 5.411981 5.563226 6.335265  7.540568    8.258134 6.163877 4.722732                                                                     
+Yugoslavia  8.377778 1.237536 6.804002 7.102698 7.492452  8.534013    7.402525 6.914326 2.909789 4.561988                                                            
+Italy       9.000000 4.711358 6.704348 6.751228 8.497561  8.000000    7.125692 7.590486 4.318125 4.553765   4.836478                                                 
+Poland      6.917891 6.900790 6.345653 6.343996 5.459791  5.977593    5.829424 8.169304 6.785597 5.751088   7.259761 5.262433                                        
+E Germany   4.243672 7.010160 5.788280 5.086371 4.628132  4.869345    6.800052 6.180657 7.309833 6.538880   7.081395 7.429727 6.108030                               
+Netherlands 4.715536 7.638203 4.969986 5.904652 4.136367  4.567917    4.788712 6.592700 7.840648 7.073731   7.648998 7.637213 6.225068  4.476133                     
+Belgium     5.373320 8.715789 6.976183 6.282932 4.039578  4.848567    5.261781 5.566840 8.198201 7.464957   8.758929 8.504583 6.266166  4.686976    6.323095         
+Greece      8.053278 5.888016 6.878480 6.435935 8.915575  8.778626    7.493229 7.883260 6.100786 5.985242   5.742592 4.140892 6.643087  7.887254    8.885417 7.431991</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>protein.X.mink <span class="ot">&lt;-</span> <span class="fu">dist</span>(protein.trd,                         </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">method =</span> <span class="st">"minkowski"</span>)                <span class="co"># 민코우스키 거리</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>protein.X.mink</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Denmark  Romania   Norway  Finland  Ireland W Germany Switzerland       UK Bulgaria     USSR Yugoslavia    Italy   Poland E Germany Netherlands  Belgium
+Romania     5.899193                                                                                                                                                 
+Norway      2.190572 5.017093                                                                                                                                        
+Finland     2.967850 5.245898 2.336933                                                                                                                               
+Ireland     3.359817 5.698092 4.124494 3.546137                                                                                                                      
+W Germany   2.878437 5.127560 3.800557 4.003049 1.923184                                                                                                             
+Switzerland 3.738040 4.469147 3.903220 3.935243 2.917500  2.356744                                                                                                   
+UK          3.867136 5.591679 3.905187 4.132260 2.420596  3.117714    3.060014                                                                                       
+Bulgaria    6.313897 1.931986 5.500563 5.964271 6.225093  5.529229    4.441702 5.851565                                                                              
+USSR        4.477896 2.806990 3.501849 3.582533 4.008542  3.961498    3.884788 4.096414 3.822901                                                                     
+Yugoslavia  6.713206 1.004357 5.698797 5.962378 6.560893  5.996864    5.298535 6.426629 2.062393 3.407616                                                            
+Italy       5.277250 3.439932 4.454559 5.342612 5.114655  4.328910    3.122747 4.448760 2.953685 3.772778   3.819090                                                 
+Poland      4.399724 4.220409 4.275439 4.655450 4.049754  3.143036    3.160984 4.834137 4.493170 3.288055   4.702444 3.192257                                        
+E Germany   3.049396 4.874142 3.609905 4.382604 3.275421  1.990398    3.737112 4.163853 5.381543 3.551288   5.605003 4.525418 2.966305                               
+Netherlands 3.104750 4.718412 3.958992 3.789881 2.469626  1.324503    2.037250 3.815009 5.147099 4.011981   5.573208 4.210302 2.959231  2.681627                     
+Belgium     2.915357 4.886542 3.340291 3.805354 1.828405  1.484545    2.433729 2.074059 5.228214 3.266973   5.724063 3.895649 3.174653  2.239657    2.416333         
+Greece      5.917754 4.069820 4.853851 5.817338 5.983267  5.564533    4.319030 4.823118 4.018591 4.352319   4.324015 2.258867 4.579691  5.805825    5.463629 4.850338</code></pre>
+</div>
+</div>
+<p><code>Caution!</code> 모든 거리행렬을 이용하여 분석을 수행하면 시간이 오래 걸리기 때문에 본 예제에서는 유클리드 거리에 기반한 거리행렬만 이용한다.</p>
+</section>
+<section id="계층적-군집분석-1" class="level3" data-number="7.6.2">
+<h3 data-number="7.6.2" class="anchored" data-anchor-id="계층적-군집분석-1"><span class="header-section-number">7.6.2</span> 계층적 군집분석</h3>
+<ul>
+<li>계층적 군집분석은 함수 <code>hclust()</code>를 이용하여 수행할 수 있으며, 옵션 <code>method</code>에 군집 간 거리를 정의하는 방법을 지정할 수 있다.
+<ul>
+<li><code>"single"</code> : 최단 연결법
+<ul>
+<li>두 군집에 속한 case들의 최단 거리를 군집 간 거리로 정의</li>
+</ul></li>
+<li><code>"complete"</code> : 최장 연결법
+<ul>
+<li>두 군집에 속한 case들의 최장 거리를 군집 간 거리로 정의</li>
+</ul></li>
+<li><code>"average"</code> : 평균 연결법
+<ul>
+<li>두 군집에 속한 모든 case 간의 거리 평균을 군집 간 거리로 정의</li>
+</ul></li>
+<li><code>"ward.D"</code> : Ward의 방법
+<ul>
+<li>군집 내 제곱합과 군집 간 제곱합을 고려<br>
+</li>
+</ul></li>
+<li><code>"mcquitty"</code> : McQuitty의 평균 연결법</li>
+<li><code>"centroid"</code> : 중심 연결법</li>
+<li><code>"median"</code> : 중위수 연결법</li>
+</ul></li>
+</ul>
+<p><br></p>
+<p><code>Caution!</code> 옵션 <code>method</code>에 지정한 방법에 따라 군집 형성의 결과가 다르다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>protein.X.sing <span class="ot">&lt;-</span> <span class="fu">hclust</span>(protein.X.eucl,                     <span class="co"># 유클리드 거리에 기반한 거리행렬</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">method =</span> <span class="st">"single"</span>)                  <span class="co"># 최단 연결법</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>protein.X.sing</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+hclust(d = protein.X.eucl, method = "single")
+
+Cluster method   : single 
+Distance         : euclidean 
+Number of objects: 17 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>protein.X.comp <span class="ot">&lt;-</span> <span class="fu">hclust</span>(protein.X.eucl,                     <span class="co"># 유클리드 거리에 기반한 거리행렬</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">method =</span> <span class="st">"complete"</span>)                <span class="co"># 최장 연결법</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>protein.X.comp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+hclust(d = protein.X.eucl, method = "complete")
+
+Cluster method   : complete 
+Distance         : euclidean 
+Number of objects: 17 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>protein.X.aver <span class="ot">&lt;-</span> <span class="fu">hclust</span>(protein.X.eucl,                     <span class="co"># 유클리드 거리에 기반한 거리행렬</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">method =</span> <span class="st">"average"</span>)                 <span class="co"># 평균 연결법</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>protein.X.aver</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+hclust(d = protein.X.eucl, method = "average")
+
+Cluster method   : average 
+Distance         : euclidean 
+Number of objects: 17 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>protein.X.ward <span class="ot">&lt;-</span> <span class="fu">hclust</span>(protein.X.eucl,                     <span class="co"># 유클리드 거리에 기반한 거리행렬</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">method =</span> <span class="st">"ward.D"</span>)                <span class="co"># Ward 방법</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>protein.X.ward</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+hclust(d = protein.X.eucl, method = "ward.D")
+
+Cluster method   : ward.D 
+Distance         : euclidean 
+Number of objects: 17 </code></pre>
+</div>
+</div>
+<p><code>Caution!</code> 함수 <code>cutree()</code>는 case별 군집 번호를 생성하는 함수이다. 옵션 <code>k</code>에 형성하고자 하는 군집 개수를 입력하면 계층적 군집분석의 결과를 이용하여 각 case의 군집 번호를 출력해준다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Training Dataset의 case별 군집 번호 생성</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>hcluster <span class="ot">&lt;-</span> <span class="fu">cutree</span>(protein.X.ward,                          <span class="co"># Ward 방법을 이용한 계층적 군집분석           </span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">k =</span> <span class="dv">3</span>)                                   <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>hcluster</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Denmark     Romania      Norway     Finland     Ireland   W Germany Switzerland          UK    Bulgaria        USSR  Yugoslavia       Italy      Poland   E Germany Netherlands     Belgium 
+          1           2           1           1           3           3           3           3           2           3           2           2           3           3           3           3 
+     Greece 
+          2 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Training Dataset과 군집 번호 결합</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>protein.X.hclust <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(protein.trd, hcluster)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>protein.X.hclust</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     x1         x2          x3           x4         x5         x6          x7         x8          x9 hcluster
+Denmark      0.18081182  0.8964725  0.60866213  0.923106753  2.1894978 -0.8752919  0.28314770 -1.1132630 -0.95800750        1
+Romania     -1.21348962 -0.4696659 -1.46078912 -1.136667805 -1.1166002  1.3478740 -0.73972337  1.2269834 -0.69532803        2
+Norway      -0.19945221 -0.9554040 -0.33199753  0.671191879  2.1152035 -0.7870074  0.16280993 -0.6553887 -0.76099790        1
+Finland     -0.16776354 -0.8946867 -0.33199753  2.212318167  0.6664639 -0.5221537  0.46365436 -0.9606382 -1.61470619        1
+Ireland      1.22653789  0.6536035  1.54932180  1.041654929 -0.6708342 -0.7067487  1.12551212 -0.6553887 -0.62965816        3
+W Germany    0.43432117  1.4125693  0.98492600  0.004358389 -0.2250681 -1.1401456  0.52382325 -0.7062636 -0.03862933        3
+Switzerland  0.97302854  0.6839621  0.04426634  0.745284489 -0.6336870 -0.5783347 -0.92023003 -0.2483893  0.68373923        3
+UK           2.33564131 -0.6518177  1.54932180  0.271091785  0.1092564 -0.6826711  0.22297882  0.2603599 -0.36697868        3
+Bulgaria    -0.70647091 -0.5607418 -1.36672316 -1.551586421 -1.0423058  1.9177108 -1.94310111  0.4129847  0.22405014        2
+USSR        -0.23114088 -0.9857626 -0.89639332 -0.321649095 -0.3736568  0.8663218  1.24584989  0.2603599 -0.62965816        3
+Yugoslavia  -1.78388566 -0.8643281 -1.74298702 -1.373764157 -1.2651889  1.8535038 -0.79989226  1.4304831 -0.43264855        2
+Italy       -0.32620689 -0.8339695 -0.14386560 -0.751386233 -0.2250681  0.3205627 -1.34141224  0.7182342  1.86579687        2
+Poland      -0.99166894  0.7143207 -0.33199753  0.078450999 -0.3736568  0.2643816  0.94500546 -0.4518890  1.80012700        3
+E Germany   -0.51633890  1.1393416  0.60866213 -1.136667805  0.5178752 -0.6585934  1.30601878 -1.0623881 -0.16996907        3
+Netherlands -0.16776354  1.7465142  0.51459617  0.686010401 -0.5593927 -0.8351626 -0.07786562 -0.5536389 -0.10429920        3
+Belgium      1.09978322  0.4410931  0.98492600 -0.188282397  0.1835507 -0.4980760  0.82466768 -0.4010141  0.09271040        3
+Greece       0.05405714 -1.4715007 -0.23793156 -0.173463875  0.7036111  0.7138303 -1.28124336  2.4988565  1.73445713        2</code></pre>
+</div>
+</div>
+</section>
+<section id="덴드로그램" class="level3" data-number="7.6.3">
+<h3 data-number="7.6.3" class="anchored" data-anchor-id="덴드로그램"><span class="header-section-number">7.6.3</span> 덴드로그램</h3>
+<ul>
+<li>계층적 군집분석의 장점은 덴드로그램을 쉽게 얻을 수 있다는 것이며, 덴드로그램을 통해 case의 군집 형성 과정을 한 눈에 살펴볼 수 있다.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 최단 연결법을 이용한 계층적 군집분석의 덴드로그램</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(protein.X.sing, </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"최단 연결법"</span>,                                 <span class="co"># 제목</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">""</span>)                                            <span class="co"># x축 라벨 이름</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 덴드로그램에 군집 구분 상자 추가</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="fu">rect.hclust</span>(protein.X.sing,                                </span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">k =</span> <span class="dv">3</span>,                                         <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">border =</span> <span class="st">"red"</span>)                                <span class="co"># 상자 색깔</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Result!</code> 덴드로그램을 살펴보면, 가장 아래쪽에 있는(=Height가 가장 짧은=군집 간 거리가 가장 짧은) “Romania”와 “Yugoslavia”가 제일 처음으로 묶여 군집을 형성하였다. 그리고, Height가 두 번째로 짧은 “W Germany”와 “Netherlands”가 묶여 군집을 형성하였다. 세 번째로는 군집 (“W Germany”, “Netherlands”)과 “Belgium”이 묶여 군집을 형성했다는 것을 알 수 있다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 최장 연결법을 이용한 계층적 군집분석의 덴드로그램</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(protein.X.comp,                          </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"최장 연결법"</span>,                                 <span class="co"># 제목</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">""</span>)                                            <span class="co"># x축 라벨 이름</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 덴드로그램에 군집 구분 상자 추가</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="fu">rect.hclust</span>(protein.X.comp,                                </span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">k =</span> <span class="dv">3</span>,                                         <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">border =</span> <span class="st">"red"</span>)                                <span class="co"># 상자 색깔</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 평균 연결법을 이용한 계층적 군집분석의 덴드로그램</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(protein.X.aver,                          </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"평균 연결법"</span>,                                 <span class="co"># 제목</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">""</span>)                                            <span class="co"># x축 라벨 이름</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 덴드로그램에 군집 구분 상자 추가</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="fu">rect.hclust</span>(protein.X.aver,                                </span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">k =</span> <span class="dv">3</span>,                                         <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">border =</span> <span class="st">"red"</span>)                                <span class="co"># 상자 색깔</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ward 방법을 이용한 계층적 군집분석의 덴드로그램</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(protein.X.ward,                          </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Ward"</span>,                                        <span class="co"># 제목</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">""</span>)                                            <span class="co"># x축 라벨 이름</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 덴드로그램에 군집 구분 상자 추가</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="fu">rect.hclust</span>(protein.X.ward,                                </span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">k =</span> <span class="dv">3</span>,                                         <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">border =</span> <span class="st">"red"</span>)                                <span class="co"># 상자 색깔</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-12-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Caution!</code> Package <code>"factoextra"</code>에서 제공하는 함수 <code>fviz_dend()</code>를 이용하면 덴드로그램의 시각화 옵션을 다양하게 변경할 수 있다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>protein.X.ward <span class="sc">%&gt;%</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fviz_dend</span>(<span class="at">cex =</span> <span class="dv">1</span>,                                       <span class="co"># 라벨 크기</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">k =</span> <span class="dv">3</span>,                                         <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">palette =</span> <span class="st">"jco"</span>)                               <span class="co"># 군집 색깔</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>protein.X.ward <span class="sc">%&gt;%</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fviz_dend</span>(<span class="at">cex =</span> <span class="dv">1</span>,                                       <span class="co"># 라벨 크기</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">k =</span> <span class="dv">3</span>,                                         <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">palette =</span> <span class="st">"jco"</span>,                               <span class="co"># 군집 색깔</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>            <span class="co"># 덴드로그램에 군집 구분 상자 추가</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect =</span> <span class="cn">TRUE</span>,                                   <span class="co"># 상자 표시 여부</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect_border =</span> <span class="st">"jco"</span>,                           <span class="co"># 상자 색깔</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect_fill =</span> <span class="cn">TRUE</span>)                              <span class="co"># 상자 색깔 채우기 여부 / FALSE : 선만 표시</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>protein.X.ward <span class="sc">%&gt;%</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fviz_dend</span>(<span class="at">cex =</span> <span class="dv">1</span>,                                       <span class="co"># 라벨 크기</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">k =</span> <span class="dv">3</span>,                                         <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">palette =</span> <span class="st">"jco"</span>,                               <span class="co"># 군집 색깔</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>            <span class="co"># 덴드로그램에 군집 구분 상자 추가</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect =</span> <span class="cn">TRUE</span>,                                   <span class="co"># 상자 표시 여부</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect_border =</span> <span class="st">"jco"</span>,                           <span class="co"># 상자 색깔</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect_fill =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">horiz =</span> <span class="cn">TRUE</span>)                                  <span class="co"># 가로로 회전</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-13-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="거리행렬만-주어진-경우" class="level3" data-number="7.6.4">
+<h3 data-number="7.6.4" class="anchored" data-anchor-id="거리행렬만-주어진-경우"><span class="header-section-number">7.6.4</span> 거리행렬만 주어진 경우</h3>
+<ul>
+<li>Dataset의 예측 변수 값은 주어지지 않았으며, 거리행렬만 알고 있는 경우 계층적 군집분석을 수행하는 절차는 다음과 같다.
+<ol type="1">
+<li>주어진 거리행렬을 함수 <code>as.dist()</code>를 이용하여 “dist” 객체로 변환</li>
+<li>함수 <code>hclust()</code>를 이용하여 계층적 군집분석 수행</li>
+</ol></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 거리행렬</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>exam71 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">7</span>, <span class="dv">9</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">3</span>, <span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">9</span>, <span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">0</span>)   </span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>exam71.matrix <span class="ot">&lt;-</span> <span class="fu">matrix</span>(exam71, <span class="at">nrow =</span> <span class="dv">4</span>)</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>exam71.matrix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3] [,4]
+[1,]    0    1    7    9
+[2,]    1    0    3    6
+[3,]    7    3    0    5
+[4,]    9    6    5    0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>exam71.dist <span class="ot">&lt;-</span> <span class="fu">as.dist</span>(exam71.matrix)                       <span class="co"># "dist" 객체로 변환</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>exam71.dist</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  1 2 3
+2 1    
+3 7 3  
+4 9 6 5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>exam71.sing <span class="ot">&lt;-</span> <span class="fu">hclust</span>(exam71.dist,                          </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">method =</span> <span class="st">"single"</span>)                    <span class="co"># 최단 연결법</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 덴드로그램 Ver.1</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(exam71.sing,                                           </span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"최단 연결법"</span>,                                  <span class="co"># 제목</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">""</span>)                                             <span class="co"># x축 라벨 이름</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 덴드로그램 Ver.2</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>exam71.sing <span class="sc">%&gt;%</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fviz_dend</span>(<span class="at">cex =</span> <span class="dv">1</span>,                                       <span class="co"># 라벨 크기</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">k =</span> <span class="dv">3</span>,                                         <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">palette =</span> <span class="st">"jco"</span>,                               <span class="co"># 군집 색깔</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>            <span class="co"># 덴드로그램에 군집 구분 상자 추가</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect =</span> <span class="cn">TRUE</span>,                                   <span class="co"># 상자 표시 여부</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect_border =</span> <span class="st">"jco"</span>,                           <span class="co"># 상자 색깔</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect_fill =</span> <span class="cn">TRUE</span>)                              <span class="co"># 상자 색깔 채우기 여부 / FALSE : 선만 표시</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>exam71.comp <span class="ot">&lt;-</span> <span class="fu">hclust</span>(exam71.dist,                         </span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">method =</span> <span class="st">"complete"</span>)                  <span class="co"># 최장 연결법</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 덴드로그램 Ver.1</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(exam71.comp,</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"최장 연결법"</span>,                                  <span class="co"># 제목</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">""</span>)                                             <span class="co"># x축 라벨 이름</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-14-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 덴드로그램 Ver.2</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>exam71.comp <span class="sc">%&gt;%</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fviz_dend</span>(<span class="at">cex =</span> <span class="dv">1</span>,                                       <span class="co"># 라벨 크기</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">k =</span> <span class="dv">3</span>,                                         <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">palette =</span> <span class="st">"jco"</span>,                               <span class="co"># 군집 색깔</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>            <span class="co"># 덴드로그램에 군집 구분 상자 추가</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect =</span> <span class="cn">TRUE</span>,                                   <span class="co"># 상자 표시 여부</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect_border =</span> <span class="st">"jco"</span>,                           <span class="co"># 상자 색깔</span></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">rect_fill =</span> <span class="cn">TRUE</span>)                              <span class="co"># 상자 색깔 채우기 여부 / FALSE : 선만 표시</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-14-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="군집-개수-결정" class="level2" data-number="7.7">
+<h2 data-number="7.7" class="anchored" data-anchor-id="군집-개수-결정"><span class="header-section-number">7.7</span> 군집 개수 결정</h2>
+<ul>
+<li>군집 개수를 결정하는 것은 쉽지 않은 문제이며, 여러 가지 지표들을 이용하여 적절한 군집 개수를 찾는 것이 바람직하다.</li>
+<li>계층적 군집분석은 자료의 계층적 구조에 주된 관심이 있으며, 덴드로그램을 통해 적절한 군집 개수를 결정할 수 있다.
+<ul>
+<li>예를 들어, 군집 형성 과정에서 거리의 측도 또는 어떤 지표의 값이 상대적으로 큰 변화를 보일 경우 이를 검토할 필요가 있다.</li>
+<li>특히, Ward 방법을 이용하는 경우 군집의 개수에 따른 Error Sum of Squares (ESS)의 증분을 검토하여 급격한 변화가 일어나는 위치에 대응하는 군집 개수를 최적의 군집 개수로 결정하기도 한다.</li>
+</ul></li>
+<li>자료의 모분포에 대한 적절한 가정 하에서 통계적 가설검정를 통해 군집의 개수를 알아보는 방법들도 있으나, 이들도 일반적으로 만족할 만한 타당성을 제공하지 않는다.</li>
+</ul>
+<section id="fviz_nbclust" class="level3" data-number="7.7.1">
+<h3 data-number="7.7.1" class="anchored" data-anchor-id="fviz_nbclust"><span class="header-section-number">7.7.1</span> “fviz_nbclust”</h3>
+<ul>
+<li>Package <code>"factoextra"</code>에서 제공하는 함수 <code>fviz_nbclust()</code>를 이용하여 군집 개수에 따른 특정 통계량의 변화를 알 수 있다.
+<ul>
+<li>옵션 <code>method</code>에는 다음과 같은 통계량을 지정할 수 있다.
+<ol type="1">
+<li><code>"wss"</code> (군집 내 제곱합, Within-Cluster Sum of Square) : 군집 내 변동의 합계를 의미하며, 해당 값이 작을수록 군집화가 잘 되었음을 나타낸다. 군집의 개수가 증가함에 따라 wss가 작아지게 되는데, <code>wss가 급격히 감소하다가 감소량이 완만하게 되는 지점</code>이 최적의 군집 개수에 대한 후보가 될 수 있다.</li>
+<li><code>"silhouette"</code> (실루엣 계수, Silhouette Coefficient) : 각 case가 해당 군집에 얼마나 잘 위치하고 있는 지를 측정하는 계수이며, 해당 값이 클 때 군집화가 잘 되었음을 나타낸다. 일반적으로 <code>평균 실루엣 계수가 가장 큰 지점</code>의 군집 개수를 최적의 군집 개수로 선택한다.</li>
+</ol></li>
+</ul></li>
+<li>함수 <code>fviz_nbclust()</code>의 자세한 옵션은 <a href="https://www.rdocumentation.org/packages/factoextra/versions/1.0.7/topics/fviz_nbclust">여기</a>를 참고한다.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Method = "wss"</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_nbclust</span>(protein.trd,                                    </span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>             kmeans,                                        <span class="co"># 군집분석에 사용할 함수</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">method =</span> <span class="st">"wss"</span>,                                <span class="co"># 탐색할 통계량 </span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">k.max =</span> <span class="dv">10</span>)                                    <span class="co"># 탐색할 최대 군집 개수</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Result!</code> 군집의 개수가 2-5개일 때, 통계량 wss의 감소량이 완만하게 되기 때문에, 최적의 군집 개수를 2-5개로 선택할 수 있다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Method = "silhouette"</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_nbclust</span>(protein.trd,                              </span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>             kmeans,                                        <span class="co"># 군집분석에 사용할 함수</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">method =</span> <span class="st">"silhouette"</span>,                         <span class="co"># 탐색할 통계량 </span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">k.max =</span> <span class="dv">10</span>)                                    <span class="co"># 탐색할 최대 군집 개수</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Result!</code> 군집의 개수가 2개일 때, 평균 실루엣 계수가 가장 높으므로 최적의 군집 개수를 2개로 선택할 수 있다.</p>
+</section>
+<section id="nbclust" class="level3" data-number="7.7.2">
+<h3 data-number="7.7.2" class="anchored" data-anchor-id="nbclust"><span class="header-section-number">7.7.2</span> “NbClust”</h3>
+<ul>
+<li>Package <code>"NbClust"</code>에서 제공하는 함수 <code>NbClust()</code>는 앞에서 설명한 통계량(<code>"wss"</code>, <code>"silhouette"</code>)을 포함하여 30개의 통계량에 의해 군집의 개수를 결정할 수 있다.</li>
+<li>함수 <code>NbClust()</code>의 자세한 옵션은 <a href="https://www.rdocumentation.org/packages/NbClust/versions/3.0.1/topics/NbClust">여기</a>를 참고한다.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>nc <span class="ot">&lt;-</span> <span class="fu">NbClust</span>(<span class="at">data =</span> protein.trd,                         </span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">distance =</span> <span class="st">"euclidean"</span>,                       <span class="co"># 거리를 계산할 측도</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">min.nc =</span> <span class="dv">2</span>,                                   <span class="co"># 탐색할 최소 군집 개수</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">max.nc =</span> <span class="dv">8</span>,                                   <span class="co"># 탐색할 최대 군집 개수</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"kmeans"</span>)                            <span class="co"># 군집분석 방법</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>*** : The Hubert index is a graphical method of determining the number of clusters.
+                In the plot of Hubert index, we seek a significant knee that corresponds to a 
+                significant increase of the value of the measure i.e the significant peak in Hubert
+                index second differences plot. 
+ </code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>*** : The D index is a graphical method of determining the number of clusters. 
+                In the plot of D index, we seek a significant knee (the significant peak in Dindex
+                second differences plot) that corresponds to a significant increase of the value of
+                the measure. 
+ 
+******************************************************************* 
+* Among all indices:                                                
+* 10 proposed 2 as the best number of clusters 
+* 5 proposed 3 as the best number of clusters 
+* 3 proposed 4 as the best number of clusters 
+* 3 proposed 6 as the best number of clusters 
+* 3 proposed 8 as the best number of clusters 
+
+                   ***** Conclusion *****                            
+ 
+* According to the majority rule, the best number of clusters is  2 
+ 
+ 
+******************************************************************* </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>nc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$All.index
+      KL      CH Hartigan     CCC    Scott      Marriot   TrCovW  TraceW Friedman  Rubin Cindex     DB Silhouette   Duda Pseudot2   Beale Ratkowsky    Ball Ptbiserial    Frey McClain   Dunn Hubert
+2 4.9411 11.1225   3.2331 -0.1756  36.3456 1.421678e+07 146.0938 82.6873  30.9509 1.7415 0.5736 1.1046     0.3431 1.1970  -2.1394 -0.8894    0.4422 41.3436     0.7062  1.4601  0.6080 0.6460 0.0126
+3 0.6956  7.8181   3.7522 -1.0319  96.3353 9.385189e+05 114.7558 68.0250  96.6219 2.1169 0.5519 0.8772     0.3295 3.1874  -4.8039 -2.7473    0.4135 22.6750     0.6885  1.5743  0.7685 0.6110 0.0128
+4 3.6704  7.2983   1.4045 -1.3187 137.9082 1.446331e+05  67.7159 53.6468 106.0892 2.6842 0.5500 1.1372     0.2421 3.2865  -1.3914 -2.0889    0.3930 13.4117     0.5273 -0.1000  2.1838 0.3411 0.0122
+5 0.5133  5.9227   1.9786 -2.5078 185.0890 1.408551e+04  62.3318 48.4159 173.9386 2.9742 0.5037 1.0525     0.2789 0.8998   0.5569  0.5351    0.3619  9.6832     0.5768 36.1590  2.2269 0.4603 0.0133
+6 0.3615  5.4222   5.9440 -3.3386 234.5005 1.108751e+03  45.6726 41.5629 402.5724 3.4646 0.5027 1.0461     0.2133 0.2757   7.8820 11.8328    0.3428  6.9272     0.4746  0.0607  3.3942 0.3433 0.0131
+7 2.3162  7.2280   3.0544 -1.8743 284.9642 7.754320e+01  20.5620 26.9825 602.5454 5.3368 0.5381 0.9193     0.2820 1.6856  -0.4068  0.0000    0.3403  3.8546     0.5152  0.1602  4.2023 0.4515 0.0153
+8 2.8851  7.6717   1.1819 -1.6783 337.0101 4.741600e+00  13.4502 20.6693 749.7846 6.9669 0.5279 0.7813     0.3445 7.0565   0.0000  0.0000    0.3270  2.5837     0.5034  1.1889  4.9530 0.5005 0.0153
+  SDindex Dindex   SDbw
+2  1.0165 2.1448 0.6546
+3  0.8783 1.8881 0.4867
+4  1.0702 1.7046 0.4059
+5  1.0276 1.5839 0.3589
+6  1.1107 1.4546 0.3400
+7  1.0204 1.1810 0.2757
+8  0.9360 1.0175 0.1937
+
+$All.CriticalValues
+  CritValue_Duda CritValue_PseudoT2 Fvalue_Beale
+2         0.4954            13.2414       1.0000
+3         0.2098            26.3677       1.0000
+4         0.0985            18.3088       1.0000
+5         0.3418             9.6280       0.8391
+6         0.2857             7.4990       0.0000
+7        -0.0882           -12.3333          NaN
+8        -0.0882             0.0000          NaN
+
+$Best.nc
+                    KL      CH Hartigan     CCC   Scott  Marriot  TrCovW TraceW Friedman   Rubin Cindex     DB Silhouette  Duda PseudoT2   Beale Ratkowsky    Ball PtBiserial   Frey McClain  Dunn
+Number_clusters 2.0000  2.0000   6.0000  2.0000  3.0000        3  4.0000 4.0000   6.0000  4.0000 6.0000 8.0000     8.0000 2.000   2.0000  2.0000    2.0000  3.0000     2.0000 3.0000   2.000 2.000
+Value_Index     4.9411 11.1225   3.9654 -0.1756 59.9897 12484378 47.0399 9.1472 228.6338 -0.2773 0.5027 0.7813     0.3445 1.197  -2.1394 -0.8894    0.4422 18.6686     0.7062 1.5743   0.608 0.646
+                Hubert SDindex Dindex   SDbw
+Number_clusters      0  3.0000      0 8.0000
+Value_Index          0  0.8783      0 0.1937
+
+$Best.partition
+    Denmark     Romania      Norway     Finland     Ireland   W Germany Switzerland          UK    Bulgaria        USSR  Yugoslavia       Italy      Poland   E Germany Netherlands     Belgium 
+          1           2           1           1           1           1           1           1           2           2           2           2           1           1           1           1 
+     Greece 
+          2 </code></pre>
+</div>
+</div>
+<p><code>Caution!</code> “$All.index”에서는 군집 개수에 따른 각 통계량의 측정값을 볼 수 있으며, “$Best.nc”에서는 각 통계량에 대해 최적의 군집 개수를 보여준다. “$Best.partition”에서는 최적의 군집 개수에 대한 case별 군집 번호를 보여준다.<br>
+<code>Result!</code> “$Best.nc”를 살펴보면, 10개의 통계량에서 최적의 군집 개수로 “2”개를 추천하고 있으며, 5개의 통계량에서 최적의 군집 개수를 “3”개로 추천하고 있다. 대다수의 통계량이 최적의 군집 개수로 “2”개를 추천하고 있으며, 이를 기반으로 나눠진 각 case의 군집 번호는 “$Best.partition”에서 볼 수 있다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 여러 통계량의 최적의 군집 개수에 대한 막대 그래프</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(<span class="fu">table</span>(nc<span class="sc">$</span>Best.n[<span class="dv">1</span>,]),                               <span class="co"># 군집 개수에 대한 도수분포표</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"Number of Clusters"</span>,</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Number of Criteria"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Caution!</code> 옵션 <code>index</code>에 특정 통계량의 이름을 지정하면, 해당 통계량에 대한 결과를 자세히 볼 수 있다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cubic Clustering Criterion 통계량에 대한 최적의 군집 개수</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="fu">NbClust</span>(<span class="at">data =</span> protein.trd,                         </span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">distance =</span> <span class="st">"euclidean"</span>,                             <span class="co"># 거리를 계산할 측도</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">min.nc =</span> <span class="dv">2</span>,                                         <span class="co"># 탐색할 최소 군집 개수</span></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">max.nc =</span> <span class="dv">8</span>,                                         <span class="co"># 탐색할 최대 군집 개수</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"kmeans"</span>,                                  <span class="co"># 군집분석 방법</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">index =</span> <span class="st">"ccc"</span>)                                      <span class="co"># Cubic Clustering Criterion 통계량</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$All.index
+      2       3       4       5       6       7       8 
+-0.1756 -1.0319 -1.3187 -2.5078 -3.3386 -1.8743 -1.6783 
+
+$Best.nc
+Number_clusters     Value_Index 
+         2.0000         -0.1756 
+
+$Best.partition
+    Denmark     Romania      Norway     Finland     Ireland   W Germany Switzerland          UK    Bulgaria        USSR  Yugoslavia       Italy      Poland   E Germany Netherlands     Belgium 
+          1           2           1           1           1           1           1           1           2           2           2           2           1           1           1           1 
+     Greece 
+          2 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="비계층적-군집분석k-means" class="level2" data-number="7.8">
+<h2 data-number="7.8" class="anchored" data-anchor-id="비계층적-군집분석k-means"><span class="header-section-number">7.8</span> 비계층적 군집분석(k-means)</h2>
+<blockquote class="blockquote">
+<p>k-means의 장점</p>
+</blockquote>
+<ul>
+<li>안정적인 결과를 찾을 때까지 각 반복마다 군집 간에 case 이동이 가능하다.</li>
+<li>예측 변수가 많은 경우, 다른 군집분석 알고리듬에 비해 수행하는 시간이 적게 걸린다.</li>
+<li>알고리듬 구현이 매우 간단하다.</li>
+</ul>
+<p><br></p>
+<blockquote class="blockquote">
+<p>k-means의 단점</p>
+</blockquote>
+<ul>
+<li>범주형 예측 변수는 거리 계산을 할 수 없으므로 분석에 사용할 수 없다.</li>
+<li>군집의 개수를 미리 결정해야 한다.</li>
+<li>예측 변수들의 scale을 동일하게 설정해야 한다.</li>
+<li>이상치에 민감하다.</li>
+<li>초기 중심값 선택에 매우 민감하다.</li>
+<li>비구형 군집에는 잘 작동하지 않는다.</li>
+</ul>
+<p><br></p>
+<blockquote class="blockquote">
+<p>k-means를 수행하기 위해 사용할 알고리듬</p>
+</blockquote>
+<center>
+<img src="./image/cluster_algorithm.png" class="img-fluid">
+</center>
+<p><br></p>
+<p><code>Caution!</code> <a href="#군집-개수-결정">군집 개수 결정</a>에서 다양한 통계량을 이용하여 결정된 최적의 군집 개수 “2”개를 기반으로 k-means를 수행한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># k-means에서 함수 predict()를 사용하기 위해 Package 설치</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"twidlr"</span>)                                       <span class="co"># For predict of "kmeans"</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a><span class="co"># devtools::install_github("drsimonj/twidlr")                  # Install Package "twidlr"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="lloyd" class="level3" data-number="7.8.1">
+<h3 data-number="7.8.1" class="anchored" data-anchor-id="lloyd"><span class="header-section-number">7.8.1</span> Lloyd</h3>
+<section id="모형-훈련" class="level4" data-number="7.8.1.1">
+<h4 data-number="7.8.1.1" class="anchored" data-anchor-id="모형-훈련"><span class="header-section-number">7.8.1.1</span> 모형 훈련</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>protein.Lloyd <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(protein.trd, </span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">centers =</span> <span class="dv">2</span>,                         <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">nstart =</span> <span class="dv">10</span>,                         <span class="co"># 수행 횟수</span></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">iter.max =</span> <span class="dv">100</span>,                      <span class="co"># 최대 반복 수</span></span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">algorithm =</span> <span class="st">"Lloyd"</span>)</span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>protein.Lloyd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>K-means clustering with 2 clusters of sizes 11, 6
+
+Cluster means:
+          x1         x2         x3         x4         x5        x6         x7         x8         x9
+1  0.3824670  0.4714517  0.5316991  0.4825925  0.3017463 -0.638164  0.4417748 -0.5952638 -0.1878790
+2 -0.7011895 -0.8643281 -0.9747816 -0.8847529 -0.5532015  1.169967 -0.8099204  1.0913170  0.3444449
+
+Clustering vector:
+    Denmark     Romania      Norway     Finland     Ireland   W Germany Switzerland          UK    Bulgaria        USSR  Yugoslavia       Italy      Poland   E Germany Netherlands     Belgium 
+          1           2           1           1           1           1           1           1           2           2           2           2           1           1           1           1 
+     Greece 
+          2 
+
+Within cluster sum of squares by cluster:
+[1] 54.69862 27.98864
+ (between_SS / total_SS =  42.6 %)
+
+Available components:
+
+[1] "cluster"      "centers"      "totss"        "withinss"     "tot.withinss" "betweenss"    "size"         "iter"         "ifault"      </code></pre>
+</div>
+</div>
+<p><code>Caution!</code> k-means는 초기 중심값을 랜덤하게 선택하기 때문에 이 과정에서 다양한 결과가 나타날 수 있다. 그래서 <code>nstart</code>를 이용하여 수행 횟수를 늘려 최대한 다양한 초기 중심값에 대해 k-means를 수행하고 최적의 결과를 찾을 수 있다.<br>
+<code>Result!</code> 각 군집에 속한 case 수는 11, 6이며, “Within cluster sum of squares by cluster”를 살펴보면 42.6%의 변동이 2개의 군집으로 설명되고 있다.</p>
+</section>
+<section id="예측" class="level4" data-number="7.8.1.2">
+<h4 data-number="7.8.1.2" class="anchored" data-anchor-id="예측"><span class="header-section-number">7.8.1.2</span> 예측</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test Dataset에 대한 군집 번호 예측</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>pred.Lloyd <span class="ot">&lt;-</span> <span class="fu">predict</span>(protein.Lloyd,</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>                      protein.ted)</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>pred.Lloyd <span class="sc">%&gt;%</span></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 1
+  value
+  &lt;int&gt;
+1     2
+2     1
+3     1
+4     1
+5     2
+6     2
+7     2
+8     1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test Dataset과 예측한 군집 번호 결합</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>pred.protein.ted <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(protein.ted, pred.Lloyd) <span class="sc">%&gt;%</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pred.Lloyd =</span> <span class="fu">factor</span>(pred.Lloyd))                   <span class="co"># 군집 번호를 범주형으로 변환</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>pred.protein.ted <span class="sc">%&gt;%</span></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 10
+       x1      x2      x3     x4     x5     x6     x7     x8      x9 pred.Lloyd
+    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;fct&gt;     
+1  0.0224 -1.96   -2.40   -1.46  -1.41   0.762 -2.24   1.33  -1.42   2         
+2 -0.358   1.87    1.17    0.167 -0.708 -0.386 -0.439 -0.808  0.290  1         
+3 -0.104   1.08   -0.238  -0.929 -0.745  0.120  0.403 -0.910  0.0927 1         
+4  2.53    0.623   0.232   0.108  0.629 -0.378  0.283 -0.248  1.73   1         
+5 -1.50    1.38   -0.144  -1.34  -1.38   0.585 -0.198  1.28   0.224  2         
+6 -1.21   -1.26   -1.84   -2.06   3.79  -0.466  0.945  0.922  2.65   2         
+7 -0.928  -1.35    0.0443 -1.51   1.11  -0.289  0.825  1.53   2.19   2         
+8 -0.0410 -0.0143  0.421  -2.09   1.30  -1.07  -0.379 -0.757 -1.22   1         </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(pred.protein.ted,                             </span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">colour =</span> pred.Lloyd, <span class="at">alpha =</span> <span class="fl">0.8</span>),              <span class="co"># 군집에 따라 색깔을 다르게 표현</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">upper =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"density"</span>)) <span class="sc">+</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"purple"</span>,<span class="st">"cyan4"</span>)) <span class="sc">+</span>       <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"purple"</span>,<span class="st">"cyan4"</span>)) <span class="sc">+</span>         <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="macqueen" class="level3" data-number="7.8.2">
+<h3 data-number="7.8.2" class="anchored" data-anchor-id="macqueen"><span class="header-section-number">7.8.2</span> MacQueen</h3>
+<section id="모형-훈련-1" class="level4" data-number="7.8.2.1">
+<h4 data-number="7.8.2.1" class="anchored" data-anchor-id="모형-훈련-1"><span class="header-section-number">7.8.2.1</span> 모형 훈련</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>protein.MacQ <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(protein.trd, </span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">centers =</span> <span class="dv">2</span>,                         <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nstart =</span> <span class="dv">10</span>,                         <span class="co"># 수행 횟수</span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">iter.max =</span> <span class="dv">100</span>,                      <span class="co"># 최대 반복 수</span></span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">algorithm =</span> <span class="st">"MacQueen"</span>)</span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>protein.MacQ</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>K-means clustering with 2 clusters of sizes 11, 6
+
+Cluster means:
+          x1         x2         x3         x4         x5        x6         x7         x8         x9
+1  0.3824670  0.4714517  0.5316991  0.4825925  0.3017463 -0.638164  0.4417748 -0.5952638 -0.1878790
+2 -0.7011895 -0.8643281 -0.9747816 -0.8847529 -0.5532015  1.169967 -0.8099204  1.0913170  0.3444449
+
+Clustering vector:
+    Denmark     Romania      Norway     Finland     Ireland   W Germany Switzerland          UK    Bulgaria        USSR  Yugoslavia       Italy      Poland   E Germany Netherlands     Belgium 
+          1           2           1           1           1           1           1           1           2           2           2           2           1           1           1           1 
+     Greece 
+          2 
+
+Within cluster sum of squares by cluster:
+[1] 54.69862 27.98864
+ (between_SS / total_SS =  42.6 %)
+
+Available components:
+
+[1] "cluster"      "centers"      "totss"        "withinss"     "tot.withinss" "betweenss"    "size"         "iter"         "ifault"      </code></pre>
+</div>
+</div>
+<p><code>Result!</code> 각 군집에 속한 case 수는 11, 6이며, “Within cluster sum of squares by cluster”를 살펴보면 42.6%의 변동이 2개의 군집으로 설명되고 있다.</p>
+</section>
+<section id="예측-1" class="level4" data-number="7.8.2.2">
+<h4 data-number="7.8.2.2" class="anchored" data-anchor-id="예측-1"><span class="header-section-number">7.8.2.2</span> 예측</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test Dataset에 대한 군집 번호 예측</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>pred.MacQ <span class="ot">&lt;-</span> <span class="fu">predict</span>(protein.MacQ,</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>                     protein.ted)</span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>pred.MacQ <span class="sc">%&gt;%</span></span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 1
+  value
+  &lt;int&gt;
+1     2
+2     1
+3     1
+4     1
+5     2
+6     2
+7     2
+8     1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test Dataset과 예측한 군집 번호 결합</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>pred.protein.ted <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(protein.ted, pred.MacQ) <span class="sc">%&gt;%</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pred.MacQ =</span> <span class="fu">factor</span>(pred.MacQ))                     <span class="co"># 군집 번호를 범주형으로 변환</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>pred.protein.ted <span class="sc">%&gt;%</span></span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 10
+       x1      x2      x3     x4     x5     x6     x7     x8      x9 pred.MacQ
+    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;fct&gt;    
+1  0.0224 -1.96   -2.40   -1.46  -1.41   0.762 -2.24   1.33  -1.42   2        
+2 -0.358   1.87    1.17    0.167 -0.708 -0.386 -0.439 -0.808  0.290  1        
+3 -0.104   1.08   -0.238  -0.929 -0.745  0.120  0.403 -0.910  0.0927 1        
+4  2.53    0.623   0.232   0.108  0.629 -0.378  0.283 -0.248  1.73   1        
+5 -1.50    1.38   -0.144  -1.34  -1.38   0.585 -0.198  1.28   0.224  2        
+6 -1.21   -1.26   -1.84   -2.06   3.79  -0.466  0.945  0.922  2.65   2        
+7 -0.928  -1.35    0.0443 -1.51   1.11  -0.289  0.825  1.53   2.19   2        
+8 -0.0410 -0.0143  0.421  -2.09   1.30  -1.07  -0.379 -0.757 -1.22   1        </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(pred.protein.ted,                             </span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">colour =</span> pred.MacQ, <span class="at">alpha =</span> <span class="fl">0.8</span>),               <span class="co"># 군집에 따라 색깔을 다르게 표현</span></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">upper =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"density"</span>)) <span class="sc">+</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#483DBB"</span>,<span class="st">"#FFB400"</span>)) <span class="sc">+</span>    <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#483DBB"</span>,<span class="st">"#FFB400"</span>)) <span class="sc">+</span>      <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="hartigan-wong" class="level3" data-number="7.8.3">
+<h3 data-number="7.8.3" class="anchored" data-anchor-id="hartigan-wong"><span class="header-section-number">7.8.3</span> Hartigan-Wong</h3>
+<section id="모형-훈련-2" class="level4" data-number="7.8.3.1">
+<h4 data-number="7.8.3.1" class="anchored" data-anchor-id="모형-훈련-2"><span class="header-section-number">7.8.3.1</span> 모형 훈련</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>protein.HW <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(protein.trd, </span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">centers =</span> <span class="dv">2</span>,                            <span class="co"># 형성하고자 하는 군집 개수</span></span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">nstart =</span> <span class="dv">10</span>,                            <span class="co"># 수행 횟수</span></span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">iter.max =</span> <span class="dv">100</span>,                         <span class="co"># 최대 반복 수</span></span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">algorithm =</span> <span class="st">"Hartigan-Wong"</span>)</span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>protein.HW</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>K-means clustering with 2 clusters of sizes 11, 6
+
+Cluster means:
+          x1         x2         x3         x4         x5        x6         x7         x8         x9
+1  0.3824670  0.4714517  0.5316991  0.4825925  0.3017463 -0.638164  0.4417748 -0.5952638 -0.1878790
+2 -0.7011895 -0.8643281 -0.9747816 -0.8847529 -0.5532015  1.169967 -0.8099204  1.0913170  0.3444449
+
+Clustering vector:
+    Denmark     Romania      Norway     Finland     Ireland   W Germany Switzerland          UK    Bulgaria        USSR  Yugoslavia       Italy      Poland   E Germany Netherlands     Belgium 
+          1           2           1           1           1           1           1           1           2           2           2           2           1           1           1           1 
+     Greece 
+          2 
+
+Within cluster sum of squares by cluster:
+[1] 54.69862 27.98864
+ (between_SS / total_SS =  42.6 %)
+
+Available components:
+
+[1] "cluster"      "centers"      "totss"        "withinss"     "tot.withinss" "betweenss"    "size"         "iter"         "ifault"      </code></pre>
+</div>
+</div>
+<p><code>Result!</code> 각 군집에 속한 case 수는 11, 6이며, “Within cluster sum of squares by cluster”를 살펴보면 42.6%의 변동이 2개의 군집으로 설명되고 있다.</p>
+</section>
+<section id="예측-2" class="level4" data-number="7.8.3.2">
+<h4 data-number="7.8.3.2" class="anchored" data-anchor-id="예측-2"><span class="header-section-number">7.8.3.2</span> 예측</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test Dataset에 대한 군집 번호 예측</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>pred.HW <span class="ot">&lt;-</span> <span class="fu">predict</span>(protein.HW,</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>                   protein.ted)</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>pred.HW <span class="sc">%&gt;%</span></span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 1
+  value
+  &lt;int&gt;
+1     2
+2     1
+3     1
+4     1
+5     2
+6     2
+7     2
+8     1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test Dataset과 예측한 군집 번호 결합</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>pred.protein.ted <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(protein.ted, pred.HW) <span class="sc">%&gt;%</span></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pred.HW =</span> <span class="fu">factor</span>(pred.HW))                         <span class="co"># 군집 번호를 범주형으로 변환</span></span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>pred.protein.ted <span class="sc">%&gt;%</span></span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 10
+       x1      x2      x3     x4     x5     x6     x7     x8      x9 pred.HW
+    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;fct&gt;  
+1  0.0224 -1.96   -2.40   -1.46  -1.41   0.762 -2.24   1.33  -1.42   2      
+2 -0.358   1.87    1.17    0.167 -0.708 -0.386 -0.439 -0.808  0.290  1      
+3 -0.104   1.08   -0.238  -0.929 -0.745  0.120  0.403 -0.910  0.0927 1      
+4  2.53    0.623   0.232   0.108  0.629 -0.378  0.283 -0.248  1.73   1      
+5 -1.50    1.38   -0.144  -1.34  -1.38   0.585 -0.198  1.28   0.224  2      
+6 -1.21   -1.26   -1.84   -2.06   3.79  -0.466  0.945  0.922  2.65   2      
+7 -0.928  -1.35    0.0443 -1.51   1.11  -0.289  0.825  1.53   2.19   2      
+8 -0.0410 -0.0143  0.421  -2.09   1.30  -1.07  -0.379 -0.757 -1.22   1      </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(pred.protein.ted,                             </span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">colour =</span> pred.HW, <span class="at">alpha =</span> <span class="fl">0.8</span>),                 <span class="co"># 군집에 따라 색깔을 다르게 표현</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"density"</span>)) <span class="sc">+</span></span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#0064FF"</span>,<span class="st">"#FF9614"</span>)) <span class="sc">+</span>    <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#0064FF"</span>,<span class="st">"#FF9614"</span>)) <span class="sc">+</span>      <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Clustering_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./SVM_rd.html" class="pagination-link" aria-label="Support Vector Machine with Radial Basis Kernel">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Support Vector Machine with Radial Basis Kernel</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Principal.html" class="pagination-link" aria-label="Principal Component Analysis">
+        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/JJJJYE/ML_book1/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer><script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

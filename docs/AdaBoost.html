@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Young Eun Jeon, Jeong-Wook Lee, and Jung-In Seo">
+
+<title>14&nbsp; AdaBoost – Data Mining</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./GBM.html" rel="next">
+<link href="./RF.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-1092c56c6cadf2eb47b1bc8063ab382a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-dc2382f869c37aa0256525aa4b36f69f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles/styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./AdaBoost.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">AdaBoost</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Data Mining</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/JJJJYE/ML_book1" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./KNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nearest Neighborhood Algorithm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Naive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Naive Bayes Classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Decision_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Decision Tree</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_li.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Support Vector Machine with Linear Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_po.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Support Vector Machine with Polynomial Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_rd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Support Vector Machine with Radial Basis Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Clustering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Principal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Logistic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Logistic Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./LASSO.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">LASSO Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ridge.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Ridge Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Elasticnet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Elastic Net Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./RF.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Random Forest</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./AdaBoost.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">AdaBoost</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./GBM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./XGBoost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">XGBoost</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#데이터-불러오기" id="toc-데이터-불러오기" class="nav-link active" data-scroll-target="#데이터-불러오기"><span class="header-section-number">14.1</span> 데이터 불러오기</a></li>
+  <li><a href="#데이터-전처리-i" id="toc-데이터-전처리-i" class="nav-link" data-scroll-target="#데이터-전처리-i"><span class="header-section-number">14.2</span> 데이터 전처리 I</a></li>
+  <li><a href="#데이터-탐색" id="toc-데이터-탐색" class="nav-link" data-scroll-target="#데이터-탐색"><span class="header-section-number">14.3</span> 데이터 탐색</a></li>
+  <li><a href="#데이터-분할" id="toc-데이터-분할" class="nav-link" data-scroll-target="#데이터-분할"><span class="header-section-number">14.4</span> 데이터 분할</a></li>
+  <li><a href="#데이터-전처리-ii" id="toc-데이터-전처리-ii" class="nav-link" data-scroll-target="#데이터-전처리-ii"><span class="header-section-number">14.5</span> 데이터 전처리 II</a></li>
+  <li><a href="#모형-훈련" id="toc-모형-훈련" class="nav-link" data-scroll-target="#모형-훈련"><span class="header-section-number">14.6</span> 모형 훈련</a></li>
+  <li><a href="#모형-평가" id="toc-모형-평가" class="nav-link" data-scroll-target="#모형-평가"><span class="header-section-number">14.7</span> 모형 평가</a>
+  <ul class="collapse">
+  <li><a href="#confusionmatrix" id="toc-confusionmatrix" class="nav-link" data-scroll-target="#confusionmatrix"><span class="header-section-number">14.7.1</span> ConfusionMatrix</a></li>
+  <li><a href="#roc-곡선" id="toc-roc-곡선" class="nav-link" data-scroll-target="#roc-곡선"><span class="header-section-number">14.7.2</span> ROC 곡선</a></li>
+  <li><a href="#향상-차트" id="toc-향상-차트" class="nav-link" data-scroll-target="#향상-차트"><span class="header-section-number">14.7.3</span> 향상 차트</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/JJJJYE/ML_book1/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./AdaBoost.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">AdaBoost</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">AdaBoost</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p>실습 자료 : 1912년 4월 15일 타이타닉호 침몰 당시 탑승객들의 정보를 기록한 데이터셋이며, 총 11개의 변수를 포함하고 있다. 이 자료에서 <strong>Target</strong>은 <code>Survived</code>이다.</p>
+</blockquote>
+<center>
+<img src="./image/그림_titanic.png" class="img-fluid">
+</center>
+<p><br></p>
+<center>
+<img src="./image/Titanic_표.png" width="400" height="400">
+</center>
+<p><br></p>
+<section id="데이터-불러오기" class="level2" data-number="14.1">
+<h2 data-number="14.1" class="anchored" data-anchor-id="데이터-불러오기"><span class="header-section-number">14.1</span> 데이터 불러오기</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"data.table"</span>, </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">"tidyverse"</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>               <span class="st">"dplyr"</span>, <span class="st">"tidyr"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">"ggplot2"</span>, <span class="st">"GGally"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">"caret"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>               <span class="st">"adabag"</span>)                                                <span class="co"># For boosting</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>titanic <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"../Titanic.csv"</span>)                                      <span class="co"># 데이터 불러오기</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>titanic <span class="sc">%&gt;%</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 891 × 11
+   Survived Pclass Name                                                Sex      Age SibSp Parch Ticket            Fare Cabin  Embarked
+      &lt;int&gt;  &lt;int&gt; &lt;chr&gt;                                               &lt;chr&gt;  &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;   
+ 1        0      3 Braund, Mr. Owen Harris                             male      22     1     0 A/5 21171         7.25 ""     S       
+ 2        1      1 Cumings, Mrs. John Bradley (Florence Briggs Thayer) female    38     1     0 PC 17599         71.3  "C85"  C       
+ 3        1      3 Heikkinen, Miss. Laina                              female    26     0     0 STON/O2. 3101282  7.92 ""     S       
+ 4        1      1 Futrelle, Mrs. Jacques Heath (Lily May Peel)        female    35     1     0 113803           53.1  "C123" S       
+ 5        0      3 Allen, Mr. William Henry                            male      35     0     0 373450            8.05 ""     S       
+ 6        0      3 Moran, Mr. James                                    male      NA     0     0 330877            8.46 ""     Q       
+ 7        0      1 McCarthy, Mr. Timothy J                             male      54     0     0 17463            51.9  "E46"  S       
+ 8        0      3 Palsson, Master. Gosta Leonard                      male       2     3     1 349909           21.1  ""     S       
+ 9        1      3 Johnson, Mrs. Oscar W (Elisabeth Vilhelmina Berg)   female    27     0     2 347742           11.1  ""     S       
+10        1      2 Nasser, Mrs. Nicholas (Adele Achem)                 female    14     1     0 237736           30.1  ""     C       
+# ℹ 881 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="데이터-전처리-i" class="level2" data-number="14.2">
+<h2 data-number="14.2" class="anchored" data-anchor-id="데이터-전처리-i"><span class="header-section-number">14.2</span> 데이터 전처리 I</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>titanic <span class="sc">%&lt;&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span>                                                      <span class="co"># Data Frame 형태로 변환 </span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Survived =</span> <span class="fu">ifelse</span>(Survived <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"yes"</span>, <span class="st">"no"</span>))                 <span class="co"># Target을 문자형 변수로 변환</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Convert to Factor</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>fac.col <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Pclass"</span>, <span class="st">"Sex"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>             <span class="co"># Target</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Survived"</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>titanic <span class="ot">&lt;-</span> titanic <span class="sc">%&gt;%</span> </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(fac.col, as.factor)                                         <span class="co"># 범주형으로 변환</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic)                                                        <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 891
+Columns: 11
+$ Survived &lt;fct&gt; no, yes, yes, yes, no, no, no, no, yes, yes, yes, yes, no, no, no, yes, no, yes, no, yes, no, yes, yes, yes, no, yes, no, no, yes, no, no, yes, yes, no, no, no, yes, no, no, yes, no…
+$ Pclass   &lt;fct&gt; 3, 1, 3, 1, 3, 3, 1, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 2, 3, 3, 2, 2, 3, 1, 3, 3, 3, 1, 3, 3, 1, 1, 3, 2, 1, 1, 3, 3, 3, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 2, 1, 1, 2, 3, 2, 3, 3…
+$ Name     &lt;chr&gt; "Braund, Mr. Owen Harris", "Cumings, Mrs. John Bradley (Florence Briggs Thayer)", "Heikkinen, Miss. Laina", "Futrelle, Mrs. Jacques Heath (Lily May Peel)", "Allen, Mr. William Henry…
+$ Sex      &lt;fct&gt; male, female, female, female, male, male, male, male, female, female, female, female, male, male, female, female, male, male, female, female, male, male, female, male, female, femal…
+$ Age      &lt;dbl&gt; 22.0, 38.0, 26.0, 35.0, 35.0, NA, 54.0, 2.0, 27.0, 14.0, 4.0, 58.0, 20.0, 39.0, 14.0, 55.0, 2.0, NA, 31.0, NA, 35.0, 34.0, 15.0, 28.0, 8.0, 38.0, NA, 19.0, NA, NA, 40.0, NA, NA, 66.…
+$ SibSp    &lt;int&gt; 1, 1, 0, 1, 0, 0, 0, 3, 0, 1, 1, 0, 0, 1, 0, 0, 4, 0, 1, 0, 0, 0, 0, 0, 3, 1, 0, 3, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2, 1, 1, 1, 0, 1, 0, 0, 1, 0, 2, 1, 4, 0, 1, 1, 0, 0, 0, 0, 1, 5, 0…
+$ Parch    &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 1, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 2, 2, 0…
+$ Ticket   &lt;chr&gt; "A/5 21171", "PC 17599", "STON/O2. 3101282", "113803", "373450", "330877", "17463", "349909", "347742", "237736", "PP 9549", "113783", "A/5. 2151", "347082", "350406", "248706", "38…
+$ Fare     &lt;dbl&gt; 7.2500, 71.2833, 7.9250, 53.1000, 8.0500, 8.4583, 51.8625, 21.0750, 11.1333, 30.0708, 16.7000, 26.5500, 8.0500, 31.2750, 7.8542, 16.0000, 29.1250, 13.0000, 18.0000, 7.2250, 26.0000,…
+$ Cabin    &lt;chr&gt; "", "C85", "", "C123", "", "", "E46", "", "", "", "G6", "C103", "", "", "", "", "", "", "", "", "", "D56", "", "A6", "", "", "", "C23 C25 C27", "", "", "", "B78", "", "", "", "", ""…
+$ Embarked &lt;chr&gt; "S", "C", "S", "S", "S", "Q", "S", "S", "S", "C", "S", "S", "S", "S", "S", "S", "Q", "S", "S", "C", "S", "S", "Q", "S", "S", "S", "C", "S", "Q", "S", "C", "C", "Q", "S", "C", "S", "…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Generate New Variable</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>titanic <span class="ot">&lt;-</span> titanic <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FamSize =</span> SibSp <span class="sc">+</span> Parch)                                       <span class="co"># "FamSize = 형제 및 배우자 수 + 부모님 및 자녀 수"로 가족 수를 의미하는 새로운 변수</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic)                                                        <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 891
+Columns: 12
+$ Survived &lt;fct&gt; no, yes, yes, yes, no, no, no, no, yes, yes, yes, yes, no, no, no, yes, no, yes, no, yes, no, yes, yes, yes, no, yes, no, no, yes, no, no, yes, yes, no, no, no, yes, no, no, yes, no…
+$ Pclass   &lt;fct&gt; 3, 1, 3, 1, 3, 3, 1, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 2, 3, 3, 2, 2, 3, 1, 3, 3, 3, 1, 3, 3, 1, 1, 3, 2, 1, 1, 3, 3, 3, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 2, 1, 1, 2, 3, 2, 3, 3…
+$ Name     &lt;chr&gt; "Braund, Mr. Owen Harris", "Cumings, Mrs. John Bradley (Florence Briggs Thayer)", "Heikkinen, Miss. Laina", "Futrelle, Mrs. Jacques Heath (Lily May Peel)", "Allen, Mr. William Henry…
+$ Sex      &lt;fct&gt; male, female, female, female, male, male, male, male, female, female, female, female, male, male, female, female, male, male, female, female, male, male, female, male, female, femal…
+$ Age      &lt;dbl&gt; 22.0, 38.0, 26.0, 35.0, 35.0, NA, 54.0, 2.0, 27.0, 14.0, 4.0, 58.0, 20.0, 39.0, 14.0, 55.0, 2.0, NA, 31.0, NA, 35.0, 34.0, 15.0, 28.0, 8.0, 38.0, NA, 19.0, NA, NA, 40.0, NA, NA, 66.…
+$ SibSp    &lt;int&gt; 1, 1, 0, 1, 0, 0, 0, 3, 0, 1, 1, 0, 0, 1, 0, 0, 4, 0, 1, 0, 0, 0, 0, 0, 3, 1, 0, 3, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2, 1, 1, 1, 0, 1, 0, 0, 1, 0, 2, 1, 4, 0, 1, 1, 0, 0, 0, 0, 1, 5, 0…
+$ Parch    &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 1, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 2, 2, 0…
+$ Ticket   &lt;chr&gt; "A/5 21171", "PC 17599", "STON/O2. 3101282", "113803", "373450", "330877", "17463", "349909", "347742", "237736", "PP 9549", "113783", "A/5. 2151", "347082", "350406", "248706", "38…
+$ Fare     &lt;dbl&gt; 7.2500, 71.2833, 7.9250, 53.1000, 8.0500, 8.4583, 51.8625, 21.0750, 11.1333, 30.0708, 16.7000, 26.5500, 8.0500, 31.2750, 7.8542, 16.0000, 29.1250, 13.0000, 18.0000, 7.2250, 26.0000,…
+$ Cabin    &lt;chr&gt; "", "C85", "", "C123", "", "", "E46", "", "", "", "G6", "C103", "", "", "", "", "", "", "", "", "", "D56", "", "A6", "", "", "", "C23 C25 C27", "", "", "", "B78", "", "", "", "", ""…
+$ Embarked &lt;chr&gt; "S", "C", "S", "S", "S", "Q", "S", "S", "S", "C", "S", "S", "S", "S", "S", "S", "Q", "S", "S", "C", "S", "S", "Q", "S", "S", "S", "C", "S", "Q", "S", "C", "C", "Q", "S", "C", "S", "…
+$ FamSize  &lt;int&gt; 1, 1, 0, 1, 0, 0, 0, 4, 2, 1, 2, 0, 0, 6, 0, 0, 5, 0, 1, 0, 0, 0, 0, 0, 4, 6, 0, 5, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2, 1, 1, 1, 0, 3, 0, 0, 1, 0, 2, 1, 5, 0, 1, 1, 1, 0, 0, 0, 3, 7, 0…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Select Variables used for Analysis</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>titanic1 <span class="ot">&lt;-</span> titanic <span class="sc">%&gt;%</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Survived, Pclass, Sex, Age, Fare, FamSize)              <span class="co"># 분석에 사용할 변수 선택</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic1)                                                       <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 891
+Columns: 6
+$ Survived &lt;fct&gt; no, yes, yes, yes, no, no, no, no, yes, yes, yes, yes, no, no, no, yes, no, yes, no, yes, no, yes, yes, yes, no, yes, no, no, yes, no, no, yes, yes, no, no, no, yes, no, no, yes, no…
+$ Pclass   &lt;fct&gt; 3, 1, 3, 1, 3, 3, 1, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 2, 3, 3, 2, 2, 3, 1, 3, 3, 3, 1, 3, 3, 1, 1, 3, 2, 1, 1, 3, 3, 3, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 2, 1, 1, 2, 3, 2, 3, 3…
+$ Sex      &lt;fct&gt; male, female, female, female, male, male, male, male, female, female, female, female, male, male, female, female, male, male, female, female, male, male, female, male, female, femal…
+$ Age      &lt;dbl&gt; 22.0, 38.0, 26.0, 35.0, 35.0, NA, 54.0, 2.0, 27.0, 14.0, 4.0, 58.0, 20.0, 39.0, 14.0, 55.0, 2.0, NA, 31.0, NA, 35.0, 34.0, 15.0, 28.0, 8.0, 38.0, NA, 19.0, NA, NA, 40.0, NA, NA, 66.…
+$ Fare     &lt;dbl&gt; 7.2500, 71.2833, 7.9250, 53.1000, 8.0500, 8.4583, 51.8625, 21.0750, 11.1333, 30.0708, 16.7000, 26.5500, 8.0500, 31.2750, 7.8542, 16.0000, 29.1250, 13.0000, 18.0000, 7.2250, 26.0000,…
+$ FamSize  &lt;int&gt; 1, 1, 0, 1, 0, 0, 0, 4, 2, 1, 2, 0, 0, 6, 0, 0, 5, 0, 1, 0, 0, 0, 0, 0, 4, 6, 0, 5, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2, 1, 1, 1, 0, 3, 0, 0, 1, 0, 2, 1, 5, 0, 1, 1, 1, 0, 0, 0, 3, 7, 0…</code></pre>
+</div>
+</div>
+</section>
+<section id="데이터-탐색" class="level2" data-number="14.3">
+<h2 data-number="14.3" class="anchored" data-anchor-id="데이터-탐색"><span class="header-section-number">14.3</span> 데이터 탐색</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(titanic1,                                        </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">colour =</span> Survived)) <span class="sc">+</span>                         <span class="co"># Target의 범주에 따라 색깔을 다르게 표현</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="AdaBoost_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(titanic1,                                     </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">colour =</span> Survived, <span class="at">alpha =</span> <span class="fl">0.8</span>)) <span class="sc">+</span>            <span class="co"># Target의 범주에 따라 색깔을 다르게 표현</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#00798c"</span>, <span class="st">"#d1495b"</span>)) <span class="sc">+</span> <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#00798c"</span>, <span class="st">"#d1495b"</span>)) <span class="sc">+</span>   <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="AdaBoost_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="데이터-분할" class="level2" data-number="14.4">
+<h2 data-number="14.4" class="anchored" data-anchor-id="데이터-분할"><span class="header-section-number">14.4</span> 데이터 분할</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Partition (Training Dataset : Test Dataset = 7:3)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>y      <span class="ot">&lt;-</span> titanic1<span class="sc">$</span>Survived                           <span class="co"># Target</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>ind    <span class="ot">&lt;-</span> <span class="fu">createDataPartition</span>(y, <span class="at">p =</span> <span class="fl">0.7</span>, <span class="at">list  =</span>T)   <span class="co"># Index를 이용하여 7:3으로 분할</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>titanic.trd <span class="ot">&lt;-</span> titanic1[ind<span class="sc">$</span>Resample1,]               <span class="co"># Training Dataset</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>titanic.ted <span class="ot">&lt;-</span> titanic1[<span class="sc">-</span>ind<span class="sc">$</span>Resample1,]              <span class="co"># Test Dataset</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="데이터-전처리-ii" class="level2" data-number="14.5">
+<h2 data-number="14.5" class="anchored" data-anchor-id="데이터-전처리-ii"><span class="header-section-number">14.5</span> 데이터 전처리 II</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Imputation</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>titanic.trd.Imp <span class="ot">&lt;-</span> titanic.trd <span class="sc">%&gt;%</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Age =</span> <span class="fu">replace_na</span>(Age, <span class="fu">mean</span>(Age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))                 <span class="co"># 평균으로 결측값 대체</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>titanic.ted.Imp <span class="ot">&lt;-</span> titanic.ted <span class="sc">%&gt;%</span> </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Age =</span> <span class="fu">replace_na</span>(Age, <span class="fu">mean</span>(titanic.trd<span class="sc">$</span>Age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))     <span class="co"># Training Dataset을 이용하여 결측값 대체</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic.trd.Imp)                                                 <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 625
+Columns: 6
+$ Survived &lt;fct&gt; no, yes, yes, no, no, no, yes, yes, yes, yes, no, no, yes, no, yes, no, yes, no, no, no, yes, no, no, yes, yes, no, no, no, no, no, yes, no, no, no, yes, no, yes, no, no, no, yes, n…
+$ Pclass   &lt;fct&gt; 3, 3, 1, 3, 3, 3, 3, 2, 3, 1, 3, 3, 2, 3, 3, 2, 1, 3, 3, 1, 3, 3, 1, 1, 3, 2, 1, 1, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 3, 3, 1, 3, 1, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 1, 2, 3…
+$ Sex      &lt;fct&gt; male, female, female, male, male, male, female, female, female, female, male, female, male, female, female, male, male, female, male, male, female, male, male, female, female, male,…
+$ Age      &lt;dbl&gt; 22.00000, 26.00000, 35.00000, 35.00000, 29.93737, 2.00000, 27.00000, 14.00000, 4.00000, 58.00000, 39.00000, 14.00000, 29.93737, 31.00000, 29.93737, 35.00000, 28.00000, 8.00000, 29.9…
+$ Fare     &lt;dbl&gt; 7.2500, 7.9250, 53.1000, 8.0500, 8.4583, 21.0750, 11.1333, 30.0708, 16.7000, 26.5500, 31.2750, 7.8542, 13.0000, 18.0000, 7.2250, 26.0000, 35.5000, 21.0750, 7.2250, 263.0000, 7.8792,…
+$ FamSize  &lt;int&gt; 1, 0, 1, 0, 0, 4, 2, 1, 2, 0, 6, 0, 0, 1, 0, 0, 0, 4, 0, 5, 0, 0, 0, 1, 0, 0, 1, 1, 0, 2, 1, 1, 1, 0, 0, 1, 0, 2, 1, 5, 1, 1, 0, 7, 0, 0, 5, 0, 2, 7, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 3…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic.ted.Imp)                                                 <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 266
+Columns: 6
+$ Survived &lt;fct&gt; yes, no, no, yes, no, yes, yes, yes, yes, yes, no, no, yes, yes, no, yes, no, yes, yes, no, yes, no, no, no, no, no, no, yes, yes, no, no, no, no, no, no, no, no, no, no, yes, no, n…
+$ Pclass   &lt;fct&gt; 1, 1, 3, 2, 3, 2, 3, 3, 3, 2, 3, 3, 2, 2, 3, 2, 1, 3, 2, 3, 3, 2, 2, 3, 3, 3, 3, 1, 2, 2, 3, 3, 3, 3, 3, 2, 3, 2, 2, 2, 3, 3, 2, 1, 3, 1, 3, 2, 1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 1, 3…
+$ Sex      &lt;fct&gt; female, male, male, female, male, male, female, female, male, female, male, male, female, female, male, female, male, male, female, male, female, male, male, male, male, male, male,…
+$ Age      &lt;dbl&gt; 38.00000, 54.00000, 20.00000, 55.00000, 2.00000, 34.00000, 15.00000, 38.00000, 29.93737, 3.00000, 29.93737, 21.00000, 29.00000, 21.00000, 28.50000, 5.00000, 45.00000, 29.93737, 29.0…
+$ Fare     &lt;dbl&gt; 71.2833, 51.8625, 8.0500, 16.0000, 29.1250, 13.0000, 8.0292, 31.3875, 7.2292, 41.5792, 8.0500, 7.8000, 26.0000, 10.5000, 7.2292, 27.7500, 83.4750, 15.2458, 10.5000, 8.1583, 7.9250, …
+$ FamSize  &lt;int&gt; 1, 0, 0, 0, 5, 0, 0, 6, 0, 3, 0, 0, 1, 0, 0, 3, 1, 2, 0, 0, 6, 0, 0, 0, 0, 4, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 6, 2, 1, 0, 0, 1, 0, 2, 0, 0, 0, 0, 1, 0, 0, 1, 5, 2, 5, 0, 5, 0, 4, 0, 6…</code></pre>
+</div>
+</div>
+</section>
+<section id="모형-훈련" class="level2" data-number="14.6">
+<h2 data-number="14.6" class="anchored" data-anchor-id="모형-훈련"><span class="header-section-number">14.6</span> 모형 훈련</h2>
+<p>Boosting은 다수의 약한 학습자(간단하면서 성능이 낮은 예측 모형)을 순차적으로 학습하는 앙상블 기법이다. Boosting의 특징은 이전 모형의 오차를 반영하여 다음 모형을 생성하며, 오차를 개선하는 방향으로 학습을 수행한다.</p>
+<center>
+<img src="./image/boosting.png" class="img-fluid">
+</center>
+<p><br></p>
+<p>AdaBoost는 최초로 Boosting 기법을 사용한 머신러닝 알고리듬으로 잘못 분류한 case에 대해 높은 Sample Weight를 부여하여 오차를 개선해 나가는 학습 방식이다.</p>
+<center>
+<img src="./image/adaboost.png" class="img-fluid" style="width:70.0%">
+</center>
+<p><br></p>
+<p>R에서 AdaBoost를 수행하기 위해 package <code>"adabag"</code>에서 제공하는 함수 <code>boosting()</code>를 이용할 수 있으며, 함수의 자세한 옵션은 <a href="https://www.rdocumentation.org/packages/adabag/versions/4.2/topics/boosting">여기</a>를 참고한다. 게다가, package <code>"adabag"</code>는 package <code>"rpart"</code>를 이용하여 트리를 생성하기 때문에 함수 <code>rpart.control()</code>을 이용하여 다양한 옵션을 입력할 수 있으며, 함수의 자세한 옵션은 <a href="https://www.rdocumentation.org/packages/rpart/versions/4.1.23/topics/rpart.control">여기</a>를 참고한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boosting</span>(formula, data, mfinal, ...)                  <span class="co"># AdaBoost</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">boosting.cv</span>(formula, data, v, mfinal, ...)            <span class="co"># AdaBoost based on Cross Validation</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><code>formula</code> : Target과 예측 변수의 관계를 표현하기 위한 함수로써 일반적으로 <code>Target ~ 예측 변수</code>의 형태로 표현한다.</li>
+<li><code>data</code> : <code>formula</code>에 포함하고 있는 변수들의 데이터셋(Data Frame)</li>
+<li><code>mfinal</code> : 반복 횟수(= 생성하고자 하는 트리 개수)</li>
+<li><code>v</code> : <span class="math inline">\(k\)</span>-Fold Cross Validation의 <span class="math inline">\(k\)</span>(= Fold 수)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)                                         <span class="co"># Seed 고정 -&gt; 동일한 결과를 출력하기 위해</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>titanic.ada <span class="ot">&lt;-</span> <span class="fu">boosting</span>(Survived<span class="sc">~</span>.,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> titanic.trd.Imp,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">mfinal =</span> <span class="dv">50</span>)    </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>Caution!</code> 함수 <code>boosting()</code>은 기본값으로 깊이가 30인 트리를 생성한다. 만약 <code>"stump"</code>를 생성하고 싶으면 아래의 코드를 수행하면 되지만 시간이 너무 오래 걸리는 단점이 있다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>rc <span class="ot">&lt;-</span> <span class="fu">rpart.control</span>(<span class="at">maxdepth =</span> <span class="dv">1</span>)                </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>titanic.ada <span class="ot">&lt;-</span> <span class="fu">boosting</span>(Survived<span class="sc">~</span>.,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> titanic.trd.Imp,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">mfinal =</span> <span class="dv">50</span>,  </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">control =</span> rc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 변수 중요도</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>titanic.ada<span class="sc">$</span>importance</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Age   FamSize      Fare    Pclass       Sex 
+34.064246  8.276373 37.457786  6.587923 13.613672 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 변수 중요도 plot</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>imp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Importance =</span> titanic.ada<span class="sc">$</span>importance)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>imp<span class="sc">$</span>varnames <span class="ot">&lt;-</span> <span class="fu">rownames</span>(imp) </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(imp) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(imp, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(varnames, Importance), <span class="at">y =</span> Importance)) <span class="sc">+</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> varnames, <span class="at">xend =</span> varnames,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> Importance)) <span class="sc">+</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Importance"</span>) <span class="sc">+</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="AdaBoost_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Result!</code> 변수 <code>Fare</code>이 Target <code>Survived</code>을 분류하는 데 있어 중요하다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 각 트리의 모형 가중치</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>titanic.ada<span class="sc">$</span>weights         </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] 0.78295582 0.56826060 0.45432590 0.38850942 0.43218725 0.36848680 0.38647782 0.34425320 0.41595276 0.34136453 0.22999285 0.32465083 0.40988159 0.33790620 0.32800254 0.30524638 0.16244452
+[18] 0.29925562 0.26506851 0.17066854 0.26151169 0.23265334 0.13550507 0.25298743 0.25622890 0.17345807 0.14746377 0.26927469 0.22046450 0.25118916 0.21297254 0.22829963 0.14653144 0.22614864
+[35] 0.24631308 0.26052245 0.23013778 0.24944529 0.21619601 0.14712742 0.19006330 0.10435622 0.24897459 0.14419243 0.13831085 0.24090084 0.05429047 0.17232969 0.14102667 0.13718293</code></pre>
+</div>
+</div>
+<p><code>Result!</code> 모형 가중치는 해당 예측 모형이 얼마나 정확한지에 따라 결정되며, 정확도가 높을수록 높은 가중치가 부여된다.</p>
+</section>
+<section id="모형-평가" class="level2" data-number="14.7">
+<h2 data-number="14.7" class="anchored" data-anchor-id="모형-평가"><span class="header-section-number">14.7</span> 모형 평가</h2>
+<p><code>Caution!</code> 모형 평가를 위해 <code>Test Dataset</code>에 대한 <code>예측 class/확률</code> 이 필요하며, 함수 <code>predict()</code>를 이용하여 생성한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 예측 class/확률 생성 </span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>test.ada.pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(titanic.ada,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">newdata =</span> titanic.ted.Imp[,<span class="sc">-</span><span class="dv">1</span>]) <span class="co"># Test Dataset including Only 예측 변수    </span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 예측 class</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>test.ada.pred<span class="sc">$</span>class</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] "yes" "no"  "no"  "yes" "no"  "no"  "yes" "no"  "no"  "yes" "no"  "yes" "yes" "yes" "no"  "yes" "no"  "no"  "yes" "no"  "no"  "yes" "no"  "no"  "no"  "no"  "no"  "no"  "yes" "no"  "yes" "no" 
+ [33] "no"  "no"  "no"  "no"  "no"  "no"  "no"  "yes" "no"  "no"  "no"  "yes" "no"  "no"  "no"  "no"  "yes" "no"  "no"  "no"  "no"  "no"  "no"  "yes" "no"  "no"  "no"  "yes" "no"  "no"  "yes" "no" 
+ [65] "yes" "no"  "no"  "no"  "no"  "no"  "no"  "no"  "no"  "yes" "no"  "yes" "no"  "no"  "no"  "no"  "yes" "no"  "yes" "no"  "no"  "no"  "no"  "no"  "no"  "no"  "no"  "no"  "no"  "yes" "yes" "yes"
+ [97] "yes" "yes" "no"  "no"  "no"  "yes" "yes" "no"  "no"  "yes" "no"  "yes" "no"  "yes" "yes" "no"  "yes" "no"  "no"  "no"  "yes" "no"  "no"  "no"  "yes" "yes" "no"  "yes" "no"  "no"  "no"  "yes"
+[129] "no"  "yes" "yes" "yes" "no"  "no"  "yes" "yes" "no"  "no"  "no"  "no"  "yes" "no"  "no"  "no"  "yes" "no"  "no"  "no"  "no"  "no"  "no"  "yes" "no"  "no"  "no"  "yes" "no"  "no"  "no"  "no" 
+[161] "yes" "yes" "yes" "yes" "no"  "yes" "yes" "no"  "no"  "no"  "no"  "no"  "yes" "yes" "yes" "no"  "yes" "no"  "no"  "no"  "yes" "no"  "no"  "yes" "no"  "no"  "no"  "yes" "no"  "yes" "no"  "no" 
+[193] "no"  "no"  "no"  "no"  "no"  "no"  "no"  "no"  "no"  "yes" "no"  "no"  "no"  "no"  "no"  "yes" "yes" "no"  "no"  "yes" "yes" "no"  "no"  "no"  "yes" "yes" "no"  "no"  "yes" "no"  "no"  "yes"
+[225] "yes" "yes" "no"  "no"  "no"  "no"  "no"  "no"  "no"  "no"  "no"  "no"  "no"  "yes" "no"  "no"  "no"  "yes" "no"  "no"  "no"  "yes" "no"  "yes" "no"  "no"  "yes" "no"  "no"  "no"  "no"  "yes"
+[257] "yes" "yes" "no"  "yes" "no"  "yes" "yes" "no"  "yes" "no" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 예측 확률</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>test.ada.pred<span class="sc">$</span>prob</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            [,1]      [,2]
+  [1,] 0.2380209 0.7619791
+  [2,] 0.5606343 0.4393657
+  [3,] 0.6880075 0.3119925
+  [4,] 0.3819148 0.6180852
+  [5,] 0.6367723 0.3632277
+  [6,] 0.6269603 0.3730397
+  [7,] 0.3918065 0.6081935
+  [8,] 0.7618416 0.2381584
+  [9,] 0.6998049 0.3001951
+ [10,] 0.2820866 0.7179134
+ [11,] 0.7933984 0.2066016
+ [12,] 0.4975126 0.5024874
+ [13,] 0.3410832 0.6589168
+ [14,] 0.4374145 0.5625855
+ [15,] 0.6053940 0.3946060
+ [16,] 0.3022196 0.6977804
+ [17,] 0.6302883 0.3697117
+ [18,] 0.5137920 0.4862080
+ [19,] 0.3349145 0.6650855
+ [20,] 0.6059908 0.3940092
+ [21,] 0.6999664 0.3000336
+ [22,] 0.4579267 0.5420733
+ [23,] 0.7640663 0.2359337
+ [24,] 0.7933984 0.2066016
+ [25,] 0.8656613 0.1343387
+ [26,] 0.8494653 0.1505347
+ [27,] 0.8552787 0.1447213
+ [28,] 0.6003552 0.3996448
+ [29,] 0.3602870 0.6397130
+ [30,] 0.6438633 0.3561367
+ [31,] 0.4036295 0.5963705
+ [32,] 0.7051926 0.2948074
+ [33,] 0.7949698 0.2050302
+ [34,] 0.6110658 0.3889342
+ [35,] 0.5612269 0.4387731
+ [36,] 0.7964444 0.2035556
+ [37,] 0.6892576 0.3107424
+ [38,] 0.7394925 0.2605075
+ [39,] 0.5345683 0.4654317
+ [40,] 0.3441134 0.6558866
+ [41,] 0.6476855 0.3523145
+ [42,] 0.6410950 0.3589050
+ [43,] 0.8184373 0.1815627
+ [44,] 0.2310725 0.7689275
+ [45,] 0.6281190 0.3718810
+ [46,] 0.5575429 0.4424571
+ [47,] 0.7741464 0.2258536
+ [48,] 0.5085365 0.4914635
+ [49,] 0.2646717 0.7353283
+ [50,] 0.7763893 0.2236107
+ [51,] 0.7271251 0.2728749
+ [52,] 0.7519280 0.2480720
+ [53,] 0.5492291 0.4507709
+ [54,] 0.5013203 0.4986797
+ [55,] 0.8133695 0.1866305
+ [56,] 0.4638879 0.5361121
+ [57,] 0.5969433 0.4030567
+ [58,] 0.5399915 0.4600085
+ [59,] 0.8441545 0.1558455
+ [60,] 0.2910053 0.7089947
+ [61,] 0.7353196 0.2646804
+ [62,] 0.6919695 0.3080305
+ [63,] 0.4074803 0.5925197
+ [64,] 0.5813353 0.4186647
+ [65,] 0.3756294 0.6243706
+ [66,] 0.5296252 0.4703748
+ [67,] 0.8061569 0.1938431
+ [68,] 0.5519186 0.4480814
+ [69,] 0.7223923 0.2776077
+ [70,] 0.5726111 0.4273889
+ [71,] 0.5903052 0.4096948
+ [72,] 0.5797197 0.4202803
+ [73,] 0.6157677 0.3842323
+ [74,] 0.1726817 0.8273183
+ [75,] 0.5447891 0.4552109
+ [76,] 0.4916150 0.5083850
+ [77,] 0.5374432 0.4625568
+ [78,] 0.7754588 0.2245412
+ [79,] 0.7763893 0.2236107
+ [80,] 0.5972677 0.4027323
+ [81,] 0.4560094 0.5439906
+ [82,] 0.6476855 0.3523145
+ [83,] 0.4933356 0.5066644
+ [84,] 0.7559501 0.2440499
+ [85,] 0.5756480 0.4243520
+ [86,] 0.7776756 0.2223244
+ [87,] 0.5494400 0.4505600
+ [88,] 0.5523015 0.4476985
+ [89,] 0.6738163 0.3261837
+ [90,] 0.6164570 0.3835430
+ [91,] 0.5769028 0.4230972
+ [92,] 0.5955537 0.4044463
+ [93,] 0.8351898 0.1648102
+ [94,] 0.4525701 0.5474299
+ [95,] 0.2901935 0.7098065
+ [96,] 0.2560765 0.7439235
+ [97,] 0.4652957 0.5347043
+ [98,] 0.4421194 0.5578806
+ [99,] 0.6110658 0.3889342
+[100,] 0.8157686 0.1842314
+[101,] 0.6449280 0.3550720
+[102,] 0.1667904 0.8332096
+[103,] 0.3607675 0.6392325
+[104,] 0.6027602 0.3972398
+[105,] 0.6191326 0.3808674
+[106,] 0.1026672 0.8973328
+[107,] 0.8184373 0.1815627
+[108,] 0.3458047 0.6541953
+[109,] 0.8916389 0.1083611
+[110,] 0.3990216 0.6009784
+[111,] 0.3262811 0.6737189
+[112,] 0.8664500 0.1335500
+[113,] 0.4525701 0.5474299
+[114,] 0.5819211 0.4180789
+[115,] 0.5320950 0.4679050
+[116,] 0.6141752 0.3858248
+[117,] 0.2643221 0.7356779
+[118,] 0.6353850 0.3646150
+[119,] 0.5650854 0.4349146
+[120,] 0.8368426 0.1631574
+[121,] 0.1192343 0.8807657
+[122,] 0.4051593 0.5948407
+[123,] 0.5970041 0.4029959
+[124,] 0.3471779 0.6528221
+[125,] 0.5855429 0.4144571
+[126,] 0.5109998 0.4890002
+[127,] 0.6174761 0.3825239
+[128,] 0.3586394 0.6413606
+[129,] 0.6148178 0.3851822
+[130,] 0.3939032 0.6060968
+[131,] 0.4587025 0.5412975
+[132,] 0.4153344 0.5846656
+[133,] 0.6731515 0.3268485
+[134,] 0.8141873 0.1858127
+[135,] 0.4241869 0.5758131
+[136,] 0.3694687 0.6305313
+[137,] 0.5211940 0.4788060
+[138,] 0.7391721 0.2608279
+[139,] 0.7933984 0.2066016
+[140,] 0.6338633 0.3661367
+[141,] 0.1851840 0.8148160
+[142,] 0.7419194 0.2580806
+[143,] 0.7864270 0.2135730
+[144,] 0.7080648 0.2919352
+[145,] 0.2990145 0.7009855
+[146,] 0.6317225 0.3682775
+[147,] 0.7306326 0.2693674
+[148,] 0.7792936 0.2207064
+[149,] 0.7864270 0.2135730
+[150,] 0.5557747 0.4442253
+[151,] 0.5415688 0.4584312
+[152,] 0.4663978 0.5336022
+[153,] 0.6157677 0.3842323
+[154,] 0.7638300 0.2361700
+[155,] 0.7155637 0.2844363
+[156,] 0.4377982 0.5622018
+[157,] 0.7726810 0.2273190
+[158,] 0.5309792 0.4690208
+[159,] 0.6998049 0.3001951
+[160,] 0.6998049 0.3001951
+[161,] 0.4023619 0.5976381
+[162,] 0.4431348 0.5568652
+[163,] 0.4299379 0.5700621
+[164,] 0.3859350 0.6140650
+[165,] 0.7155637 0.2844363
+[166,] 0.2602355 0.7397645
+[167,] 0.4230678 0.5769322
+[168,] 0.6393824 0.3606176
+[169,] 0.5616746 0.4383254
+[170,] 0.5883392 0.4116608
+[171,] 0.6406999 0.3593001
+[172,] 0.7973211 0.2026789
+[173,] 0.2373659 0.7626341
+[174,] 0.4525701 0.5474299
+[175,] 0.2096100 0.7903900
+[176,] 0.8111473 0.1888527
+[177,] 0.3591942 0.6408058
+[178,] 0.8293012 0.1706988
+[179,] 0.6998049 0.3001951
+[180,] 0.7051926 0.2948074
+[181,] 0.4871692 0.5128308
+[182,] 0.6758645 0.3241355
+[183,] 0.6620524 0.3379476
+[184,] 0.2489002 0.7510998
+[185,] 0.7129300 0.2870700
+[186,] 0.7080648 0.2919352
+[187,] 0.8593307 0.1406693
+[188,] 0.3217332 0.6782668
+[189,] 0.7481424 0.2518576
+[190,] 0.4447027 0.5552973
+[191,] 0.8045524 0.1954476
+[192,] 0.7051926 0.2948074
+[193,] 0.5362133 0.4637867
+[194,] 0.8629472 0.1370528
+[195,] 0.6790558 0.3209442
+[196,] 0.5407796 0.4592204
+[197,] 0.5185768 0.4814232
+[198,] 0.5117530 0.4882470
+[199,] 0.7278020 0.2721980
+[200,] 0.7864270 0.2135730
+[201,] 0.6179546 0.3820454
+[202,] 0.4894940 0.5105060
+[203,] 0.8798358 0.1201642
+[204,] 0.6764211 0.3235789
+[205,] 0.6889804 0.3110196
+[206,] 0.5792763 0.4207237
+[207,] 0.7396085 0.2603915
+[208,] 0.4871692 0.5128308
+[209,] 0.4023921 0.5976079
+[210,] 0.7315768 0.2684232
+[211,] 0.6480763 0.3519237
+[212,] 0.4575319 0.5424681
+[213,] 0.2843872 0.7156128
+[214,] 0.7396085 0.2603915
+[215,] 0.7966983 0.2033017
+[216,] 0.7118023 0.2881977
+[217,] 0.4947831 0.5052169
+[218,] 0.2229925 0.7770075
+[219,] 0.7864270 0.2135730
+[220,] 0.8425537 0.1574463
+[221,] 0.4780868 0.5219132
+[222,] 0.5971334 0.4028666
+[223,] 0.6364989 0.3635011
+[224,] 0.3384311 0.6615689
+[225,] 0.2446014 0.7553986
+[226,] 0.2985430 0.7014570
+[227,] 0.5085365 0.4914635
+[228,] 0.7155637 0.2844363
+[229,] 0.6569527 0.3430473
+[230,] 0.5085938 0.4914062
+[231,] 0.5909401 0.4090599
+[232,] 0.6164125 0.3835875
+[233,] 0.6892770 0.3107230
+[234,] 0.7776756 0.2223244
+[235,] 0.5807449 0.4192551
+[236,] 0.7390075 0.2609925
+[237,] 0.6524395 0.3475605
+[238,] 0.3334475 0.6665525
+[239,] 0.7728687 0.2271313
+[240,] 0.7590017 0.2409983
+[241,] 0.6175161 0.3824839
+[242,] 0.1432780 0.8567220
+[243,] 0.5647913 0.4352087
+[244,] 0.6279996 0.3720004
+[245,] 0.8142066 0.1857934
+[246,] 0.1825833 0.8174167
+[247,] 0.6476855 0.3523145
+[248,] 0.2205410 0.7794590
+[249,] 0.7862632 0.2137368
+[250,] 0.7871861 0.2128139
+[251,] 0.3980471 0.6019529
+[252,] 0.6431673 0.3568327
+[253,] 0.5320256 0.4679744
+[254,] 0.8664500 0.1335500
+[255,] 0.6722047 0.3277953
+[256,] 0.3126791 0.6873209
+[257,] 0.3312616 0.6687384
+[258,] 0.2780197 0.7219803
+[259,] 0.5150944 0.4849056
+[260,] 0.2449884 0.7550116
+[261,] 0.8265046 0.1734954
+[262,] 0.4466415 0.5533585
+[263,] 0.4070478 0.5929522
+[264,] 0.6364983 0.3635017
+[265,] 0.4228538 0.5771462
+[266,] 0.6430485 0.3569515</code></pre>
+</div>
+</div>
+<p><br></p>
+<section id="confusionmatrix" class="level3" data-number="14.7.1">
+<h3 data-number="14.7.1" class="anchored" data-anchor-id="confusionmatrix"><span class="header-section-number">14.7.1</span> ConfusionMatrix</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>test.ada.class <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(test.ada.pred<span class="sc">$</span>class)       <span class="co"># Converting Character into Factor</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>CM   <span class="ot">&lt;-</span> caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(test.ada.class, titanic.ted.Imp<span class="sc">$</span>Survived, </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>                               <span class="at">positive =</span> <span class="st">"yes"</span>)       <span class="co"># confusionMatrix(예측 class, 실제 class, positive = "관심 class")</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>CM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction  no yes
+       no  151  29
+       yes  13  73
+                                          
+               Accuracy : 0.8421          
+                 95% CI : (0.7926, 0.8838)
+    No Information Rate : 0.6165          
+    P-Value [Acc &gt; NIR] : 6.804e-16       
+                                          
+                  Kappa : 0.6559          
+                                          
+ Mcnemar's Test P-Value : 0.02064         
+                                          
+            Sensitivity : 0.7157          
+            Specificity : 0.9207          
+         Pos Pred Value : 0.8488          
+         Neg Pred Value : 0.8389          
+             Prevalence : 0.3835          
+         Detection Rate : 0.2744          
+   Detection Prevalence : 0.3233          
+      Balanced Accuracy : 0.8182          
+                                          
+       'Positive' Class : yes             
+                                          </code></pre>
+</div>
+</div>
+<p><br></p>
+</section>
+<section id="roc-곡선" class="level3" data-number="14.7.2">
+<h3 data-number="14.7.2" class="anchored" data-anchor-id="roc-곡선"><span class="header-section-number">14.7.2</span> ROC 곡선</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 예측 확률 </span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>test.ada.prob <span class="ot">&lt;-</span> test.ada.pred<span class="sc">$</span>prob[,<span class="dv">2</span>]                <span class="co"># "Survived = yes"에 대한 예측 확률</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>ac  <span class="ot">&lt;-</span> titanic.ted.Imp<span class="sc">$</span>Survived                        <span class="co"># Test Dataset의 실제 class </span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>pp  <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(test.ada.prob)                       <span class="co"># 예측 확률을 수치형으로 변환</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="package-proc" class="level4" data-number="14.7.2.1">
+<h4 data-number="14.7.2.1" class="anchored" data-anchor-id="package-proc"><span class="header-section-number">14.7.2.1</span> Package “pROC”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"pROC"</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>ada.roc  <span class="ot">&lt;-</span> <span class="fu">roc</span>(ac, pp, <span class="at">plot =</span> T, <span class="at">col =</span> <span class="st">"gray"</span>)        <span class="co"># roc(실제 class, 예측 확률)</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>auc      <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">auc</span>(ada.roc), <span class="dv">3</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"bottomright"</span>, <span class="at">legend =</span> auc, <span class="at">bty =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="AdaBoost_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Caution!</code> Package <code>"pROC"</code>를 통해 출력한 ROC 곡선은 다양한 함수를 이용해서 그래프를 수정할 수 있다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 함수 plot.roc() 이용</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.roc</span>(ada.roc,   </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">col=</span><span class="st">"gray"</span>,                                   <span class="co"># Line Color</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.auc =</span> <span class="cn">TRUE</span>,                             <span class="co"># AUC 출력 여부</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.auc.col =</span> <span class="st">"red"</span>,                        <span class="co"># AUC 글씨 색깔</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.thres =</span> <span class="cn">TRUE</span>,                           <span class="co"># Cutoff Value 출력 여부</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.thres.pch =</span> <span class="dv">19</span>,                         <span class="co"># Cutoff Value를 표시하는 도형 모양</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.thres.col =</span> <span class="st">"red"</span>,                      <span class="co"># Cutoff Value를 표시하는 도형의 색깔</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">auc.polygon =</span> <span class="cn">TRUE</span>,                           <span class="co"># 곡선 아래 면적에 대한 여부</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">auc.polygon.col =</span> <span class="st">"gray90"</span>)                   <span class="co"># 곡선 아래 면적의 색깔</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="AdaBoost_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 함수 ggroc() 이용</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggroc</span>(ada.roc) <span class="sc">+</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">0.9</span>, <span class="at">y =</span> <span class="fl">1.0</span>,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="at">label =</span> <span class="fu">paste</span>(<span class="st">"AUC = "</span>, auc),</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="at">size =</span> <span class="dv">5</span>,</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="at">color=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="AdaBoost_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="package-epi" class="level4" data-number="14.7.2.2">
+<h4 data-number="14.7.2.2" class="anchored" data-anchor-id="package-epi"><span class="header-section-number">14.7.2.2</span> Package “Epi”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"Epi"</span>)       </span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install_version("etm", version = "1.1", repos = "http://cran.us.r-project.org")</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ROC</span>(pp, ac, <span class="at">plot =</span> <span class="st">"ROC"</span>)                              <span class="co"># ROC(예측 확률, 실제 class)  </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="AdaBoost_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="package-rocr" class="level4" data-number="14.7.2.3">
+<h4 data-number="14.7.2.3" class="anchored" data-anchor-id="package-rocr"><span class="header-section-number">14.7.2.3</span> Package “ROCR”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"ROCR"</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>ada.pred <span class="ot">&lt;-</span> <span class="fu">prediction</span>(pp, ac)                         <span class="co"># prediction(예측 확률, 실제 class) </span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>ada.perf <span class="ot">&lt;-</span> <span class="fu">performance</span>(ada.pred, <span class="st">"tpr"</span>, <span class="st">"fpr"</span>)        <span class="co"># performance(, "민감도", "1-특이도")                      </span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ada.perf, <span class="at">col =</span> <span class="st">"gray"</span>)                           <span class="co"># ROC Curve</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>perf.auc   <span class="ot">&lt;-</span> <span class="fu">performance</span>(ada.pred, <span class="st">"auc"</span>)             <span class="co"># AUC</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>auc        <span class="ot">&lt;-</span> <span class="fu">attributes</span>(perf.auc)<span class="sc">$</span>y.values</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"bottomright"</span>, <span class="at">legend =</span> auc, <span class="at">bty =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="AdaBoost_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><br></p>
+</section>
+</section>
+<section id="향상-차트" class="level3" data-number="14.7.3">
+<h3 data-number="14.7.3" class="anchored" data-anchor-id="향상-차트"><span class="header-section-number">14.7.3</span> 향상 차트</h3>
+<section id="package-rocr-1" class="level4" data-number="14.7.3.1">
+<h4 data-number="14.7.3.1" class="anchored" data-anchor-id="package-rocr-1"><span class="header-section-number">14.7.3.1</span> Package “ROCR”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>ada.perf <span class="ot">&lt;-</span> <span class="fu">performance</span>(ada.pred, <span class="st">"lift"</span>, <span class="st">"rpp"</span>)       <span class="co"># Lift Chart                      </span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ada.perf, <span class="at">main =</span> <span class="st">"lift curve"</span>,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">colorize =</span> T,                                     <span class="co"># Coloring according to cutoff </span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">lwd =</span> <span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="AdaBoost_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./RF.html" class="pagination-link" aria-label="Random Forest">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Random Forest</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./GBM.html" class="pagination-link" aria-label="Gradient Boosting">
+        <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Gradient Boosting</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/JJJJYE/ML_book1/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer><script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

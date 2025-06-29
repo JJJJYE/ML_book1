@@ -1,0 +1,15 @@
+
+
+/* 로고 이미지 */
+.sidebar-title::before {
+  content: "";
+  display: block;
+  background-image: url("cover.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 200px;
+  height: 200px;
+  margin-bottom: 6px;
+}
+

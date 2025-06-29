@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Young Eun Jeon, Jeong-Wook Lee, and Jung-In Seo">
+
+<title>16&nbsp; XGBoost – Data Mining</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./GBM.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-1092c56c6cadf2eb47b1bc8063ab382a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-dc2382f869c37aa0256525aa4b36f69f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="styles/styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./XGBoost.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">XGBoost</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Data Mining</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/JJJJYE/ML_book1" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./KNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nearest Neighborhood Algorithm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Naive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Naive Bayes Classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Decision_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Decision Tree</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_li.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Support Vector Machine with Linear Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_po.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Support Vector Machine with Polynomial Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./SVM_rd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Support Vector Machine with Radial Basis Kernel</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Clustering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Principal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Logistic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Logistic Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./LASSO.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">LASSO Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ridge.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Ridge Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Elasticnet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Elastic Net Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./RF.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Random Forest</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./AdaBoost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">AdaBoost</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./GBM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Gradient Boosting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./XGBoost.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">XGBoost</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#데이터-불러오기" id="toc-데이터-불러오기" class="nav-link active" data-scroll-target="#데이터-불러오기"><span class="header-section-number">16.1</span> 데이터 불러오기</a></li>
+  <li><a href="#데이터-전처리-i" id="toc-데이터-전처리-i" class="nav-link" data-scroll-target="#데이터-전처리-i"><span class="header-section-number">16.2</span> 데이터 전처리 I</a></li>
+  <li><a href="#데이터-탐색" id="toc-데이터-탐색" class="nav-link" data-scroll-target="#데이터-탐색"><span class="header-section-number">16.3</span> 데이터 탐색</a></li>
+  <li><a href="#데이터-분할" id="toc-데이터-분할" class="nav-link" data-scroll-target="#데이터-분할"><span class="header-section-number">16.4</span> 데이터 분할</a></li>
+  <li><a href="#데이터-전처리-ii" id="toc-데이터-전처리-ii" class="nav-link" data-scroll-target="#데이터-전처리-ii"><span class="header-section-number">16.5</span> 데이터 전처리 II</a></li>
+  <li><a href="#모형-훈련" id="toc-모형-훈련" class="nav-link" data-scroll-target="#모형-훈련"><span class="header-section-number">16.6</span> 모형 훈련</a></li>
+  <li><a href="#모형-평가" id="toc-모형-평가" class="nav-link" data-scroll-target="#모형-평가"><span class="header-section-number">16.7</span> 모형 평가</a>
+  <ul class="collapse">
+  <li><a href="#confusionmatrix" id="toc-confusionmatrix" class="nav-link" data-scroll-target="#confusionmatrix"><span class="header-section-number">16.7.1</span> ConfusionMatrix</a></li>
+  <li><a href="#roc-곡선" id="toc-roc-곡선" class="nav-link" data-scroll-target="#roc-곡선"><span class="header-section-number">16.7.2</span> ROC 곡선</a></li>
+  <li><a href="#향상-차트" id="toc-향상-차트" class="nav-link" data-scroll-target="#향상-차트"><span class="header-section-number">16.7.3</span> 향상 차트</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/JJJJYE/ML_book1/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./XGBoost.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">XGBoost</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">XGBoost</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p>XGBoost의 장점</p>
+</blockquote>
+<ul>
+<li>병렬 처리를 사용하여 Gradient Boosting보다 속도가 빠르다.</li>
+<li>Gradient Boosting보다 정확도가 높다.</li>
+<li>유연성이 좋다.</li>
+<li>조기 종료가 가능하다.</li>
+<li>규제를 통해 과적합을 방지할 수 있다.</li>
+</ul>
+<p><br></p>
+<blockquote class="blockquote">
+<p>XGBoost의 단점</p>
+</blockquote>
+<ul>
+<li>Gradient Boosting보다 학습시간이 빠를 뿐 다른 기법에 비하면 느리다.</li>
+<li>초모수(Hyperparameter)가 많다.
+<ul>
+<li>적절하지 않은 초모수 값을 할당하면 오히려 성능이 나빠질 수 있다.</li>
+</ul></li>
+</ul>
+<p><br></p>
+<blockquote class="blockquote">
+<p>실습 자료 : 1912년 4월 15일 타이타닉호 침몰 당시 탑승객들의 정보를 기록한 데이터셋이며, 총 11개의 변수를 포함하고 있다. 이 자료에서 <strong>Target</strong>은 <code>Survived</code>이다.</p>
+</blockquote>
+<center>
+<img src="./image/그림_titanic.png" class="img-fluid">
+</center>
+<p><br></p>
+<center>
+<img src="./image/Titanic_표.png" width="400" height="400">
+</center>
+<p><br></p>
+<section id="데이터-불러오기" class="level2" data-number="16.1">
+<h2 data-number="16.1" class="anchored" data-anchor-id="데이터-불러오기"><span class="header-section-number">16.1</span> 데이터 불러오기</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"data.table"</span>, </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">"tidyverse"</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>               <span class="st">"dplyr"</span>, <span class="st">"tidyr"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">"ggplot2"</span>, <span class="st">"GGally"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">"caret"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Matrix"</span>,                                                <span class="co"># For sparse.model.matrix</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>               <span class="st">"xgboost"</span>)                                               <span class="co"># For xgb.train</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>titanic <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"../Titanic.csv"</span>)                                      <span class="co"># 데이터 불러오기</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>titanic <span class="sc">%&gt;%</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 891 × 11
+   Survived Pclass Name                                                Sex      Age SibSp Parch Ticket            Fare Cabin  Embarked
+      &lt;int&gt;  &lt;int&gt; &lt;chr&gt;                                               &lt;chr&gt;  &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;   
+ 1        0      3 Braund, Mr. Owen Harris                             male      22     1     0 A/5 21171         7.25 ""     S       
+ 2        1      1 Cumings, Mrs. John Bradley (Florence Briggs Thayer) female    38     1     0 PC 17599         71.3  "C85"  C       
+ 3        1      3 Heikkinen, Miss. Laina                              female    26     0     0 STON/O2. 3101282  7.92 ""     S       
+ 4        1      1 Futrelle, Mrs. Jacques Heath (Lily May Peel)        female    35     1     0 113803           53.1  "C123" S       
+ 5        0      3 Allen, Mr. William Henry                            male      35     0     0 373450            8.05 ""     S       
+ 6        0      3 Moran, Mr. James                                    male      NA     0     0 330877            8.46 ""     Q       
+ 7        0      1 McCarthy, Mr. Timothy J                             male      54     0     0 17463            51.9  "E46"  S       
+ 8        0      3 Palsson, Master. Gosta Leonard                      male       2     3     1 349909           21.1  ""     S       
+ 9        1      3 Johnson, Mrs. Oscar W (Elisabeth Vilhelmina Berg)   female    27     0     2 347742           11.1  ""     S       
+10        1      2 Nasser, Mrs. Nicholas (Adele Achem)                 female    14     1     0 237736           30.1  ""     C       
+# ℹ 881 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="데이터-전처리-i" class="level2" data-number="16.2">
+<h2 data-number="16.2" class="anchored" data-anchor-id="데이터-전처리-i"><span class="header-section-number">16.2</span> 데이터 전처리 I</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Convert to Factor</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fac.col <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Pclass"</span>, <span class="st">"Sex"</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>             <span class="co"># Target</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Survived"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>titanic <span class="ot">&lt;-</span> titanic <span class="sc">%&gt;%</span> </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span>                                                      <span class="co"># Data Frame 형태로 변환 </span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(fac.col, as.factor)                                         <span class="co"># 범주형으로 변환</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic)                                                        <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 891
+Columns: 11
+$ Survived &lt;fct&gt; 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0…
+$ Pclass   &lt;fct&gt; 3, 1, 3, 1, 3, 3, 1, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 2, 3, 3, 2, 2, 3, 1, 3, 3, 3, 1, 3, 3, 1, 1, 3, 2, 1, 1, 3, 3, 3, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 2, 1, 1, 2, 3, 2, 3, 3…
+$ Name     &lt;chr&gt; "Braund, Mr. Owen Harris", "Cumings, Mrs. John Bradley (Florence Briggs Thayer)", "Heikkinen, Miss. Laina", "Futrelle, Mrs. Jacques Heath (Lily May Peel)", "Allen, Mr. William Henry…
+$ Sex      &lt;fct&gt; male, female, female, female, male, male, male, male, female, female, female, female, male, male, female, female, male, male, female, female, male, male, female, male, female, femal…
+$ Age      &lt;dbl&gt; 22.0, 38.0, 26.0, 35.0, 35.0, NA, 54.0, 2.0, 27.0, 14.0, 4.0, 58.0, 20.0, 39.0, 14.0, 55.0, 2.0, NA, 31.0, NA, 35.0, 34.0, 15.0, 28.0, 8.0, 38.0, NA, 19.0, NA, NA, 40.0, NA, NA, 66.…
+$ SibSp    &lt;int&gt; 1, 1, 0, 1, 0, 0, 0, 3, 0, 1, 1, 0, 0, 1, 0, 0, 4, 0, 1, 0, 0, 0, 0, 0, 3, 1, 0, 3, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2, 1, 1, 1, 0, 1, 0, 0, 1, 0, 2, 1, 4, 0, 1, 1, 0, 0, 0, 0, 1, 5, 0…
+$ Parch    &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 1, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 2, 2, 0…
+$ Ticket   &lt;chr&gt; "A/5 21171", "PC 17599", "STON/O2. 3101282", "113803", "373450", "330877", "17463", "349909", "347742", "237736", "PP 9549", "113783", "A/5. 2151", "347082", "350406", "248706", "38…
+$ Fare     &lt;dbl&gt; 7.2500, 71.2833, 7.9250, 53.1000, 8.0500, 8.4583, 51.8625, 21.0750, 11.1333, 30.0708, 16.7000, 26.5500, 8.0500, 31.2750, 7.8542, 16.0000, 29.1250, 13.0000, 18.0000, 7.2250, 26.0000,…
+$ Cabin    &lt;chr&gt; "", "C85", "", "C123", "", "", "E46", "", "", "", "G6", "C103", "", "", "", "", "", "", "", "", "", "D56", "", "A6", "", "", "", "C23 C25 C27", "", "", "", "B78", "", "", "", "", ""…
+$ Embarked &lt;chr&gt; "S", "C", "S", "S", "S", "Q", "S", "S", "S", "C", "S", "S", "S", "S", "S", "S", "Q", "S", "S", "C", "S", "S", "Q", "S", "S", "S", "C", "S", "Q", "S", "C", "C", "Q", "S", "C", "S", "…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Generate New Variable</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>titanic <span class="ot">&lt;-</span> titanic <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FamSize =</span> SibSp <span class="sc">+</span> Parch)                                       <span class="co"># "FamSize = 형제 및 배우자 수 + 부모님 및 자녀 수"로 가족 수를 의미하는 새로운 변수</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic)                                                        <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 891
+Columns: 12
+$ Survived &lt;fct&gt; 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0…
+$ Pclass   &lt;fct&gt; 3, 1, 3, 1, 3, 3, 1, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 2, 3, 3, 2, 2, 3, 1, 3, 3, 3, 1, 3, 3, 1, 1, 3, 2, 1, 1, 3, 3, 3, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 2, 1, 1, 2, 3, 2, 3, 3…
+$ Name     &lt;chr&gt; "Braund, Mr. Owen Harris", "Cumings, Mrs. John Bradley (Florence Briggs Thayer)", "Heikkinen, Miss. Laina", "Futrelle, Mrs. Jacques Heath (Lily May Peel)", "Allen, Mr. William Henry…
+$ Sex      &lt;fct&gt; male, female, female, female, male, male, male, male, female, female, female, female, male, male, female, female, male, male, female, female, male, male, female, male, female, femal…
+$ Age      &lt;dbl&gt; 22.0, 38.0, 26.0, 35.0, 35.0, NA, 54.0, 2.0, 27.0, 14.0, 4.0, 58.0, 20.0, 39.0, 14.0, 55.0, 2.0, NA, 31.0, NA, 35.0, 34.0, 15.0, 28.0, 8.0, 38.0, NA, 19.0, NA, NA, 40.0, NA, NA, 66.…
+$ SibSp    &lt;int&gt; 1, 1, 0, 1, 0, 0, 0, 3, 0, 1, 1, 0, 0, 1, 0, 0, 4, 0, 1, 0, 0, 0, 0, 0, 3, 1, 0, 3, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2, 1, 1, 1, 0, 1, 0, 0, 1, 0, 2, 1, 4, 0, 1, 1, 0, 0, 0, 0, 1, 5, 0…
+$ Parch    &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 1, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 2, 2, 0…
+$ Ticket   &lt;chr&gt; "A/5 21171", "PC 17599", "STON/O2. 3101282", "113803", "373450", "330877", "17463", "349909", "347742", "237736", "PP 9549", "113783", "A/5. 2151", "347082", "350406", "248706", "38…
+$ Fare     &lt;dbl&gt; 7.2500, 71.2833, 7.9250, 53.1000, 8.0500, 8.4583, 51.8625, 21.0750, 11.1333, 30.0708, 16.7000, 26.5500, 8.0500, 31.2750, 7.8542, 16.0000, 29.1250, 13.0000, 18.0000, 7.2250, 26.0000,…
+$ Cabin    &lt;chr&gt; "", "C85", "", "C123", "", "", "E46", "", "", "", "G6", "C103", "", "", "", "", "", "", "", "", "", "D56", "", "A6", "", "", "", "C23 C25 C27", "", "", "", "B78", "", "", "", "", ""…
+$ Embarked &lt;chr&gt; "S", "C", "S", "S", "S", "Q", "S", "S", "S", "C", "S", "S", "S", "S", "S", "S", "Q", "S", "S", "C", "S", "S", "Q", "S", "S", "S", "C", "S", "Q", "S", "C", "C", "Q", "S", "C", "S", "…
+$ FamSize  &lt;int&gt; 1, 1, 0, 1, 0, 0, 0, 4, 2, 1, 2, 0, 0, 6, 0, 0, 5, 0, 1, 0, 0, 0, 0, 0, 4, 6, 0, 5, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2, 1, 1, 1, 0, 3, 0, 0, 1, 0, 2, 1, 5, 0, 1, 1, 1, 0, 0, 0, 3, 7, 0…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Select Variables used for Analysis</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>titanic1 <span class="ot">&lt;-</span> titanic <span class="sc">%&gt;%</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Survived, Pclass, Sex, Age, Fare, FamSize)              <span class="co"># 분석에 사용할 변수 선택</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic1)                                                       <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 891
+Columns: 6
+$ Survived &lt;fct&gt; 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0…
+$ Pclass   &lt;fct&gt; 3, 1, 3, 1, 3, 3, 1, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 2, 3, 3, 2, 2, 3, 1, 3, 3, 3, 1, 3, 3, 1, 1, 3, 2, 1, 1, 3, 3, 3, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 2, 1, 1, 2, 3, 2, 3, 3…
+$ Sex      &lt;fct&gt; male, female, female, female, male, male, male, male, female, female, female, female, male, male, female, female, male, male, female, female, male, male, female, male, female, femal…
+$ Age      &lt;dbl&gt; 22.0, 38.0, 26.0, 35.0, 35.0, NA, 54.0, 2.0, 27.0, 14.0, 4.0, 58.0, 20.0, 39.0, 14.0, 55.0, 2.0, NA, 31.0, NA, 35.0, 34.0, 15.0, 28.0, 8.0, 38.0, NA, 19.0, NA, NA, 40.0, NA, NA, 66.…
+$ Fare     &lt;dbl&gt; 7.2500, 71.2833, 7.9250, 53.1000, 8.0500, 8.4583, 51.8625, 21.0750, 11.1333, 30.0708, 16.7000, 26.5500, 8.0500, 31.2750, 7.8542, 16.0000, 29.1250, 13.0000, 18.0000, 7.2250, 26.0000,…
+$ FamSize  &lt;int&gt; 1, 1, 0, 1, 0, 0, 0, 4, 2, 1, 2, 0, 0, 6, 0, 0, 5, 0, 1, 0, 0, 0, 0, 0, 4, 6, 0, 5, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2, 1, 1, 1, 0, 3, 0, 0, 1, 0, 2, 1, 5, 0, 1, 1, 1, 0, 0, 0, 3, 7, 0…</code></pre>
+</div>
+</div>
+</section>
+<section id="데이터-탐색" class="level2" data-number="16.3">
+<h2 data-number="16.3" class="anchored" data-anchor-id="데이터-탐색"><span class="header-section-number">16.3</span> 데이터 탐색</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(titanic1,                                        </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">colour =</span> Survived)) <span class="sc">+</span>                         <span class="co"># Target의 범주에 따라 색깔을 다르게 표현</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="XGBoost_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(titanic1,                                     </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">colour =</span> Survived, <span class="at">alpha =</span> <span class="fl">0.8</span>)) <span class="sc">+</span>            <span class="co"># Target의 범주에 따라 색깔을 다르게 표현</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#00798c"</span>, <span class="st">"#d1495b"</span>)) <span class="sc">+</span> <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#00798c"</span>, <span class="st">"#d1495b"</span>)) <span class="sc">+</span>   <span class="co"># 특정 색깔 지정</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="XGBoost_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="데이터-분할" class="level2" data-number="16.4">
+<h2 data-number="16.4" class="anchored" data-anchor-id="데이터-분할"><span class="header-section-number">16.4</span> 데이터 분할</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Partition (Training Dataset : Test Dataset = 7:3)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>y      <span class="ot">&lt;-</span> titanic1<span class="sc">$</span>Survived                           <span class="co"># Target</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>ind    <span class="ot">&lt;-</span> <span class="fu">createDataPartition</span>(y, <span class="at">p =</span> <span class="fl">0.7</span>, <span class="at">list  =</span>T)   <span class="co"># Index를 이용하여 7:3으로 분할</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>titanic.trd <span class="ot">&lt;-</span> titanic1[ind<span class="sc">$</span>Resample1,]               <span class="co"># Training Dataset</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>titanic.ted <span class="ot">&lt;-</span> titanic1[<span class="sc">-</span>ind<span class="sc">$</span>Resample1,]              <span class="co"># Test Dataset</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="데이터-전처리-ii" class="level2" data-number="16.5">
+<h2 data-number="16.5" class="anchored" data-anchor-id="데이터-전처리-ii"><span class="header-section-number">16.5</span> 데이터 전처리 II</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Imputation</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>titanic.trd.Imp <span class="ot">&lt;-</span> titanic.trd <span class="sc">%&gt;%</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Age =</span> <span class="fu">replace_na</span>(Age, <span class="fu">mean</span>(Age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))                 <span class="co"># 평균으로 결측값 대체</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>titanic.ted.Imp <span class="ot">&lt;-</span> titanic.ted <span class="sc">%&gt;%</span> </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Age =</span> <span class="fu">replace_na</span>(Age, <span class="fu">mean</span>(titanic.trd<span class="sc">$</span>Age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))     <span class="co"># Training Dataset을 이용하여 결측값 대체</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic.trd.Imp)                                                 <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 625
+Columns: 6
+$ Survived &lt;fct&gt; 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1…
+$ Pclass   &lt;fct&gt; 3, 3, 1, 3, 3, 3, 3, 2, 3, 1, 3, 3, 2, 3, 3, 2, 1, 3, 3, 1, 3, 3, 1, 1, 3, 2, 1, 1, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 3, 3, 1, 3, 1, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 1, 2, 3…
+$ Sex      &lt;fct&gt; male, female, female, male, male, male, female, female, female, female, male, female, male, female, female, male, male, female, male, male, female, male, male, female, female, male,…
+$ Age      &lt;dbl&gt; 22.00000, 26.00000, 35.00000, 35.00000, 29.93737, 2.00000, 27.00000, 14.00000, 4.00000, 58.00000, 39.00000, 14.00000, 29.93737, 31.00000, 29.93737, 35.00000, 28.00000, 8.00000, 29.9…
+$ Fare     &lt;dbl&gt; 7.2500, 7.9250, 53.1000, 8.0500, 8.4583, 21.0750, 11.1333, 30.0708, 16.7000, 26.5500, 31.2750, 7.8542, 13.0000, 18.0000, 7.2250, 26.0000, 35.5000, 21.0750, 7.2250, 263.0000, 7.8792,…
+$ FamSize  &lt;int&gt; 1, 0, 1, 0, 0, 4, 2, 1, 2, 0, 6, 0, 0, 1, 0, 0, 0, 4, 0, 5, 0, 0, 0, 1, 0, 0, 1, 1, 0, 2, 1, 1, 1, 0, 0, 1, 0, 2, 1, 5, 1, 1, 0, 7, 0, 0, 5, 0, 2, 7, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 3…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(titanic.ted.Imp)                                                 <span class="co"># 데이터 구조 확인</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 266
+Columns: 6
+$ Survived &lt;fct&gt; 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0…
+$ Pclass   &lt;fct&gt; 1, 1, 3, 2, 3, 2, 3, 3, 3, 2, 3, 3, 2, 2, 3, 2, 1, 3, 2, 3, 3, 2, 2, 3, 3, 3, 3, 1, 2, 2, 3, 3, 3, 3, 3, 2, 3, 2, 2, 2, 3, 3, 2, 1, 3, 1, 3, 2, 1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 1, 3…
+$ Sex      &lt;fct&gt; female, male, male, female, male, male, female, female, male, female, male, male, female, female, male, female, male, male, female, male, female, male, male, male, male, male, male,…
+$ Age      &lt;dbl&gt; 38.00000, 54.00000, 20.00000, 55.00000, 2.00000, 34.00000, 15.00000, 38.00000, 29.93737, 3.00000, 29.93737, 21.00000, 29.00000, 21.00000, 28.50000, 5.00000, 45.00000, 29.93737, 29.0…
+$ Fare     &lt;dbl&gt; 71.2833, 51.8625, 8.0500, 16.0000, 29.1250, 13.0000, 8.0292, 31.3875, 7.2292, 41.5792, 8.0500, 7.8000, 26.0000, 10.5000, 7.2292, 27.7500, 83.4750, 15.2458, 10.5000, 8.1583, 7.9250, …
+$ FamSize  &lt;int&gt; 1, 0, 0, 0, 5, 0, 0, 6, 0, 3, 0, 0, 1, 0, 0, 3, 1, 2, 0, 0, 6, 0, 0, 0, 0, 4, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 6, 2, 1, 0, 0, 1, 0, 2, 0, 0, 0, 0, 1, 0, 0, 1, 5, 2, 5, 0, 5, 0, 4, 0, 6…</code></pre>
+</div>
+</div>
+</section>
+<section id="모형-훈련" class="level2" data-number="16.6">
+<h2 data-number="16.6" class="anchored" data-anchor-id="모형-훈련"><span class="header-section-number">16.6</span> 모형 훈련</h2>
+<p>Boosting은 다수의 약한 학습자(간단하면서 성능이 낮은 예측 모형)을 순차적으로 학습하는 앙상블 기법이다. Boosting의 특징은 이전 모형의 오차를 반영하여 다음 모형을 생성하며, 오차를 개선하는 방향으로 학습을 수행한다.</p>
+<center>
+<img src="./image/boosting.png" class="img-fluid">
+</center>
+<p><br></p>
+<p>XGBoost는 Extreme Gradient Boosting의 약어로 Gradient Boosting의 단점을 해결하기 위해 제안되었다. R에서 XGBoost을 수행하기 위해 package <code>"xgboost"</code>에서 제공하는 함수 <code>xgb.train()</code>를 이용할 수 있으며, 함수의 자세한 옵션은 <a href="https://www.rdocumentation.org/packages/xgboost/versions/1.2.0.1/topics/xgb.train">여기</a>를 참고한다.</p>
+<p><code>Caution!</code> 함수 <code>xgb.train()</code>을 사용하려면 <code>예측 변수와 Target 모두 수치형</code>이여야 하며, “xgb.DMatrix”로 변환해야 한다. 이를 위해 다음과 같은 절차를 수행한다.</p>
+<ol type="1">
+<li>범주형 예측 변수를 더미 변수로 변환하기 위해 함수 <code>sparse.model.matrix()</code>를 이용한다.<br>
+</li>
+<li>Target을 수치형으로 변환한다.</li>
+<li>함수 <code>xgb.DMatrix()</code>를 이용하여 “xgb.DMatrix”로 변환한다.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Convert Factor Var. into Dummy Var. </span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>trainm       <span class="ot">&lt;-</span> <span class="fu">sparse.model.matrix</span>(Survived <span class="sc">~</span>.<span class="sc">-</span><span class="dv">1</span>, <span class="co"># Survived Target으로 제외 </span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">data =</span> titanic.trd.Imp)  </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>trainm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>625 x 7 sparse Matrix of class "dgCMatrix"
+    Pclass1 Pclass2 Pclass3 Sexmale      Age     Fare FamSize
+1         .       .       1       1 22.00000   7.2500       1
+3         .       .       1       . 26.00000   7.9250       .
+4         1       .       .       . 35.00000  53.1000       1
+5         .       .       1       1 35.00000   8.0500       .
+6         .       .       1       1 29.93737   8.4583       .
+8         .       .       1       1  2.00000  21.0750       4
+9         .       .       1       . 27.00000  11.1333       2
+10        .       1       .       . 14.00000  30.0708       1
+11        .       .       1       .  4.00000  16.7000       2
+12        1       .       .       . 58.00000  26.5500       .
+14        .       .       1       1 39.00000  31.2750       6
+15        .       .       1       . 14.00000   7.8542       .
+18        .       1       .       1 29.93737  13.0000       .
+19        .       .       1       . 31.00000  18.0000       1
+20        .       .       1       . 29.93737   7.2250       .
+21        .       1       .       1 35.00000  26.0000       .
+24        1       .       .       1 28.00000  35.5000       .
+25        .       .       1       .  8.00000  21.0750       4
+27        .       .       1       1 29.93737   7.2250       .
+28        1       .       .       1 19.00000 263.0000       5
+29        .       .       1       . 29.93737   7.8792       .
+30        .       .       1       1 29.93737   7.8958       .
+31        1       .       .       1 40.00000  27.7208       .
+32        1       .       .       . 29.93737 146.5208       1
+33        .       .       1       . 29.93737   7.7500       .
+34        .       1       .       1 66.00000  10.5000       .
+35        1       .       .       1 28.00000  82.1708       1
+36        1       .       .       1 42.00000  52.0000       1
+38        .       .       1       1 21.00000   8.0500       .
+39        .       .       1       . 18.00000  18.0000       2
+40        .       .       1       . 14.00000  11.2417       1
+41        .       .       1       . 40.00000   9.4750       1
+42        .       1       .       . 27.00000  21.0000       1
+43        .       .       1       1 29.93737   7.8958       .
+45        .       .       1       . 19.00000   7.8792       .
+47        .       .       1       1 29.93737  15.5000       1
+48        .       .       1       . 29.93737   7.7500       .
+49        .       .       1       1 29.93737  21.6792       2
+50        .       .       1       . 18.00000  17.8000       1
+51        .       .       1       1  7.00000  39.6875       5
+53        1       .       .       . 49.00000  76.7292       1
+55        1       .       .       1 65.00000  61.9792       1
+56        1       .       .       1 29.93737  35.5000       .
+60        .       .       1       1 11.00000  46.9000       7
+61        .       .       1       1 22.00000   7.2292       .
+62        1       .       .       . 38.00000  80.0000       .
+64        .       .       1       1  4.00000  27.9000       5
+65        1       .       .       1 29.93737  27.7208       .
+70        .       .       1       1 26.00000   8.6625       2
+72        .       .       1       . 16.00000  46.9000       7
+74        .       .       1       1 26.00000  14.4542       1
+75        .       .       1       1 32.00000  56.4958       .
+76        .       .       1       1 25.00000   7.6500       .
+77        .       .       1       1 29.93737   7.8958       .
+79        .       1       .       1  0.83000  29.0000       2
+80        .       .       1       . 30.00000  12.4750       .
+82        .       .       1       1 29.00000   9.5000       .
+83        .       .       1       . 29.93737   7.7875       .
+84        1       .       .       1 28.00000  47.1000       .
+85        .       1       .       . 17.00000  10.5000       .
+86        .       .       1       . 33.00000  15.8500       3
+88        .       .       1       1 29.93737   8.0500       .
+89        1       .       .       . 23.00000 263.0000       5
+91        .       .       1       1 29.00000   8.0500       .
+92        .       .       1       1 20.00000   7.8542       .
+93        1       .       .       1 46.00000  61.1750       1
+94        .       .       1       1 26.00000  20.5750       3
+95        .       .       1       1 59.00000   7.2500       .
+96        .       .       1       1 29.93737   8.0500       .
+97        1       .       .       1 71.00000  34.6542       .
+103       1       .       .       1 21.00000  77.2875       1
+105       .       .       1       1 37.00000   7.9250       2
+107       .       .       1       . 21.00000   7.6500       .
+108       .       .       1       1 29.93737   7.7750       .
+110       .       .       1       . 29.93737  24.1500       1
+111       1       .       .       1 47.00000  52.0000       .
+112       .       .       1       . 14.50000  14.4542       1
+113       .       .       1       1 22.00000   8.0500       .
+114       .       .       1       . 20.00000   9.8250       1
+115       .       .       1       . 17.00000  14.4583       .
+116       .       .       1       1 21.00000   7.9250       .
+117       .       .       1       1 70.50000   7.7500       .
+119       1       .       .       1 24.00000 247.5208       1
+122       .       .       1       1 29.93737   8.0500       .
+125       1       .       .       1 54.00000  77.2875       1
+126       .       .       1       1 12.00000  11.2417       1
+128       .       .       1       1 24.00000   7.1417       .
+129       .       .       1       . 29.93737  22.3583       2
+130       .       .       1       1 45.00000   6.9750       .
+131       .       .       1       1 33.00000   7.8958       .
+132       .       .       1       1 20.00000   7.0500       .
+134       .       1       .       . 29.00000  26.0000       1
+136       .       1       .       1 23.00000  15.0458       .
+138       1       .       .       1 37.00000  53.1000       1
+141       .       .       1       . 29.93737  15.2458       2
+142       .       .       1       . 22.00000   7.7500       .
+143       .       .       1       . 24.00000  15.8500       1
+146       .       1       .       1 19.00000  36.7500       2
+147       .       .       1       1 27.00000   7.7958       .
+148       .       .       1       .  9.00000  34.3750       4
+149       .       1       .       1 36.50000  26.0000       2
+150       .       1       .       1 42.00000  13.0000       .
+151       .       1       .       1 51.00000  12.5250       .
+153       .       .       1       1 55.50000   8.0500       .
+154       .       .       1       1 40.50000  14.5000       2
+156       1       .       .       1 51.00000  61.3792       1
+157       .       .       1       . 16.00000   7.7333       .
+158       .       .       1       1 30.00000   8.0500       .
+160       .       .       1       1 29.93737  69.5500      10
+162       .       1       .       . 40.00000  15.7500       .
+163       .       .       1       1 26.00000   7.7750       .
+164       .       .       1       1 17.00000   8.6625       .
+167       1       .       .       . 29.93737  55.0000       1
+169       1       .       .       1 29.93737  25.9250       .
+171       1       .       .       1 61.00000  33.5000       .
+173       .       .       1       .  1.00000  11.1333       2
+174       .       .       1       1 21.00000   7.9250       .
+176       .       .       1       1 18.00000   7.8542       2
+179       .       1       .       1 30.00000  13.0000       .
+180       .       .       1       1 36.00000   .            .
+181       .       .       1       . 29.93737  69.5500      10
+182       .       1       .       1 29.93737  15.0500       .
+184       .       1       .       1  1.00000  39.0000       3
+185       .       .       1       .  4.00000  22.0250       2
+188       1       .       .       1 45.00000  26.5500       .
+189       .       .       1       1 40.00000  15.5000       2
+190       .       .       1       1 36.00000   7.8958       .
+191       .       1       .       . 32.00000  13.0000       .
+192       .       1       .       1 19.00000  13.0000       .
+194       .       1       .       1  3.00000  26.0000       2
+196       1       .       .       . 58.00000 146.5208       .
+197       .       .       1       1 29.93737   7.7500       .
+198       .       .       1       1 42.00000   8.4042       1
+199       .       .       1       . 29.93737   7.7500       .
+200       .       1       .       . 24.00000  13.0000       .
+202       .       .       1       1 29.93737  69.5500      10
+203       .       .       1       1 34.00000   6.4958       .
+204       .       .       1       1 45.50000   7.2250       .
+205       .       .       1       1 18.00000   8.0500       .
+206       .       .       1       .  2.00000  10.4625       1
+207       .       .       1       1 32.00000  15.8500       1
+209       .       .       1       . 16.00000   7.7500       .
+211       .       .       1       1 24.00000   7.0500       .
+212       .       1       .       . 35.00000  21.0000       .
+213       .       .       1       1 22.00000   7.2500       .
+214       .       1       .       1 30.00000  13.0000       .
+216       1       .       .       . 31.00000 113.2750       1
+217       .       .       1       . 27.00000   7.9250       .
+218       .       1       .       1 42.00000  27.0000       1
+219       1       .       .       . 32.00000  76.2917       .
+220       .       1       .       1 30.00000  10.5000       .
+223       .       .       1       1 51.00000   8.0500       .
+224       .       .       1       1 29.93737   7.8958       .
+226       .       .       1       1 22.00000   9.3500       .
+227       .       1       .       1 19.00000  10.5000       .
+229       .       1       .       1 18.00000  13.0000       .
+230       .       .       1       . 29.93737  25.4667       4
+232       .       .       1       1 29.00000   7.7750       .
+233       .       1       .       1 59.00000  13.5000       .
+235       .       1       .       1 24.00000  10.5000       .
+236       .       .       1       . 29.93737   7.5500       .
+237       .       1       .       1 44.00000  26.0000       1
+238       .       1       .       .  8.00000  26.2500       2
+240       .       1       .       1 33.00000  12.2750       .
+242       .       .       1       . 29.93737  15.5000       1
+243       .       1       .       1 29.00000  10.5000       .
+244       .       .       1       1 22.00000   7.1250       .
+245       .       .       1       1 30.00000   7.2250       .
+246       1       .       .       1 44.00000  90.0000       2
+247       .       .       1       . 25.00000   7.7750       .
+248       .       1       .       . 24.00000  14.5000       2
+249       1       .       .       1 37.00000  52.5542       2
+252       .       .       1       . 29.00000  10.4625       2
+253       1       .       .       1 62.00000  26.5500       .
+254       .       .       1       1 30.00000  16.1000       1
+255       .       .       1       . 41.00000  20.2125       2
+257       1       .       .       . 29.93737  79.2000       .
+258       1       .       .       . 30.00000  86.5000       .
+259       1       .       .       . 35.00000 512.3292       .
+262       .       .       1       1  3.00000  31.3875       6
+264       1       .       .       1 40.00000   .            .
+265       .       .       1       . 29.93737   7.7500       .
+266       .       1       .       1 36.00000  10.5000       .
+267       .       .       1       1 16.00000  39.6875       5
+269       1       .       .       . 58.00000 153.4625       1
+270       1       .       .       . 35.00000 135.6333       .
+273       .       1       .       . 41.00000  19.5000       1
+275       .       .       1       . 29.93737   7.7500       .
+276       1       .       .       . 63.00000  77.9583       1
+278       .       1       .       1 29.93737   .            .
+280       .       .       1       . 35.00000  20.2500       2
+281       .       .       1       1 65.00000   7.7500       .
+285       1       .       .       1 29.93737  26.0000       .
+286       .       .       1       1 33.00000   8.6625       .
+287       .       .       1       1 30.00000   9.5000       .
+288       .       .       1       1 22.00000   7.8958       .
+289       .       1       .       1 42.00000  13.0000       .
+290       .       .       1       . 22.00000   7.7500       .
+291       1       .       .       . 26.00000  78.8500       .
+292       1       .       .       . 19.00000  91.0792       1
+293       .       1       .       1 36.00000  12.8750       .
+294       .       .       1       . 24.00000   8.8500       .
+296       1       .       .       1 29.93737  27.7208       .
+297       .       .       1       1 23.50000   7.2292       .
+298       1       .       .       .  2.00000 151.5500       3
+299       1       .       .       1 29.93737  30.5000       .
+300       1       .       .       . 50.00000 247.5208       1
+302       .       .       1       1 29.93737  23.2500       2
+303       .       .       1       1 19.00000   .            .
+304       .       1       .       . 29.93737  12.3500       .
+305       .       .       1       1 29.93737   8.0500       .
+306       1       .       .       1  0.92000 151.5500       3
+307       1       .       .       . 29.93737 110.8833       .
+309       .       1       .       1 30.00000  24.0000       1
+311       1       .       .       . 24.00000  83.1583       .
+315       .       1       .       1 43.00000  26.2500       2
+316       .       .       1       . 26.00000   7.8542       .
+317       .       1       .       . 24.00000  26.0000       1
+319       1       .       .       . 31.00000 164.8667       2
+320       1       .       .       . 40.00000 134.5000       2
+322       .       .       1       1 27.00000   7.8958       .
+323       .       1       .       . 30.00000  12.3500       .
+324       .       1       .       . 22.00000  29.0000       2
+325       .       .       1       1 29.93737  69.5500      10
+327       .       .       1       1 61.00000   6.2375       .
+329       .       .       1       . 31.00000  20.5250       2
+330       1       .       .       . 16.00000  57.9792       1
+331       .       .       1       . 29.93737  23.2500       2
+332       1       .       .       1 45.50000  28.5000       .
+335       1       .       .       . 29.93737 133.6500       1
+336       .       .       1       1 29.93737   7.8958       .
+337       1       .       .       1 29.00000  66.6000       1
+339       .       .       1       1 45.00000   8.0500       .
+340       1       .       .       1 45.00000  35.5000       .
+341       .       1       .       1  2.00000  26.0000       2
+342       1       .       .       . 24.00000 263.0000       5
+343       .       1       .       1 28.00000  13.0000       .
+345       .       1       .       1 36.00000  13.0000       .
+346       .       1       .       . 24.00000  13.0000       .
+348       .       .       1       . 29.93737  16.1000       1
+349       .       .       1       1  3.00000  15.9000       2
+350       .       .       1       1 42.00000   8.6625       .
+352       1       .       .       1 29.93737  35.0000       .
+353       .       .       1       1 15.00000   7.2292       2
+354       .       .       1       1 25.00000  17.8000       1
+355       .       .       1       1 29.93737   7.2250       .
+356       .       .       1       1 28.00000   9.5000       .
+357       1       .       .       . 22.00000  55.0000       1
+360       .       .       1       . 29.93737   7.8792       .
+361       .       .       1       1 40.00000  27.9000       5
+362       .       1       .       1 29.00000  27.7208       1
+363       .       .       1       . 45.00000  14.4542       1
+365       .       .       1       1 29.93737  15.5000       1
+366       .       .       1       1 30.00000   7.2500       .
+367       1       .       .       . 60.00000  75.2500       1
+368       .       .       1       . 29.93737   7.2292       .
+370       1       .       .       . 24.00000  69.3000       .
+371       1       .       .       1 25.00000  55.4417       1
+372       .       .       1       1 18.00000   6.4958       1
+373       .       .       1       1 19.00000   8.0500       .
+374       1       .       .       1 22.00000 135.6333       .
+376       1       .       .       . 29.93737  82.1708       1
+377       .       .       1       . 22.00000   7.2500       .
+379       .       .       1       1 20.00000   4.0125       .
+381       1       .       .       . 42.00000 227.5250       .
+382       .       .       1       .  1.00000  15.7417       2
+383       .       .       1       1 32.00000   7.9250       .
+384       1       .       .       . 35.00000  52.0000       1
+385       .       .       1       1 29.93737   7.8958       .
+386       .       1       .       1 18.00000  73.5000       .
+387       .       .       1       1  1.00000  46.9000       7
+388       .       1       .       . 36.00000  13.0000       .
+389       .       .       1       1 29.93737   7.7292       .
+390       .       1       .       . 17.00000  12.0000       .
+391       1       .       .       1 36.00000 120.0000       3
+392       .       .       1       1 21.00000   7.7958       .
+393       .       .       1       1 28.00000   7.9250       2
+394       1       .       .       . 23.00000 113.2750       1
+395       .       .       1       . 24.00000  16.7000       2
+396       .       .       1       1 22.00000   7.7958       .
+397       .       .       1       . 31.00000   7.8542       .
+398       .       1       .       1 46.00000  26.0000       .
+399       .       1       .       1 23.00000  10.5000       .
+401       .       .       1       1 39.00000   7.9250       .
+402       .       .       1       1 26.00000   8.0500       .
+404       .       .       1       1 28.00000  15.8500       1
+405       .       .       1       . 20.00000   8.6625       .
+406       .       1       .       1 34.00000  21.0000       1
+407       .       .       1       1 51.00000   7.7500       .
+408       .       1       .       1  3.00000  18.7500       2
+410       .       .       1       . 29.93737  25.4667       4
+411       .       .       1       1 29.93737   7.8958       .
+414       .       1       .       1 29.93737   .            .
+417       .       1       .       . 34.00000  32.5000       2
+421       .       .       1       1 29.93737   7.8958       .
+422       .       .       1       1 21.00000   7.7333       .
+423       .       .       1       1 29.00000   7.8750       .
+425       .       .       1       1 18.00000  20.2125       2
+426       .       .       1       1 29.93737   7.2500       .
+428       .       1       .       . 19.00000  26.0000       .
+429       .       .       1       1 29.93737   7.7500       .
+431       1       .       .       1 28.00000  26.5500       .
+432       .       .       1       . 29.93737  16.1000       1
+433       .       1       .       . 42.00000  26.0000       1
+434       .       .       1       1 17.00000   7.1250       .
+435       1       .       .       1 50.00000  55.9000       1
+437       .       .       1       . 21.00000  34.3750       4
+438       .       1       .       . 24.00000  18.7500       5
+439       1       .       .       1 64.00000 263.0000       5
+443       .       .       1       1 25.00000   7.7750       1
+444       .       1       .       . 28.00000  13.0000       .
+446       1       .       .       1  4.00000  81.8583       2
+449       .       .       1       .  5.00000  19.2583       3
+451       .       1       .       1 36.00000  27.7500       3
+453       1       .       .       1 30.00000  27.7500       .
+454       1       .       .       1 49.00000  89.1042       1
+456       .       .       1       1 29.00000   7.8958       .
+459       .       1       .       . 50.00000  10.5000       .
+460       .       .       1       1 29.93737   7.7500       .
+461       1       .       .       1 48.00000  26.5500       .
+463       1       .       .       1 47.00000  38.5000       .
+464       .       1       .       1 48.00000  13.0000       .
+465       .       .       1       1 29.93737   8.0500       .
+466       .       .       1       1 38.00000   7.0500       .
+468       1       .       .       1 56.00000  26.5500       .
+470       .       .       1       .  0.75000  19.2583       3
+471       .       .       1       1 29.93737   7.2500       .
+472       .       .       1       1 38.00000   8.6625       .
+474       .       1       .       . 23.00000  13.7917       .
+475       .       .       1       . 22.00000   9.8375       .
+479       .       .       1       1 22.00000   7.5208       .
+480       .       .       1       .  2.00000  12.2875       1
+481       .       .       1       1  9.00000  46.9000       7
+484       .       .       1       . 63.00000   9.5875       .
+485       1       .       .       1 25.00000  91.0792       1
+486       .       .       1       . 29.93737  25.4667       4
+487       1       .       .       . 35.00000  90.0000       1
+489       .       .       1       1 30.00000   8.0500       .
+491       .       .       1       1 29.93737  19.9667       1
+493       1       .       .       1 55.00000  30.5000       .
+494       1       .       .       1 71.00000  49.5042       .
+497       1       .       .       . 54.00000  78.2667       1
+498       .       .       1       1 29.93737  15.1000       .
+499       1       .       .       . 25.00000 151.5500       3
+500       .       .       1       1 24.00000   7.7958       .
+501       .       .       1       1 17.00000   8.6625       .
+502       .       .       1       . 21.00000   7.7500       .
+503       .       .       1       . 29.93737   7.6292       .
+504       .       .       1       . 37.00000   9.5875       .
+505       1       .       .       . 16.00000  86.5000       .
+506       1       .       .       1 18.00000 108.9000       1
+507       .       1       .       . 33.00000  26.0000       2
+508       1       .       .       1 29.93737  26.5500       .
+509       .       .       1       1 28.00000  22.5250       .
+511       .       .       1       1 29.00000   7.7500       .
+512       .       .       1       1 29.93737   8.0500       .
+513       1       .       .       1 36.00000  26.2875       .
+514       1       .       .       . 54.00000  59.4000       1
+516       1       .       .       1 47.00000  34.0208       .
+517       .       1       .       . 34.00000  10.5000       .
+518       .       .       1       1 29.93737  24.1500       .
+519       .       1       .       . 36.00000  26.0000       1
+521       1       .       .       . 30.00000  93.5000       .
+522       .       .       1       1 22.00000   7.8958       .
+524       1       .       .       . 44.00000  57.9792       1
+526       .       .       1       1 40.50000   7.7500       .
+528       1       .       .       1 29.93737 221.7792       .
+530       .       1       .       1 23.00000  11.5000       3
+532       .       .       1       1 29.93737   7.2292       .
+533       .       .       1       1 17.00000   7.2292       2
+535       .       .       1       . 30.00000   8.6625       .
+536       .       1       .       .  7.00000  26.2500       2
+537       1       .       .       1 45.00000  26.5500       .
+538       1       .       .       . 30.00000 106.4250       .
+541       1       .       .       . 36.00000  71.0000       2
+542       .       .       1       .  9.00000  31.2750       6
+543       .       .       1       . 11.00000  31.2750       6
+544       .       1       .       1 32.00000  26.0000       1
+545       1       .       .       1 50.00000 106.4250       1
+546       1       .       .       1 64.00000  26.0000       .
+547       .       1       .       . 19.00000  26.0000       1
+548       .       1       .       1 29.93737  13.8625       .
+549       .       .       1       1 33.00000  20.5250       2
+552       .       1       .       1 27.00000  26.0000       .
+553       .       .       1       1 29.93737   7.8292       .
+555       .       .       1       . 22.00000   7.7750       .
+556       1       .       .       1 62.00000  26.5500       .
+557       1       .       .       . 48.00000  39.6000       1
+558       1       .       .       1 29.93737 227.5250       .
+559       1       .       .       . 39.00000  79.6500       2
+560       .       .       1       . 36.00000  17.4000       1
+561       .       .       1       1 29.93737   7.7500       .
+563       .       1       .       1 28.00000  13.5000       .
+564       .       .       1       1 29.93737   8.0500       .
+565       .       .       1       . 29.93737   8.0500       .
+567       .       .       1       1 19.00000   7.8958       .
+568       .       .       1       . 29.00000  21.0750       4
+569       .       .       1       1 29.93737   7.2292       .
+570       .       .       1       1 32.00000   7.8542       .
+573       1       .       .       1 36.00000  26.3875       .
+575       .       .       1       1 16.00000   8.0500       .
+576       .       .       1       1 19.00000  14.5000       .
+577       .       1       .       . 34.00000  13.0000       .
+578       1       .       .       . 39.00000  55.9000       1
+579       .       .       1       . 29.93737  14.4583       1
+580       .       .       1       1 32.00000   7.9250       .
+581       .       1       .       . 25.00000  30.0000       2
+584       1       .       .       1 36.00000  40.1250       .
+585       .       .       1       1 29.93737   8.7125       .
+587       .       1       .       1 47.00000  15.0000       .
+588       1       .       .       1 60.00000  79.2000       2
+590       .       .       1       1 29.93737   8.0500       .
+591       .       .       1       1 35.00000   7.1250       .
+592       1       .       .       . 52.00000  78.2667       1
+593       .       .       1       1 47.00000   7.2500       .
+594       .       .       1       . 29.93737   7.7500       2
+595       .       1       .       1 37.00000  26.0000       1
+596       .       .       1       1 36.00000  24.1500       2
+597       .       1       .       . 29.93737  33.0000       .
+598       .       .       1       1 49.00000   .            .
+600       1       .       .       1 49.00000  56.9292       1
+601       .       1       .       . 24.00000  27.0000       3
+603       1       .       .       1 29.93737  42.4000       .
+605       1       .       .       1 35.00000  26.5500       .
+606       .       .       1       1 36.00000  15.5500       1
+608       1       .       .       1 27.00000  30.5000       .
+609       .       1       .       . 22.00000  41.5792       3
+610       1       .       .       . 40.00000 153.4625       .
+611       .       .       1       . 39.00000  31.2750       6
+612       .       .       1       1 29.93737   7.0500       .
+613       .       .       1       . 29.93737  15.5000       1
+614       .       .       1       1 29.93737   7.7500       .
+615       .       .       1       1 35.00000   8.0500       .
+616       .       1       .       . 24.00000  65.0000       3
+617       .       .       1       1 34.00000  14.4000       2
+618       .       .       1       . 26.00000  16.1000       1
+619       .       1       .       .  4.00000  39.0000       3
+621       .       .       1       1 27.00000  14.4542       1
+622       1       .       .       1 42.00000  52.5542       1
+623       .       .       1       1 20.00000  15.7417       2
+624       .       .       1       1 21.00000   7.8542       .
+625       .       .       1       1 21.00000  16.1000       .
+626       1       .       .       1 61.00000  32.3208       .
+627       .       1       .       1 57.00000  12.3500       .
+631       1       .       .       1 80.00000  30.0000       .
+633       1       .       .       1 32.00000  30.5000       .
+634       1       .       .       1 29.93737   .            .
+635       .       .       1       .  9.00000  27.9000       5
+637       .       .       1       1 32.00000   7.9250       .
+638       .       1       .       1 31.00000  26.2500       2
+639       .       .       1       . 41.00000  39.6875       5
+640       .       .       1       1 29.93737  16.1000       1
+641       .       .       1       1 20.00000   7.8542       .
+642       1       .       .       . 24.00000  69.3000       .
+644       .       .       1       1 29.93737  56.4958       .
+645       .       .       1       .  0.75000  19.2583       3
+646       1       .       .       1 48.00000  76.7292       1
+647       .       .       1       1 19.00000   7.8958       .
+648       1       .       .       1 56.00000  35.5000       .
+649       .       .       1       1 29.93737   7.5500       .
+650       .       .       1       . 23.00000   7.5500       .
+651       .       .       1       1 29.93737   7.8958       .
+654       .       .       1       . 29.93737   7.8292       .
+655       .       .       1       . 18.00000   6.7500       .
+656       .       1       .       1 24.00000  73.5000       2
+658       .       .       1       . 32.00000  15.5000       2
+659       .       1       .       1 23.00000  13.0000       .
+661       1       .       .       1 50.00000 133.6500       2
+662       .       .       1       1 40.00000   7.2250       .
+663       1       .       .       1 47.00000  25.5875       .
+667       .       1       .       1 25.00000  13.0000       .
+668       .       .       1       1 29.93737   7.7750       .
+670       1       .       .       . 29.93737  52.0000       1
+671       .       1       .       . 40.00000  39.0000       2
+674       .       1       .       1 31.00000  13.0000       .
+677       .       .       1       1 24.50000   8.0500       .
+678       .       .       1       . 18.00000   9.8417       .
+679       .       .       1       . 43.00000  46.9000       7
+681       .       .       1       . 29.93737   8.1375       .
+682       1       .       .       1 27.00000  76.7292       .
+683       .       .       1       1 20.00000   9.2250       .
+687       .       .       1       1 14.00000  39.6875       5
+689       .       .       1       1 18.00000   7.7958       .
+690       1       .       .       . 15.00000 211.3375       1
+691       1       .       .       1 31.00000  57.0000       1
+692       .       .       1       .  4.00000  13.4167       1
+693       .       .       1       1 29.93737  56.4958       .
+694       .       .       1       1 25.00000   7.2250       .
+695       1       .       .       1 60.00000  26.5500       .
+699       1       .       .       1 49.00000 110.8833       2
+701       1       .       .       . 18.00000 227.5250       1
+702       1       .       .       1 35.00000  26.2875       .
+703       .       .       1       . 18.00000  14.4542       1
+704       .       .       1       1 25.00000   7.7417       .
+705       .       .       1       1 26.00000   7.8542       1
+708       1       .       .       1 42.00000  26.2875       .
+709       1       .       .       . 22.00000 151.5500       .
+710       .       .       1       1 29.93737  15.2458       2
+712       1       .       .       1 29.93737  26.5500       .
+713       1       .       .       1 48.00000  52.0000       1
+714       .       .       1       1 29.00000   9.4833       .
+716       .       .       1       1 19.00000   7.6500       .
+717       1       .       .       . 38.00000 227.5250       .
+718       .       1       .       . 27.00000  10.5000       .
+719       .       .       1       1 29.93737  15.5000       .
+720       .       .       1       1 33.00000   7.7750       .
+721       .       1       .       .  6.00000  33.0000       1
+723       .       1       .       1 34.00000  13.0000       .
+725       1       .       .       1 27.00000  53.1000       1
+726       .       .       1       1 20.00000   8.6625       .
+728       .       .       1       . 29.93737   7.7375       .
+729       .       1       .       1 25.00000  26.0000       1
+730       .       .       1       . 25.00000   7.9250       1
+732       .       .       1       1 11.00000  18.7875       .
+735       .       1       .       1 23.00000  13.0000       .
+736       .       .       1       1 28.50000  16.1000       .
+737       .       .       1       . 48.00000  34.3750       4
+738       1       .       .       1 35.00000 512.3292       .
+739       .       .       1       1 29.93737   7.8958       .
+740       .       .       1       1 29.93737   7.8958       .
+742       1       .       .       1 36.00000  78.8500       1
+743       1       .       .       . 21.00000 262.3750       4
+744       .       .       1       1 24.00000  16.1000       1
+745       .       .       1       1 31.00000   7.9250       .
+749       1       .       .       1 19.00000  53.1000       1
+750       .       .       1       1 31.00000   7.7500       .
+752       .       .       1       1  6.00000  12.4750       1
+753       .       .       1       1 33.00000   9.5000       .
+754       .       .       1       1 23.00000   7.8958       .
+755       .       1       .       . 48.00000  65.0000       3
+757       .       .       1       1 28.00000   7.7958       .
+759       .       .       1       1 34.00000   8.0500       .
+760       1       .       .       . 33.00000  86.5000       .
+762       .       .       1       1 41.00000   7.1250       .
+763       .       .       1       1 20.00000   7.2292       .
+764       1       .       .       . 36.00000 120.0000       3
+766       1       .       .       . 51.00000  77.9583       1
+767       1       .       .       1 29.93737  39.6000       .
+768       .       .       1       . 30.50000   7.7500       .
+769       .       .       1       1 29.93737  24.1500       1
+770       .       .       1       1 32.00000   8.3625       .
+771       .       .       1       1 24.00000   9.5000       .
+773       .       1       .       . 57.00000  10.5000       .
+774       .       .       1       1 29.93737   7.2250       .
+777       .       .       1       1 29.93737   7.7500       .
+778       .       .       1       .  5.00000  12.4750       .
+780       1       .       .       . 43.00000 211.3375       1
+781       .       .       1       . 13.00000   7.2292       .
+782       1       .       .       . 17.00000  57.0000       1
+783       1       .       .       1 29.00000  30.0000       .
+784       .       .       1       1 29.93737  23.4500       3
+786       .       .       1       1 25.00000   7.2500       .
+789       .       .       1       1  1.00000  20.5750       3
+790       1       .       .       1 46.00000  79.2000       .
+791       .       .       1       1 29.93737   7.7500       .
+792       .       1       .       1 16.00000  26.0000       .
+793       .       .       1       . 29.93737  69.5500      10
+794       1       .       .       1 29.93737  30.6958       .
+795       .       .       1       1 25.00000   7.8958       .
+796       .       1       .       1 39.00000  13.0000       .
+797       1       .       .       . 49.00000  25.9292       .
+799       .       .       1       1 30.00000   7.2292       .
+800       .       .       1       . 30.00000  24.1500       2
+801       .       1       .       1 34.00000  13.0000       .
+803       1       .       .       1 11.00000 120.0000       3
+804       .       .       1       1  0.42000   8.5167       1
+806       .       .       1       1 31.00000   7.7750       .
+808       .       .       1       . 18.00000   7.7750       .
+811       .       .       1       1 26.00000   7.8875       .
+812       .       .       1       1 39.00000  24.1500       .
+813       .       1       .       1 35.00000  10.5000       .
+815       .       .       1       1 30.50000   8.0500       .
+816       1       .       .       1 29.93737   .            .
+817       .       .       1       . 23.00000   7.9250       .
+819       .       .       1       1 43.00000   6.4500       .
+822       .       .       1       1 27.00000   8.6625       .
+823       1       .       .       1 38.00000   .            .
+824       .       .       1       . 27.00000  12.4750       1
+825       .       .       1       1  2.00000  39.6875       5
+826       .       .       1       1 29.93737   6.9500       .
+827       .       .       1       1 29.93737  56.4958       .
+828       .       1       .       1  1.00000  37.0042       2
+831       .       .       1       . 15.00000  14.4542       1
+832       .       1       .       1  0.83000  18.7500       2
+833       .       .       1       1 29.93737   7.2292       .
+835       .       .       1       1 18.00000   8.3000       .
+836       1       .       .       . 39.00000  83.1583       2
+838       .       .       1       1 29.93737   8.0500       .
+840       1       .       .       1 29.93737  29.7000       .
+843       1       .       .       . 30.00000  31.0000       .
+845       .       .       1       1 17.00000   8.6625       .
+846       .       .       1       1 42.00000   7.5500       .
+847       .       .       1       1 29.93737  69.5500      10
+849       .       1       .       1 28.00000  33.0000       1
+850       1       .       .       . 29.93737  89.1042       1
+851       .       .       1       1  4.00000  31.2750       6
+852       .       .       1       1 74.00000   7.7750       .
+853       .       .       1       .  9.00000  15.2458       2
+855       .       1       .       . 44.00000  26.0000       1
+856       .       .       1       . 18.00000   9.3500       1
+857       1       .       .       . 45.00000 164.8667       2
+858       1       .       .       1 51.00000  26.5500       .
+859       .       .       1       . 24.00000  19.2583       3
+860       .       .       1       1 29.93737   7.2292       .
+861       .       .       1       1 41.00000  14.1083       2
+862       .       1       .       1 21.00000  11.5000       1
+864       .       .       1       . 29.93737  69.5500      10
+865       .       1       .       1 24.00000  13.0000       .
+867       .       1       .       . 27.00000  13.8583       1
+868       1       .       .       1 31.00000  50.4958       .
+871       .       .       1       1 26.00000   7.8958       .
+872       1       .       .       . 47.00000  52.5542       2
+874       .       .       1       1 47.00000   9.0000       .
+877       .       .       1       1 20.00000   9.8458       .
+878       .       .       1       1 19.00000   7.8958       .
+879       .       .       1       1 29.93737   7.8958       .
+880       1       .       .       . 56.00000  83.1583       1
+881       .       1       .       . 25.00000  26.0000       1
+882       .       .       1       1 33.00000   7.8958       .
+883       .       .       1       . 22.00000  10.5167       .
+885       .       .       1       1 25.00000   7.0500       .
+886       .       .       1       . 39.00000  29.1250       5
+887       .       1       .       1 27.00000  13.0000       .
+888       1       .       .       . 19.00000  30.0000       .
+889       .       .       1       . 29.93737  23.4500       3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>testm        <span class="ot">&lt;-</span> <span class="fu">sparse.model.matrix</span>(Survived <span class="sc">~</span>.<span class="sc">-</span><span class="dv">1</span>, <span class="co"># Survived Target으로 제외 </span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">data =</span> titanic.ted.Imp) </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>testm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>266 x 7 sparse Matrix of class "dgCMatrix"
+    Pclass1 Pclass2 Pclass3 Sexmale      Age     Fare FamSize
+2         1       .       .       . 38.00000  71.2833       1
+7         1       .       .       1 54.00000  51.8625       .
+13        .       .       1       1 20.00000   8.0500       .
+16        .       1       .       . 55.00000  16.0000       .
+17        .       .       1       1  2.00000  29.1250       5
+22        .       1       .       1 34.00000  13.0000       .
+23        .       .       1       . 15.00000   8.0292       .
+26        .       .       1       . 38.00000  31.3875       6
+37        .       .       1       1 29.93737   7.2292       .
+44        .       1       .       .  3.00000  41.5792       3
+46        .       .       1       1 29.93737   8.0500       .
+52        .       .       1       1 21.00000   7.8000       .
+54        .       1       .       . 29.00000  26.0000       1
+57        .       1       .       . 21.00000  10.5000       .
+58        .       .       1       1 28.50000   7.2292       .
+59        .       1       .       .  5.00000  27.7500       3
+63        1       .       .       1 45.00000  83.4750       1
+66        .       .       1       1 29.93737  15.2458       2
+67        .       1       .       . 29.00000  10.5000       .
+68        .       .       1       1 19.00000   8.1583       .
+69        .       .       1       . 17.00000   7.9250       6
+71        .       1       .       1 32.00000  10.5000       .
+73        .       1       .       1 21.00000  73.5000       .
+78        .       .       1       1 29.93737   8.0500       .
+81        .       .       1       1 22.00000   9.0000       .
+87        .       .       1       1 16.00000  34.3750       4
+90        .       .       1       1 24.00000   8.0500       .
+98        1       .       .       1 23.00000  63.3583       1
+99        .       1       .       . 34.00000  23.0000       1
+100       .       1       .       1 34.00000  26.0000       1
+101       .       .       1       . 28.00000   7.8958       .
+102       .       .       1       1 29.93737   7.8958       .
+104       .       .       1       1 33.00000   8.6542       .
+106       .       .       1       1 28.00000   7.8958       .
+109       .       .       1       1 38.00000   7.8958       .
+118       .       1       .       1 29.00000  21.0000       1
+120       .       .       1       .  2.00000  31.2750       6
+121       .       1       .       1 21.00000  73.5000       2
+123       .       1       .       1 32.50000  30.0708       1
+124       .       1       .       . 32.50000  13.0000       .
+127       .       .       1       1 29.93737   7.7500       .
+133       .       .       1       . 47.00000  14.5000       1
+135       .       1       .       1 25.00000  13.0000       .
+137       1       .       .       . 19.00000  26.2833       2
+139       .       .       1       1 16.00000   9.2167       .
+140       1       .       .       1 24.00000  79.2000       .
+144       .       .       1       1 19.00000   6.7500       .
+145       .       1       .       1 18.00000  11.5000       .
+152       1       .       .       . 22.00000  66.6000       1
+155       .       .       1       1 29.93737   7.3125       .
+159       .       .       1       1 29.93737   8.6625       .
+161       .       .       1       1 44.00000  16.1000       1
+165       .       .       1       1  1.00000  39.6875       5
+166       .       .       1       1  9.00000  20.5250       2
+168       .       .       1       . 45.00000  27.9000       5
+170       .       .       1       1 28.00000  56.4958       .
+172       .       .       1       1  4.00000  29.1250       5
+175       1       .       .       1 56.00000  30.6958       .
+177       .       .       1       1 29.93737  25.4667       4
+178       1       .       .       . 50.00000  28.7125       .
+183       .       .       1       1  9.00000  31.3875       6
+186       1       .       .       1 29.93737  50.0000       .
+187       .       .       1       . 29.93737  15.5000       1
+193       .       .       1       . 19.00000   7.8542       1
+195       1       .       .       . 44.00000  27.7208       .
+201       .       .       1       1 28.00000   9.5000       .
+208       .       .       1       1 26.00000  18.7875       .
+210       1       .       .       1 40.00000  31.0000       .
+215       .       .       1       1 29.93737   7.7500       1
+221       .       .       1       1 16.00000   8.0500       .
+222       .       1       .       1 27.00000  13.0000       .
+225       1       .       .       1 38.00000  90.0000       1
+228       .       .       1       1 20.50000   7.2500       .
+231       1       .       .       . 35.00000  83.4750       1
+234       .       .       1       .  5.00000  31.3875       6
+239       .       1       .       1 19.00000  10.5000       .
+241       .       .       1       . 29.93737  14.4542       1
+250       .       1       .       1 54.00000  26.0000       1
+251       .       .       1       1 29.93737   7.2500       .
+256       .       .       1       . 29.00000  15.2458       2
+260       .       1       .       . 50.00000  26.0000       1
+261       .       .       1       1 29.93737   7.7500       .
+263       1       .       .       1 52.00000  79.6500       2
+268       .       .       1       1 25.00000   7.7750       1
+271       1       .       .       1 29.93737  31.0000       .
+272       .       .       1       1 25.00000   .            .
+274       1       .       .       1 37.00000  29.7000       1
+277       .       .       1       . 45.00000   7.7500       .
+279       .       .       1       1  7.00000  29.1250       5
+282       .       .       1       1 28.00000   7.8542       .
+283       .       .       1       1 16.00000   9.5000       .
+284       .       .       1       1 19.00000   8.0500       .
+295       .       .       1       1 24.00000   7.8958       .
+301       .       .       1       . 29.93737   7.7500       .
+308       1       .       .       . 17.00000 108.9000       1
+310       1       .       .       . 30.00000  56.9292       .
+312       1       .       .       . 18.00000 262.3750       4
+313       .       1       .       . 26.00000  26.0000       2
+314       .       .       1       1 28.00000   7.8958       .
+318       .       1       .       1 54.00000  14.0000       .
+321       .       .       1       1 22.00000   7.2500       .
+326       1       .       .       . 36.00000 135.6333       .
+328       .       1       .       . 36.00000  13.0000       .
+333       1       .       .       1 38.00000 153.4625       1
+334       .       .       1       1 16.00000  18.0000       2
+338       1       .       .       . 41.00000 134.5000       .
+344       .       1       .       1 25.00000  13.0000       .
+347       .       1       .       . 40.00000  13.0000       .
+351       .       .       1       1 23.00000   9.2250       .
+358       .       1       .       . 38.00000  13.0000       .
+359       .       .       1       . 29.93737   7.8792       .
+364       .       .       1       1 35.00000   7.0500       .
+369       .       .       1       . 29.93737   7.7500       .
+375       .       .       1       .  3.00000  21.0750       4
+378       1       .       .       1 27.00000 211.5000       2
+380       .       .       1       1 19.00000   7.7750       .
+400       .       1       .       . 28.00000  12.6500       .
+403       .       .       1       . 21.00000   9.8250       1
+409       .       .       1       1 21.00000   7.7750       .
+412       .       .       1       1 29.93737   6.8583       .
+413       1       .       .       . 33.00000  90.0000       1
+415       .       .       1       1 44.00000   7.9250       .
+416       .       .       1       . 29.93737   8.0500       .
+418       .       1       .       . 18.00000  13.0000       2
+419       .       1       .       1 30.00000  13.0000       .
+420       .       .       1       . 10.00000  24.1500       2
+424       .       .       1       . 28.00000  14.4000       2
+427       .       1       .       . 28.00000  26.0000       1
+430       .       .       1       1 32.00000   8.0500       .
+436       1       .       .       . 14.00000 120.0000       3
+440       .       1       .       1 31.00000  10.5000       .
+441       .       1       .       . 45.00000  26.2500       2
+442       .       .       1       1 20.00000   9.5000       .
+445       .       .       1       1 29.93737   8.1125       .
+447       .       1       .       . 13.00000  19.5000       1
+448       1       .       .       1 34.00000  26.5500       .
+450       1       .       .       1 52.00000  30.5000       .
+452       .       .       1       1 29.93737  19.9667       1
+455       .       .       1       1 29.93737   8.0500       .
+457       1       .       .       1 65.00000  26.5500       .
+458       1       .       .       . 29.93737  51.8625       1
+462       .       .       1       1 34.00000   8.0500       .
+467       .       1       .       1 29.93737   .            .
+469       .       .       1       1 29.93737   7.7250       .
+473       .       1       .       . 33.00000  27.7500       3
+476       1       .       .       1 29.93737  52.0000       .
+477       .       1       .       1 34.00000  21.0000       1
+478       .       .       1       1 29.00000   7.0458       1
+482       .       1       .       1 29.93737   .            .
+483       .       .       1       1 50.00000   8.0500       .
+488       1       .       .       1 58.00000  29.7000       .
+490       .       .       1       1  9.00000  15.9000       2
+492       .       .       1       1 21.00000   7.2500       .
+495       .       .       1       1 21.00000   8.0500       .
+496       .       .       1       1 29.93737  14.4583       .
+510       .       .       1       1 26.00000  56.4958       .
+515       .       .       1       1 24.00000   7.4958       .
+520       .       .       1       1 32.00000   7.8958       .
+523       .       .       1       1 29.93737   7.2250       .
+525       .       .       1       1 29.93737   7.2292       .
+527       .       1       .       . 50.00000  10.5000       .
+529       .       .       1       1 39.00000   7.9250       .
+531       .       1       .       .  2.00000  26.0000       2
+534       .       .       1       . 29.93737  22.3583       2
+539       .       .       1       1 29.93737  14.5000       .
+540       1       .       .       . 22.00000  49.5000       2
+550       .       1       .       1  8.00000  36.7500       2
+551       1       .       .       1 17.00000 110.8833       2
+554       .       .       1       1 22.00000   7.2250       .
+562       .       .       1       1 40.00000   7.8958       .
+566       .       .       1       1 24.00000  24.1500       2
+571       .       1       .       1 62.00000  10.5000       .
+572       1       .       .       . 53.00000  51.4792       2
+574       .       .       1       . 29.93737   7.7500       .
+582       1       .       .       . 39.00000 110.8833       2
+583       .       1       .       1 54.00000  26.0000       .
+586       1       .       .       . 18.00000  79.6500       2
+589       .       .       1       1 22.00000   8.0500       .
+599       .       .       1       1 29.93737   7.2250       .
+602       .       .       1       1 29.93737   7.8958       .
+604       .       .       1       1 44.00000   8.0500       .
+607       .       .       1       1 30.00000   7.8958       .
+620       .       1       .       1 26.00000  10.5000       .
+628       1       .       .       . 21.00000  77.9583       .
+629       .       .       1       1 26.00000   7.8958       .
+630       .       .       1       1 29.93737   7.7333       .
+632       .       .       1       1 51.00000   7.0542       .
+636       .       1       .       . 28.00000  13.0000       .
+643       .       .       1       .  2.00000  27.9000       5
+652       .       1       .       . 18.00000  23.0000       1
+653       .       .       1       1 21.00000   8.4333       .
+657       .       .       1       1 29.93737   7.8958       .
+660       1       .       .       1 58.00000 113.2750       2
+664       .       .       1       1 36.00000   7.4958       .
+665       .       .       1       1 20.00000   7.9250       1
+666       .       1       .       1 32.00000  73.5000       2
+669       .       .       1       1 43.00000   8.0500       .
+672       1       .       .       1 31.00000  52.0000       1
+673       .       1       .       1 70.00000  10.5000       .
+675       .       1       .       1 29.93737   .            .
+676       .       .       1       1 18.00000   7.7750       .
+680       1       .       .       1 36.00000 512.3292       1
+684       .       .       1       1 14.00000  46.9000       7
+685       .       1       .       1 60.00000  39.0000       2
+686       .       1       .       1 25.00000  41.5792       3
+688       .       .       1       1 19.00000  10.1708       .
+696       .       1       .       1 52.00000  13.5000       .
+697       .       .       1       1 44.00000   8.0500       .
+698       .       .       1       . 29.93737   7.7333       .
+700       .       .       1       1 42.00000   7.6500       .
+706       .       1       .       1 39.00000  26.0000       .
+707       .       1       .       . 45.00000  13.5000       .
+711       1       .       .       . 24.00000  49.5042       .
+715       .       1       .       1 52.00000  13.0000       .
+722       .       .       1       1 17.00000   7.0542       1
+724       .       1       .       1 50.00000  13.0000       .
+727       .       1       .       . 30.00000  21.0000       3
+731       1       .       .       . 29.00000 211.3375       .
+733       .       1       .       1 29.93737   .            .
+734       .       1       .       1 23.00000  13.0000       .
+741       1       .       .       1 29.93737  30.0000       .
+746       1       .       .       1 70.00000  71.0000       2
+747       .       .       1       1 16.00000  20.2500       2
+748       .       1       .       . 30.00000  13.0000       .
+751       .       1       .       .  4.00000  23.0000       2
+756       .       1       .       1  0.67000  14.5000       2
+758       .       1       .       1 18.00000  11.5000       .
+761       .       .       1       1 29.93737  14.5000       .
+765       .       .       1       1 16.00000   7.7750       .
+772       .       .       1       1 48.00000   7.8542       .
+775       .       1       .       . 54.00000  23.0000       4
+776       .       .       1       1 18.00000   7.7500       .
+779       .       .       1       1 29.93737   7.7375       .
+785       .       .       1       1 25.00000   7.0500       .
+787       .       .       1       . 18.00000   7.4958       .
+788       .       .       1       1  8.00000  29.1250       5
+798       .       .       1       . 31.00000   8.6833       .
+802       .       1       .       . 31.00000  26.2500       2
+805       .       .       1       1 27.00000   6.9750       .
+807       1       .       .       1 39.00000   .            .
+809       .       1       .       1 39.00000  13.0000       .
+810       1       .       .       . 33.00000  53.1000       1
+814       .       .       1       .  6.00000  31.2750       6
+818       .       1       .       1 31.00000  37.0042       2
+820       .       .       1       1 10.00000  27.9000       5
+821       1       .       .       . 52.00000  93.5000       2
+829       .       .       1       1 29.93737   7.7500       .
+830       1       .       .       . 62.00000  80.0000       .
+834       .       .       1       1 23.00000   7.8542       .
+837       .       .       1       1 21.00000   8.6625       .
+839       .       .       1       1 32.00000  56.4958       .
+841       .       .       1       1 20.00000   7.9250       .
+842       .       1       .       1 16.00000  10.5000       .
+844       .       .       1       1 34.50000   6.4375       .
+848       .       .       1       1 35.00000   7.8958       .
+854       1       .       .       . 16.00000  39.4000       1
+863       1       .       .       . 48.00000  25.9292       .
+866       .       1       .       . 42.00000  13.0000       .
+869       .       .       1       1 29.93737   9.5000       .
+870       .       .       1       1  4.00000  11.1333       2
+873       1       .       .       1 33.00000   5.0000       .
+875       .       1       .       . 28.00000  24.0000       1
+876       .       .       1       . 15.00000   7.2250       .
+884       .       1       .       1 28.00000  10.5000       .
+890       1       .       .       1 26.00000  30.0000       .
+891       .       .       1       1 32.00000   7.7500       .</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Convert Factor Var. into Numeric Var. for Target</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>train.y <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>( <span class="fu">as.character</span>( titanic.trd.Imp<span class="sc">$</span>Survived ))  </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>train.y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 0 1 1 0 0 0 1 1 1 1 0 0 1 0 1 0 1 0 0 0 1 0 0 1 1 0 0 0 0 0 1 0 0 0 1 0 1 0 0 0 1 0 1 0 0 1 0 0 0 0 0 1 0 0 1 1 1 1 0 1 1 0 1 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 1 0 0 0 1 1
+ [98] 0 1 0 0 0 0 0 0 0 1 0 0 1 0 0 1 0 0 1 0 0 0 0 0 0 1 1 1 0 0 1 0 1 1 0 0 1 0 0 0 0 1 0 0 1 0 1 0 0 1 1 0 1 0 0 0 0 1 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 1 1 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 1 0 1 0 0 0
+[195] 1 0 1 1 1 1 0 0 0 0 0 1 1 1 0 1 0 1 1 0 1 0 1 1 1 1 0 1 1 0 0 1 1 1 0 1 0 0 1 0 1 1 0 0 1 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 1 1 1 1 0 0 0 1 1 0 1 1 0 1 0 0 0 1 0 1 1 1 0 1 1 0 0 0 0 1 0 0 0 0 0 1 0
+[292] 0 0 1 0 0 0 0 0 1 0 1 1 1 0 0 0 1 0 0 1 1 1 0 0 1 1 1 0 1 0 0 0 0 0 1 0 0 1 0 0 1 0 1 1 0 1 0 0 0 0 1 0 0 0 0 0 0 0 1 0 1 1 0 1 0 1 1 0 1 0 1 1 0 1 0 0 0 0 0 0 1 0 1 1 0 0 1 0 0 1 1 0 0 0 1 0 1
+[389] 0 1 1 0 0 0 0 0 0 0 1 1 0 0 1 1 0 1 1 0 0 0 1 0 0 1 0 0 0 0 1 0 1 1 0 1 0 1 1 1 0 0 1 0 0 1 0 0 1 0 1 1 0 0 0 0 1 1 0 0 0 0 0 0 0 1 1 1 1 0 1 0 1 0 1 0 0 0 0 1 0 0 0 0 1 1 1 0 1 0 0 1 0 0 0 1 1
+[486] 1 1 0 0 0 1 1 0 0 0 1 1 1 0 1 0 0 1 1 0 0 1 0 1 0 1 0 0 0 0 0 0 1 0 0 0 1 0 1 0 0 1 0 0 1 0 0 1 0 1 1 1 0 0 0 0 0 0 0 0 1 1 1 1 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 1 1 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 1
+[583] 1 1 0 0 1 0 1 1 0 0 0 0 1 0 0 0 0 1 1 1 1 0 0 0 0 0 1 0 0 1 0 0 0 0 1 1 0 0 0 0 0 1 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Convert to xgb.DMatrix object</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>train_matrix <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(<span class="at">data =</span> <span class="fu">as.matrix</span>(trainm),</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">label =</span> train.y)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>train_matrix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>xgb.DMatrix  dim: 625 x 7  info: label  colnames: yes</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>test_matrix  <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(<span class="at">data =</span> <span class="fu">as.matrix</span>(testm))</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>test_matrix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>xgb.DMatrix  dim: 266 x 7  info: NA  colnames: yes</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)                                                         <span class="co"># Seed 고정 -&gt; 동일한 결과를 출력하기 위해</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>titanic.xgb <span class="ot">&lt;-</span> <span class="fu">xgb.train</span>(<span class="at">data =</span> train_matrix,  </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">watchlist =</span> <span class="fu">list</span>(<span class="at">train =</span> train_matrix),      <span class="co"># 모형 구축하는 동안 오차를 계산하기 위해</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">nrounds =</span> <span class="dv">50</span>,                                <span class="co"># nrounds : 반복 수(= 생성하고자 하는 트리 개수) </span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">params =</span> <span class="fu">list</span>(<span class="at">objective =</span> <span class="st">"binary:logistic"</span>, <span class="co"># 손실함수</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">eta =</span> <span class="fl">0.01</span>,                    <span class="co"># 학습률</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">gamma =</span> <span class="dv">0</span>,                     <span class="co"># 분할하기 위해 필요한 최소 손실 감소/ 클수록 분할이 쉽게 일어나지 않음</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">max_depth =</span> <span class="dv">5</span>,                 <span class="co"># 트리의 최대 깊이</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">min_child_weight =</span> <span class="dv">1</span>,          <span class="co"># 분할하기 위해 필요한 case의 최소 가중치 합/ 클수록 분할이 쉽게 일어나지 않음</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">subsample =</span> <span class="dv">1</span>,                 <span class="co"># 트리를 생성할 때 Dataset으로부터 사용할 case 비율</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">lambda =</span> <span class="dv">1</span>),                   <span class="co"># 규제항</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>                         <span class="at">early_stopping_rounds =</span> <span class="dv">10</span>)                  <span class="co"># 만약 10번 이후의 반복에서 손실이 개선되지 않으면 조기 종료</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] train-logloss:0.688079 
+Will train until train_logloss hasn't improved in 10 rounds.
+
+[2] train-logloss:0.683130 
+[3] train-logloss:0.678273 
+[4] train-logloss:0.673507 
+[5] train-logloss:0.668828 
+[6] train-logloss:0.664236 
+[7] train-logloss:0.659727 
+[8] train-logloss:0.655300 
+[9] train-logloss:0.650952 
+[10]    train-logloss:0.646683 
+[11]    train-logloss:0.642489 
+[12]    train-logloss:0.638370 
+[13]    train-logloss:0.634324 
+[14]    train-logloss:0.630348 
+[15]    train-logloss:0.626442 
+[16]    train-logloss:0.622604 
+[17]    train-logloss:0.618832 
+[18]    train-logloss:0.615125 
+[19]    train-logloss:0.611482 
+[20]    train-logloss:0.607900 
+[21]    train-logloss:0.604354 
+[22]    train-logloss:0.600892 
+[23]    train-logloss:0.597488 
+[24]    train-logloss:0.594115 
+[25]    train-logloss:0.590823 
+[26]    train-logloss:0.587585 
+[27]    train-logloss:0.584375 
+[28]    train-logloss:0.581246 
+[29]    train-logloss:0.578169 
+[30]    train-logloss:0.575088 
+[31]    train-logloss:0.572083 
+[32]    train-logloss:0.569150 
+[33]    train-logloss:0.566249 
+[34]    train-logloss:0.563356 
+[35]    train-logloss:0.560515 
+[36]    train-logloss:0.557747 
+[37]    train-logloss:0.554994 
+[38]    train-logloss:0.552294 
+[39]    train-logloss:0.549525 
+[40]    train-logloss:0.546895 
+[41]    train-logloss:0.544207 
+[42]    train-logloss:0.541557 
+[43]    train-logloss:0.539005 
+[44]    train-logloss:0.536474 
+[45]    train-logloss:0.533901 
+[46]    train-logloss:0.531511 
+[47]    train-logloss:0.529220 
+[48]    train-logloss:0.526885 
+[49]    train-logloss:0.524640 
+[50]    train-logloss:0.522387 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Training Error Plot</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(titanic.xgb<span class="sc">$</span>evaluation_log<span class="sc">$</span>train_logloss, </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">col =</span> <span class="st">"blue"</span>,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">"l"</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"iter"</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Error"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="XGBoost_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 변수 중요도</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>importance <span class="ot">&lt;-</span> <span class="fu">xgb.importance</span>(<span class="at">feature_names =</span> <span class="fu">colnames</span>(trainm), <span class="at">model =</span> titanic.xgb)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>importance</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Feature       Gain      Cover  Frequency
+    &lt;char&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;
+1: Sexmale 0.53265933 0.24761708 0.07331378
+2: Pclass3 0.16199525 0.09080070 0.07771261
+3: FamSize 0.10389248 0.06846369 0.22727273
+4:     Age 0.09835220 0.22891257 0.22873900
+5: Pclass1 0.06029680 0.13526143 0.06598240
+6:    Fare 0.04280394 0.22894454 0.32697947</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 변수 중요도 plot</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">xgb.plot.importance</span>(<span class="at">importance_matrix =</span> importance) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="XGBoost_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Result!</code> 변수 <code>Sexmale</code>이 Target <code>Survived</code>을 분류하는 데 있어 중요하다.</p>
+</section>
+<section id="모형-평가" class="level2" data-number="16.7">
+<h2 data-number="16.7" class="anchored" data-anchor-id="모형-평가"><span class="header-section-number">16.7</span> 모형 평가</h2>
+<p><code>Caution!</code> 모형 평가를 위해 <code>Test Dataset</code>에 대한 <code>예측 class/확률</code> 이 필요하며, 함수 <code>predict()</code>를 이용하여 생성한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># "Survived = 1"에 대한 예측 확률 생성</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>test.xgb.prob <span class="ot">&lt;-</span> <span class="fu">predict</span>(titanic.xgb,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">newdata =</span> test_matrix)        <span class="co"># Test Dataset including Only 예측 변수</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>test.xgb.prob <span class="sc">%&gt;%</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 266 × 1
+   value
+   &lt;dbl&gt;
+ 1 0.676
+ 2 0.442
+ 3 0.342
+ 4 0.653
+ 5 0.420
+ 6 0.342
+ 7 0.497
+ 8 0.331
+ 9 0.342
+10 0.636
+# ℹ 256 more rows</code></pre>
+</div>
+</div>
+<p><br></p>
+<section id="confusionmatrix" class="level3" data-number="16.7.1">
+<h3 data-number="16.7.1" class="anchored" data-anchor-id="confusionmatrix"><span class="header-section-number">16.7.1</span> ConfusionMatrix</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 예측 class 생성</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>cv <span class="ot">&lt;-</span> <span class="fl">0.5</span>                                                          <span class="co"># Cutoff Value</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>test.xgb.class <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(<span class="fu">ifelse</span>(test.xgb.prob <span class="sc">&gt;</span> cv, <span class="st">"1"</span>, <span class="st">"0"</span>))  <span class="co"># 예측 확률 &gt; cv이면 "Survived = 1" 아니면 "Survived = 0"</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>test.xgb.class <span class="sc">%&gt;%</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  as_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 266 × 1
+   value
+   &lt;fct&gt;
+ 1 1    
+ 2 0    
+ 3 0    
+ 4 1    
+ 5 0    
+ 6 0    
+ 7 0    
+ 8 0    
+ 9 0    
+10 1    
+# ℹ 256 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>CM   <span class="ot">&lt;-</span> caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(test.xgb.class, titanic.ted.Imp<span class="sc">$</span>Survived, </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>                               <span class="at">positive =</span> <span class="st">"1"</span>)         <span class="co"># confusionMatrix(예측 class, 실제 class, positive = "관심 class")</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>CM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction   0   1
+         0 156  33
+         1   8  69
+                                          
+               Accuracy : 0.8459          
+                 95% CI : (0.7968, 0.8871)
+    No Information Rate : 0.6165          
+    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+                                          
+                  Kappa : 0.6582          
+                                          
+ Mcnemar's Test P-Value : 0.0001781       
+                                          
+            Sensitivity : 0.6765          
+            Specificity : 0.9512          
+         Pos Pred Value : 0.8961          
+         Neg Pred Value : 0.8254          
+             Prevalence : 0.3835          
+         Detection Rate : 0.2594          
+   Detection Prevalence : 0.2895          
+      Balanced Accuracy : 0.8138          
+                                          
+       'Positive' Class : 1               
+                                          </code></pre>
+</div>
+</div>
+<p><br></p>
+</section>
+<section id="roc-곡선" class="level3" data-number="16.7.2">
+<h3 data-number="16.7.2" class="anchored" data-anchor-id="roc-곡선"><span class="header-section-number">16.7.2</span> ROC 곡선</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>ac  <span class="ot">&lt;-</span> titanic.ted.Imp<span class="sc">$</span>Survived                        <span class="co"># Test Dataset의 실제 class </span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>pp  <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(test.xgb.prob)                       <span class="co"># 예측 확률을 수치형으로 변환</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="package-proc" class="level4" data-number="16.7.2.1">
+<h4 data-number="16.7.2.1" class="anchored" data-anchor-id="package-proc"><span class="header-section-number">16.7.2.1</span> Package “pROC”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"pROC"</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>xgb.roc  <span class="ot">&lt;-</span> <span class="fu">roc</span>(ac, pp, <span class="at">plot =</span> T, <span class="at">col =</span> <span class="st">"gray"</span>)        <span class="co"># roc(실제 class, 예측 확률)</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>auc      <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">auc</span>(xgb.roc), <span class="dv">3</span>)</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"bottomright"</span>, <span class="at">legend =</span> auc, <span class="at">bty =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="XGBoost_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>Caution!</code> Package <code>"pROC"</code>를 통해 출력한 ROC 곡선은 다양한 함수를 이용해서 그래프를 수정할 수 있다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 함수 plot.roc() 이용</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.roc</span>(xgb.roc,   </span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">col=</span><span class="st">"gray"</span>,                                   <span class="co"># Line Color</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.auc =</span> <span class="cn">TRUE</span>,                             <span class="co"># AUC 출력 여부</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.auc.col =</span> <span class="st">"red"</span>,                        <span class="co"># AUC 글씨 색깔</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.thres =</span> <span class="cn">TRUE</span>,                           <span class="co"># Cutoff Value 출력 여부</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.thres.pch =</span> <span class="dv">19</span>,                         <span class="co"># Cutoff Value를 표시하는 도형 모양</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">print.thres.col =</span> <span class="st">"red"</span>,                      <span class="co"># Cutoff Value를 표시하는 도형의 색깔</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">auc.polygon =</span> <span class="cn">TRUE</span>,                           <span class="co"># 곡선 아래 면적에 대한 여부</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">auc.polygon.col =</span> <span class="st">"gray90"</span>)                   <span class="co"># 곡선 아래 면적의 색깔</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="XGBoost_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 함수 ggroc() 이용</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggroc</span>(xgb.roc) <span class="sc">+</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">0.9</span>, <span class="at">y =</span> <span class="fl">1.0</span>,</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="at">label =</span> <span class="fu">paste</span>(<span class="st">"AUC = "</span>, auc),</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="at">size =</span> <span class="dv">5</span>,</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="at">color=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="XGBoost_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="package-epi" class="level4" data-number="16.7.2.2">
+<h4 data-number="16.7.2.2" class="anchored" data-anchor-id="package-epi"><span class="header-section-number">16.7.2.2</span> Package “Epi”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"Epi"</span>)       </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install_version("etm", version = "1.1", repos = "http://cran.us.r-project.org")</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ROC</span>(pp, ac, <span class="at">plot =</span> <span class="st">"ROC"</span>)                              <span class="co"># ROC(예측 확률, 실제 class)  </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="XGBoost_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="package-rocr" class="level4" data-number="16.7.2.3">
+<h4 data-number="16.7.2.3" class="anchored" data-anchor-id="package-rocr"><span class="header-section-number">16.7.2.3</span> Package “ROCR”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"ROCR"</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>xgb.pred <span class="ot">&lt;-</span> <span class="fu">prediction</span>(pp, ac)                         <span class="co"># prediction(예측 확률, 실제 class) </span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>xgb.perf <span class="ot">&lt;-</span> <span class="fu">performance</span>(xgb.pred, <span class="st">"tpr"</span>, <span class="st">"fpr"</span>)        <span class="co"># performance(, "민감도", "1-특이도")                      </span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(xgb.perf, <span class="at">col =</span> <span class="st">"gray"</span>)                           <span class="co"># ROC Curve</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>perf.auc   <span class="ot">&lt;-</span> <span class="fu">performance</span>(xgb.pred, <span class="st">"auc"</span>)             <span class="co"># AUC</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>auc        <span class="ot">&lt;-</span> <span class="fu">attributes</span>(perf.auc)<span class="sc">$</span>y.values</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"bottomright"</span>, <span class="at">legend =</span> auc, <span class="at">bty =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="XGBoost_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><br></p>
+</section>
+</section>
+<section id="향상-차트" class="level3" data-number="16.7.3">
+<h3 data-number="16.7.3" class="anchored" data-anchor-id="향상-차트"><span class="header-section-number">16.7.3</span> 향상 차트</h3>
+<section id="package-rocr-1" class="level4" data-number="16.7.3.1">
+<h4 data-number="16.7.3.1" class="anchored" data-anchor-id="package-rocr-1"><span class="header-section-number">16.7.3.1</span> Package “ROCR”</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>xgb.perf <span class="ot">&lt;-</span> <span class="fu">performance</span>(xgb.pred, <span class="st">"lift"</span>, <span class="st">"rpp"</span>)       <span class="co"># Lift Chart                      </span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(xgb.perf, <span class="at">main =</span> <span class="st">"lift curve"</span>,</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">colorize =</span> T,                                     <span class="co"># Coloring according to cutoff </span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">lwd =</span> <span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="XGBoost_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./GBM.html" class="pagination-link" aria-label="Gradient Boosting">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Gradient Boosting</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/JJJJYE/ML_book1/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer><script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
