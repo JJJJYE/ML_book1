@@ -1,0 +1,36 @@
+---
+title: "Welcome"
+format: html
+number-sections: false
+editor: visual
+author:
+    - name: Y.E. Jeon
+      affiliations:
+      - Gyeongkuk National University
+    - name: J.W. Lee
+      affiliations:
+      - University of Missouri
+    - name: J.I. Seo
+      affiliations:
+      - Gyeongkuk National University
+---
+
+------------------------------------------------------------------------
+
+# About
+
+This book provides a practical introduction to applying **data mining techniques using R**, focusing on implementing and interpreting key algorithms without complex model tuning.
+
+This book takes a **data mining-oriented perspective**, guiding readers through the basic workflow of data preprocessing, modeling, and result interpretation. It is designed to be approachable for beginners, with clear explanations and example-based demonstrations.
+
+Key features of the book include:
+
+-   Conceptual overviews and practical motivations behind each algorithm
+-   A step-by-step analysis process in R: from preprocessing to modeling and evaluation
+-   Application of algorithms using default settings, without hyperparameter tuning
+-   Example code using real-world datasets
+-   Simple interpretation of analysis results
+
+This book is intended for **students, graduate researchers, data analysis beginners, and practitioners**, focusing more on **practical implementation and interpretation** than on theoretical depth or algorithmic comparisons.
+
+By prioritizing understanding the structure of the data and following a consistent analysis workflow, readers will gain the ability to independently apply fundamental data mining techniques using R in real-world settings.
