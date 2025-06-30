@@ -14,7 +14,7 @@ author:
       affiliations:
       - Gyeongkuk National University
 resources:
-  - DATA/**
+  - Data/**
 ---
 
 ------------------------------------------------------------------------
@@ -37,5 +37,5 @@ This book is intended for **students, graduate researchers, data analysis beginn
 
 By prioritizing understanding the structure of the data and following a consistent analysis workflow, readers will gain the ability to independently apply fundamental data mining techniques using R in real-world settings.
 
-※ Download Example Data: [Here](https://jjjjye.github.io/ML_book1/DATA/DATA.zip)
+※ Download Example Data: [Here](https://jjjjye.github.io/ML_book1/Data/Data.zip)
 
