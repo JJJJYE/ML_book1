@@ -2,7 +2,7 @@
 title: "Elastic Net Regression"
 format: 
   html:
-    theme: zephyr
+    theme: cosmo
     smooth-scroll: true
     toc: true
     toc-location: right
