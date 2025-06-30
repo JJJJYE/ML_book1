@@ -18,6 +18,7 @@ book:
         - SVM_li.qmd
         - SVM_po.qmd
         - SVM_rd.qmd
+        - Discriminant.qmd
         - Clustering.qmd
         - Principal.qmd
         - Logistic.qmd

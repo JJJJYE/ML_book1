@@ -8,7 +8,7 @@
 
 <meta name="author" content="Young Eun Jeon, Jeong-Wook Lee, and Jung-In Seo">
 
-<title>7&nbsp; Cluster Analysis based on k-means – Data Mining</title>
+<title>8&nbsp; Cluster Analysis based on k-means – Data Mining</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -66,7 +66,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./Principal.html" rel="next">
-<link href="./SVM_rd.html" rel="prev">
+<link href="./Discriminant.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -147,7 +147,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./Clustering.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./Clustering.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -222,62 +222,68 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./Discriminant.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Discriminant Analysis</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./Clustering.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Principal.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span></a>
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Logistic.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Logistic Regression</span></span></a>
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Logistic Regression</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./LASSO.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">LASSO Regression</span></span></a>
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">LASSO Regression</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ridge.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Ridge Regression</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Ridge Regression</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Elasticnet.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Elastic Net Regression</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Elastic Net Regression</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./RF.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Random Forest</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Random Forest</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./AdaBoost.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">AdaBoost</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">AdaBoost</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./GBM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Gradient Boosting</span></span></a>
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gradient Boosting</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./XGBoost.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">XGBoost</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">XGBoost</span></span></a>
   </div>
 </li>
       </ul>
@@ -292,28 +298,28 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#데이터-불러오기" id="toc-데이터-불러오기" class="nav-link active" data-scroll-target="#데이터-불러오기"><span class="header-section-number">7.1</span> 데이터 불러오기</a></li>
-  <li><a href="#데이터-전처리-i" id="toc-데이터-전처리-i" class="nav-link" data-scroll-target="#데이터-전처리-i"><span class="header-section-number">7.2</span> 데이터 전처리 I</a></li>
-  <li><a href="#데이터-탐색" id="toc-데이터-탐색" class="nav-link" data-scroll-target="#데이터-탐색"><span class="header-section-number">7.3</span> 데이터 탐색</a></li>
-  <li><a href="#데이터-분할" id="toc-데이터-분할" class="nav-link" data-scroll-target="#데이터-분할"><span class="header-section-number">7.4</span> 데이터 분할</a></li>
-  <li><a href="#데이터-전처리-ii" id="toc-데이터-전처리-ii" class="nav-link" data-scroll-target="#데이터-전처리-ii"><span class="header-section-number">7.5</span> 데이터 전처리 II</a></li>
-  <li><a href="#계층적-군집분석" id="toc-계층적-군집분석" class="nav-link" data-scroll-target="#계층적-군집분석"><span class="header-section-number">7.6</span> 계층적 군집분석</a>
+  <li><a href="#데이터-불러오기" id="toc-데이터-불러오기" class="nav-link active" data-scroll-target="#데이터-불러오기"><span class="header-section-number">8.1</span> 데이터 불러오기</a></li>
+  <li><a href="#데이터-전처리-i" id="toc-데이터-전처리-i" class="nav-link" data-scroll-target="#데이터-전처리-i"><span class="header-section-number">8.2</span> 데이터 전처리 I</a></li>
+  <li><a href="#데이터-탐색" id="toc-데이터-탐색" class="nav-link" data-scroll-target="#데이터-탐색"><span class="header-section-number">8.3</span> 데이터 탐색</a></li>
+  <li><a href="#데이터-분할" id="toc-데이터-분할" class="nav-link" data-scroll-target="#데이터-분할"><span class="header-section-number">8.4</span> 데이터 분할</a></li>
+  <li><a href="#데이터-전처리-ii" id="toc-데이터-전처리-ii" class="nav-link" data-scroll-target="#데이터-전처리-ii"><span class="header-section-number">8.5</span> 데이터 전처리 II</a></li>
+  <li><a href="#계층적-군집분석" id="toc-계층적-군집분석" class="nav-link" data-scroll-target="#계층적-군집분석"><span class="header-section-number">8.6</span> 계층적 군집분석</a>
   <ul class="collapse">
-  <li><a href="#거리행렬-계산" id="toc-거리행렬-계산" class="nav-link" data-scroll-target="#거리행렬-계산"><span class="header-section-number">7.6.1</span> 거리행렬 계산</a></li>
-  <li><a href="#계층적-군집분석-1" id="toc-계층적-군집분석-1" class="nav-link" data-scroll-target="#계층적-군집분석-1"><span class="header-section-number">7.6.2</span> 계층적 군집분석</a></li>
-  <li><a href="#덴드로그램" id="toc-덴드로그램" class="nav-link" data-scroll-target="#덴드로그램"><span class="header-section-number">7.6.3</span> 덴드로그램</a></li>
-  <li><a href="#거리행렬만-주어진-경우" id="toc-거리행렬만-주어진-경우" class="nav-link" data-scroll-target="#거리행렬만-주어진-경우"><span class="header-section-number">7.6.4</span> 거리행렬만 주어진 경우</a></li>
+  <li><a href="#거리행렬-계산" id="toc-거리행렬-계산" class="nav-link" data-scroll-target="#거리행렬-계산"><span class="header-section-number">8.6.1</span> 거리행렬 계산</a></li>
+  <li><a href="#계층적-군집분석-1" id="toc-계층적-군집분석-1" class="nav-link" data-scroll-target="#계층적-군집분석-1"><span class="header-section-number">8.6.2</span> 계층적 군집분석</a></li>
+  <li><a href="#덴드로그램" id="toc-덴드로그램" class="nav-link" data-scroll-target="#덴드로그램"><span class="header-section-number">8.6.3</span> 덴드로그램</a></li>
+  <li><a href="#거리행렬만-주어진-경우" id="toc-거리행렬만-주어진-경우" class="nav-link" data-scroll-target="#거리행렬만-주어진-경우"><span class="header-section-number">8.6.4</span> 거리행렬만 주어진 경우</a></li>
   </ul></li>
-  <li><a href="#군집-개수-결정" id="toc-군집-개수-결정" class="nav-link" data-scroll-target="#군집-개수-결정"><span class="header-section-number">7.7</span> 군집 개수 결정</a>
+  <li><a href="#군집-개수-결정" id="toc-군집-개수-결정" class="nav-link" data-scroll-target="#군집-개수-결정"><span class="header-section-number">8.7</span> 군집 개수 결정</a>
   <ul class="collapse">
-  <li><a href="#fviz_nbclust" id="toc-fviz_nbclust" class="nav-link" data-scroll-target="#fviz_nbclust"><span class="header-section-number">7.7.1</span> “fviz_nbclust”</a></li>
-  <li><a href="#nbclust" id="toc-nbclust" class="nav-link" data-scroll-target="#nbclust"><span class="header-section-number">7.7.2</span> “NbClust”</a></li>
+  <li><a href="#fviz_nbclust" id="toc-fviz_nbclust" class="nav-link" data-scroll-target="#fviz_nbclust"><span class="header-section-number">8.7.1</span> “fviz_nbclust”</a></li>
+  <li><a href="#nbclust" id="toc-nbclust" class="nav-link" data-scroll-target="#nbclust"><span class="header-section-number">8.7.2</span> “NbClust”</a></li>
   </ul></li>
-  <li><a href="#비계층적-군집분석k-means" id="toc-비계층적-군집분석k-means" class="nav-link" data-scroll-target="#비계층적-군집분석k-means"><span class="header-section-number">7.8</span> 비계층적 군집분석(k-means)</a>
+  <li><a href="#비계층적-군집분석k-means" id="toc-비계층적-군집분석k-means" class="nav-link" data-scroll-target="#비계층적-군집분석k-means"><span class="header-section-number">8.8</span> 비계층적 군집분석(k-means)</a>
   <ul class="collapse">
-  <li><a href="#lloyd" id="toc-lloyd" class="nav-link" data-scroll-target="#lloyd"><span class="header-section-number">7.8.1</span> Lloyd</a></li>
-  <li><a href="#macqueen" id="toc-macqueen" class="nav-link" data-scroll-target="#macqueen"><span class="header-section-number">7.8.2</span> MacQueen</a></li>
-  <li><a href="#hartigan-wong" id="toc-hartigan-wong" class="nav-link" data-scroll-target="#hartigan-wong"><span class="header-section-number">7.8.3</span> Hartigan-Wong</a></li>
+  <li><a href="#lloyd" id="toc-lloyd" class="nav-link" data-scroll-target="#lloyd"><span class="header-section-number">8.8.1</span> Lloyd</a></li>
+  <li><a href="#macqueen" id="toc-macqueen" class="nav-link" data-scroll-target="#macqueen"><span class="header-section-number">8.8.2</span> MacQueen</a></li>
+  <li><a href="#hartigan-wong" id="toc-hartigan-wong" class="nav-link" data-scroll-target="#hartigan-wong"><span class="header-section-number">8.8.3</span> Hartigan-Wong</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/JJJJYE/ML_book1/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -321,9 +327,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./Clustering.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Welcome</a></li><li class="breadcrumb-item"><a href="./Clustering.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></h1>
+<h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Cluster Analysis based on k-means</span></h1>
 </div>
 
 
@@ -340,8 +346,8 @@ window.Quarto = {
 </header>
 
 
-<section id="데이터-불러오기" class="level2" data-number="7.1">
-<h2 data-number="7.1" class="anchored" data-anchor-id="데이터-불러오기"><span class="header-section-number">7.1</span> 데이터 불러오기</h2>
+<section id="데이터-불러오기" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="데이터-불러오기"><span class="header-section-number">8.1</span> 데이터 불러오기</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"data.table"</span>, </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">"tidyverse"</span>, </span>
@@ -376,8 +382,8 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="데이터-전처리-i" class="level2" data-number="7.2">
-<h2 data-number="7.2" class="anchored" data-anchor-id="데이터-전처리-i"><span class="header-section-number">7.2</span> 데이터 전처리 I</h2>
+<section id="데이터-전처리-i" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="데이터-전처리-i"><span class="header-section-number">8.2</span> 데이터 전처리 I</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>protein.df <span class="ot">&lt;-</span> protein <span class="sc">%&gt;%</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  data.frame <span class="sc">%&gt;%</span>                                            <span class="co"># Data Frame 형태로 변환</span></span>
@@ -398,8 +404,8 @@ Denmark        10.6 10.8 3.7 25.0 9.9 21.9 4.8 0.7 2.4</code></pre>
 </div>
 </div>
 </section>
-<section id="데이터-탐색" class="level2" data-number="7.3">
-<h2 data-number="7.3" class="anchored" data-anchor-id="데이터-탐색"><span class="header-section-number">7.3</span> 데이터 탐색</h2>
+<section id="데이터-탐색" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="데이터-탐색"><span class="header-section-number">8.3</span> 데이터 탐색</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(protein.df,</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">upper =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"density"</span>),</span>
@@ -432,8 +438,8 @@ Denmark        10.6 10.8 3.7 25.0 9.9 21.9 4.8 0.7 2.4</code></pre>
 </div>
 </div>
 </section>
-<section id="데이터-분할" class="level2" data-number="7.4">
-<h2 data-number="7.4" class="anchored" data-anchor-id="데이터-분할"><span class="header-section-number">7.4</span> 데이터 분할</h2>
+<section id="데이터-분할" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="데이터-분할"><span class="header-section-number">8.4</span> 데이터 분할</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Partition (Training Dataset : Test Dataset = 7:3)</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
@@ -443,8 +449,8 @@ Denmark        10.6 10.8 3.7 25.0 9.9 21.9 4.8 0.7 2.4</code></pre>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>protein.ted <span class="ot">&lt;-</span> protein.df[<span class="sc">-</span>ind,]                            <span class="co"># Test Dataset</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="데이터-전처리-ii" class="level2" data-number="7.5">
-<h2 data-number="7.5" class="anchored" data-anchor-id="데이터-전처리-ii"><span class="header-section-number">7.5</span> 데이터 전처리 II</h2>
+<section id="데이터-전처리-ii" class="level2" data-number="8.5">
+<h2 data-number="8.5" class="anchored" data-anchor-id="데이터-전처리-ii"><span class="header-section-number">8.5</span> 데이터 전처리 II</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Standardization</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>preProcValues <span class="ot">&lt;-</span> <span class="fu">preProcess</span>(protein.trd,</span>
@@ -483,8 +489,8 @@ $ x9 &lt;dbl&gt; -1.4176966, 0.2897200, 0.0927104, 1.7344571, 0.2240501, 2.65383
 </div>
 </div>
 </section>
-<section id="계층적-군집분석" class="level2" data-number="7.6">
-<h2 data-number="7.6" class="anchored" data-anchor-id="계층적-군집분석"><span class="header-section-number">7.6</span> 계층적 군집분석</h2>
+<section id="계층적-군집분석" class="level2" data-number="8.6">
+<h2 data-number="8.6" class="anchored" data-anchor-id="계층적-군집분석"><span class="header-section-number">8.6</span> 계층적 군집분석</h2>
 <ul>
 <li>계층적 군집분석은 거리가 가까운 군집을 하나씩 묶어가면서 군집을 형성하는 방법이다.
 <ul>
@@ -505,8 +511,8 @@ $ x9 &lt;dbl&gt; -1.4176966, 0.2897200, 0.0927104, 1.7344571, 0.2240501, 2.65383
 </ul></li>
 <li>계층적 군집분석은 군집 간의 case 이동이 불가능하다는 단점이 있다.</li>
 </ul>
-<section id="거리행렬-계산" class="level3" data-number="7.6.1">
-<h3 data-number="7.6.1" class="anchored" data-anchor-id="거리행렬-계산"><span class="header-section-number">7.6.1</span> 거리행렬 계산</h3>
+<section id="거리행렬-계산" class="level3" data-number="8.6.1">
+<h3 data-number="8.6.1" class="anchored" data-anchor-id="거리행렬-계산"><span class="header-section-number">8.6.1</span> 거리행렬 계산</h3>
 <ul>
 <li>계층적 군집분석을 수행하기 전에 case 간의 거리를 계산하여 거리행렬을 생성한다.</li>
 <li>거리행렬을 생성하기 위해 함수 <code>dist()</code>를 이용하며, 거리를 계산하는 방법은 옵션 <code>method</code>에 지정할 수 있다.
@@ -606,8 +612,8 @@ Greece      5.917754 4.069820 4.853851 5.817338 5.983267  5.564533    4.319030 4
 </div>
 <p><code>Caution!</code> 모든 거리행렬을 이용하여 분석을 수행하면 시간이 오래 걸리기 때문에 본 예제에서는 유클리드 거리에 기반한 거리행렬만 이용한다.</p>
 </section>
-<section id="계층적-군집분석-1" class="level3" data-number="7.6.2">
-<h3 data-number="7.6.2" class="anchored" data-anchor-id="계층적-군집분석-1"><span class="header-section-number">7.6.2</span> 계층적 군집분석</h3>
+<section id="계층적-군집분석-1" class="level3" data-number="8.6.2">
+<h3 data-number="8.6.2" class="anchored" data-anchor-id="계층적-군집분석-1"><span class="header-section-number">8.6.2</span> 계층적 군집분석</h3>
 <ul>
 <li>계층적 군집분석은 함수 <code>hclust()</code>를 이용하여 수행할 수 있으며, 옵션 <code>method</code>에 군집 간 거리를 정의하는 방법을 지정할 수 있다.
 <ul>
@@ -722,8 +728,8 @@ Greece       0.05405714 -1.4715007 -0.23793156 -0.173463875  0.7036111  0.713830
 </div>
 </div>
 </section>
-<section id="덴드로그램" class="level3" data-number="7.6.3">
-<h3 data-number="7.6.3" class="anchored" data-anchor-id="덴드로그램"><span class="header-section-number">7.6.3</span> 덴드로그램</h3>
+<section id="덴드로그램" class="level3" data-number="8.6.3">
+<h3 data-number="8.6.3" class="anchored" data-anchor-id="덴드로그램"><span class="header-section-number">8.6.3</span> 덴드로그램</h3>
 <ul>
 <li>계층적 군집분석의 장점은 덴드로그램을 쉽게 얻을 수 있다는 것이며, 덴드로그램을 통해 case의 군집 형성 과정을 한 눈에 살펴볼 수 있다.</li>
 </ul>
@@ -842,8 +848,8 @@ Greece       0.05405714 -1.4715007 -0.23793156 -0.173463875  0.7036111  0.713830
 </div>
 </div>
 </section>
-<section id="거리행렬만-주어진-경우" class="level3" data-number="7.6.4">
-<h3 data-number="7.6.4" class="anchored" data-anchor-id="거리행렬만-주어진-경우"><span class="header-section-number">7.6.4</span> 거리행렬만 주어진 경우</h3>
+<section id="거리행렬만-주어진-경우" class="level3" data-number="8.6.4">
+<h3 data-number="8.6.4" class="anchored" data-anchor-id="거리행렬만-주어진-경우"><span class="header-section-number">8.6.4</span> 거리행렬만 주어진 경우</h3>
 <ul>
 <li>Dataset의 예측 변수 값은 주어지지 않았으며, 거리행렬만 알고 있는 경우 계층적 군집분석을 수행하는 절차는 다음과 같다.
 <ol type="1">
@@ -934,8 +940,8 @@ Greece       0.05405714 -1.4715007 -0.23793156 -0.173463875  0.7036111  0.713830
 </div>
 </section>
 </section>
-<section id="군집-개수-결정" class="level2" data-number="7.7">
-<h2 data-number="7.7" class="anchored" data-anchor-id="군집-개수-결정"><span class="header-section-number">7.7</span> 군집 개수 결정</h2>
+<section id="군집-개수-결정" class="level2" data-number="8.7">
+<h2 data-number="8.7" class="anchored" data-anchor-id="군집-개수-결정"><span class="header-section-number">8.7</span> 군집 개수 결정</h2>
 <ul>
 <li>군집 개수를 결정하는 것은 쉽지 않은 문제이며, 여러 가지 지표들을 이용하여 적절한 군집 개수를 찾는 것이 바람직하다.</li>
 <li>계층적 군집분석은 자료의 계층적 구조에 주된 관심이 있으며, 덴드로그램을 통해 적절한 군집 개수를 결정할 수 있다.
@@ -945,8 +951,8 @@ Greece       0.05405714 -1.4715007 -0.23793156 -0.173463875  0.7036111  0.713830
 </ul></li>
 <li>자료의 모분포에 대한 적절한 가정 하에서 통계적 가설검정를 통해 군집의 개수를 알아보는 방법들도 있으나, 이들도 일반적으로 만족할 만한 타당성을 제공하지 않는다.</li>
 </ul>
-<section id="fviz_nbclust" class="level3" data-number="7.7.1">
-<h3 data-number="7.7.1" class="anchored" data-anchor-id="fviz_nbclust"><span class="header-section-number">7.7.1</span> “fviz_nbclust”</h3>
+<section id="fviz_nbclust" class="level3" data-number="8.7.1">
+<h3 data-number="8.7.1" class="anchored" data-anchor-id="fviz_nbclust"><span class="header-section-number">8.7.1</span> “fviz_nbclust”</h3>
 <ul>
 <li>Package <code>"factoextra"</code>에서 제공하는 함수 <code>fviz_nbclust()</code>를 이용하여 군집 개수에 따른 특정 통계량의 변화를 알 수 있다.
 <ul>
@@ -989,8 +995,8 @@ Greece       0.05405714 -1.4715007 -0.23793156 -0.173463875  0.7036111  0.713830
 </div>
 <p><code>Result!</code> 군집의 개수가 2개일 때, 평균 실루엣 계수가 가장 높으므로 최적의 군집 개수를 2개로 선택할 수 있다.</p>
 </section>
-<section id="nbclust" class="level3" data-number="7.7.2">
-<h3 data-number="7.7.2" class="anchored" data-anchor-id="nbclust"><span class="header-section-number">7.7.2</span> “NbClust”</h3>
+<section id="nbclust" class="level3" data-number="8.7.2">
+<h3 data-number="8.7.2" class="anchored" data-anchor-id="nbclust"><span class="header-section-number">8.7.2</span> “NbClust”</h3>
 <ul>
 <li>Package <code>"NbClust"</code>에서 제공하는 함수 <code>NbClust()</code>는 앞에서 설명한 통계량(<code>"wss"</code>, <code>"silhouette"</code>)을 포함하여 30개의 통계량에 의해 군집의 개수를 결정할 수 있다.</li>
 <li>함수 <code>NbClust()</code>의 자세한 옵션은 <a href="https://www.rdocumentation.org/packages/NbClust/versions/3.0.1/topics/NbClust">여기</a>를 참고한다.</li>
@@ -1130,8 +1136,8 @@ $Best.partition
 </div>
 </section>
 </section>
-<section id="비계층적-군집분석k-means" class="level2" data-number="7.8">
-<h2 data-number="7.8" class="anchored" data-anchor-id="비계층적-군집분석k-means"><span class="header-section-number">7.8</span> 비계층적 군집분석(k-means)</h2>
+<section id="비계층적-군집분석k-means" class="level2" data-number="8.8">
+<h2 data-number="8.8" class="anchored" data-anchor-id="비계층적-군집분석k-means"><span class="header-section-number">8.8</span> 비계층적 군집분석(k-means)</h2>
 <blockquote class="blockquote">
 <p>k-means의 장점</p>
 </blockquote>
@@ -1166,10 +1172,10 @@ $Best.partition
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"twidlr"</span>)                                       <span class="co"># For predict of "kmeans"</span></span>
 <span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a><span class="co"># devtools::install_github("drsimonj/twidlr")                  # Install Package "twidlr"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="lloyd" class="level3" data-number="7.8.1">
-<h3 data-number="7.8.1" class="anchored" data-anchor-id="lloyd"><span class="header-section-number">7.8.1</span> Lloyd</h3>
-<section id="모형-훈련" class="level4" data-number="7.8.1.1">
-<h4 data-number="7.8.1.1" class="anchored" data-anchor-id="모형-훈련"><span class="header-section-number">7.8.1.1</span> 모형 훈련</h4>
+<section id="lloyd" class="level3" data-number="8.8.1">
+<h3 data-number="8.8.1" class="anchored" data-anchor-id="lloyd"><span class="header-section-number">8.8.1</span> Lloyd</h3>
+<section id="모형-훈련" class="level4" data-number="8.8.1.1">
+<h4 data-number="8.8.1.1" class="anchored" data-anchor-id="모형-훈련"><span class="header-section-number">8.8.1.1</span> 모형 훈련</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
 <span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>protein.Lloyd <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(protein.trd, </span>
@@ -1204,8 +1210,8 @@ Available components:
 <p><code>Caution!</code> k-means는 초기 중심값을 랜덤하게 선택하기 때문에 이 과정에서 다양한 결과가 나타날 수 있다. 그래서 <code>nstart</code>를 이용하여 수행 횟수를 늘려 최대한 다양한 초기 중심값에 대해 k-means를 수행하고 최적의 결과를 찾을 수 있다.<br>
 <code>Result!</code> 각 군집에 속한 case 수는 11, 6이며, “Within cluster sum of squares by cluster”를 살펴보면 42.6%의 변동이 2개의 군집으로 설명되고 있다.</p>
 </section>
-<section id="예측" class="level4" data-number="7.8.1.2">
-<h4 data-number="7.8.1.2" class="anchored" data-anchor-id="예측"><span class="header-section-number">7.8.1.2</span> 예측</h4>
+<section id="예측" class="level4" data-number="8.8.1.2">
+<h4 data-number="8.8.1.2" class="anchored" data-anchor-id="예측"><span class="header-section-number">8.8.1.2</span> 예측</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test Dataset에 대한 군집 번호 예측</span></span>
 <span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>pred.Lloyd <span class="ot">&lt;-</span> <span class="fu">predict</span>(protein.Lloyd,</span>
@@ -1262,10 +1268,10 @@ Available components:
 </div>
 </section>
 </section>
-<section id="macqueen" class="level3" data-number="7.8.2">
-<h3 data-number="7.8.2" class="anchored" data-anchor-id="macqueen"><span class="header-section-number">7.8.2</span> MacQueen</h3>
-<section id="모형-훈련-1" class="level4" data-number="7.8.2.1">
-<h4 data-number="7.8.2.1" class="anchored" data-anchor-id="모형-훈련-1"><span class="header-section-number">7.8.2.1</span> 모형 훈련</h4>
+<section id="macqueen" class="level3" data-number="8.8.2">
+<h3 data-number="8.8.2" class="anchored" data-anchor-id="macqueen"><span class="header-section-number">8.8.2</span> MacQueen</h3>
+<section id="모형-훈련-1" class="level4" data-number="8.8.2.1">
+<h4 data-number="8.8.2.1" class="anchored" data-anchor-id="모형-훈련-1"><span class="header-section-number">8.8.2.1</span> 모형 훈련</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
 <span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>protein.MacQ <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(protein.trd, </span>
@@ -1299,8 +1305,8 @@ Available components:
 </div>
 <p><code>Result!</code> 각 군집에 속한 case 수는 11, 6이며, “Within cluster sum of squares by cluster”를 살펴보면 42.6%의 변동이 2개의 군집으로 설명되고 있다.</p>
 </section>
-<section id="예측-1" class="level4" data-number="7.8.2.2">
-<h4 data-number="7.8.2.2" class="anchored" data-anchor-id="예측-1"><span class="header-section-number">7.8.2.2</span> 예측</h4>
+<section id="예측-1" class="level4" data-number="8.8.2.2">
+<h4 data-number="8.8.2.2" class="anchored" data-anchor-id="예측-1"><span class="header-section-number">8.8.2.2</span> 예측</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test Dataset에 대한 군집 번호 예측</span></span>
 <span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>pred.MacQ <span class="ot">&lt;-</span> <span class="fu">predict</span>(protein.MacQ,</span>
@@ -1357,10 +1363,10 @@ Available components:
 </div>
 </section>
 </section>
-<section id="hartigan-wong" class="level3" data-number="7.8.3">
-<h3 data-number="7.8.3" class="anchored" data-anchor-id="hartigan-wong"><span class="header-section-number">7.8.3</span> Hartigan-Wong</h3>
-<section id="모형-훈련-2" class="level4" data-number="7.8.3.1">
-<h4 data-number="7.8.3.1" class="anchored" data-anchor-id="모형-훈련-2"><span class="header-section-number">7.8.3.1</span> 모형 훈련</h4>
+<section id="hartigan-wong" class="level3" data-number="8.8.3">
+<h3 data-number="8.8.3" class="anchored" data-anchor-id="hartigan-wong"><span class="header-section-number">8.8.3</span> Hartigan-Wong</h3>
+<section id="모형-훈련-2" class="level4" data-number="8.8.3.1">
+<h4 data-number="8.8.3.1" class="anchored" data-anchor-id="모형-훈련-2"><span class="header-section-number">8.8.3.1</span> 모형 훈련</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
 <span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>protein.HW <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(protein.trd, </span>
@@ -1394,8 +1400,8 @@ Available components:
 </div>
 <p><code>Result!</code> 각 군집에 속한 case 수는 11, 6이며, “Within cluster sum of squares by cluster”를 살펴보면 42.6%의 변동이 2개의 군집으로 설명되고 있다.</p>
 </section>
-<section id="예측-2" class="level4" data-number="7.8.3.2">
-<h4 data-number="7.8.3.2" class="anchored" data-anchor-id="예측-2"><span class="header-section-number">7.8.3.2</span> 예측</h4>
+<section id="예측-2" class="level4" data-number="8.8.3.2">
+<h4 data-number="8.8.3.2" class="anchored" data-anchor-id="예측-2"><span class="header-section-number">8.8.3.2</span> 예측</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test Dataset에 대한 군집 번호 예측</span></span>
 <span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>pred.HW <span class="ot">&lt;-</span> <span class="fu">predict</span>(protein.HW,</span>
@@ -1876,13 +1882,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./SVM_rd.html" class="pagination-link" aria-label="Support Vector Machine with Radial Basis Kernel">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Support Vector Machine with Radial Basis Kernel</span></span>
+      <a href="./Discriminant.html" class="pagination-link" aria-label="Discriminant Analysis">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Discriminant Analysis</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="./Principal.html" class="pagination-link" aria-label="Principal Component Analysis">
-        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

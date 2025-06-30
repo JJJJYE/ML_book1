@@ -13,3 +13,14 @@
   margin-bottom: 6px;
 }
 
+.sidebar nav ul li a:hover {
+  color: #0272bd; /* 텍스트 색상 */
+    background-color: transparent !important; /* 배경색 없애기 */
+    text-decoration: none; /* 밑줄도 제거 */
+}
+
+.sidebar-item a:hover {
+  color: #0272bd; /* 텍스트 색상 */
+   background-color: transparent !important; /* 배경색 없애기 */
+   text-decoration: none; /* 밑줄도 제거 */
+}
